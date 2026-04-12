@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>科大门训打卡</title>
-   <link rel="icon" href="./icon_ios_v2.png" type="image/png">
+    <link rel="icon" href="./icon_ios_v2.png" type="image/png">
     <link rel="apple-touch-icon" href="./icon_ios_v2.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;800;900&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
@@ -187,8 +188,8 @@
     <div class="container">
         <div class="header">
             <div class="brand-wrapper">
-                <div class="logo-text">Amen</div>
-                <div class="brand-name">Grace On Heshan</div>
+                <div class="logo-text">ZUST</div>
+                <div class="brand-name">ZheKe Checkin</div>
             </div>
             <h1>科大门训打卡</h1>
             
@@ -325,6 +326,53 @@
         const MEMBERS = ["顺丞", "信择", "明明", "亮亮", "杰涛", "嘉杰", "慕智", "贝贝", "银华", "青青", "依萱", "喜悦", "胡蜜", "馨香", "虹伊", "刘欣"]; 
         const TOTAL_MEMBERS = MEMBERS.length;
 
+        // ================= 📅 自动化周课排期引擎 =================
+        // 请根据你的《门训安排表.xlsx》在这里添加接下来的每周安排！
+        // 网站会自动根据今天的日期，展示对应的课件、视频和背诵经文。
+        const WEEKLY_SCHEDULE = [
+            { 
+                start: "2026-04-06", 
+                end: "2026-04-12", 
+                title: "《基督是一切》马太福音：基督是我们的王", 
+                video: "新约圣经-01-211209-圣经引言(上)", 
+                verse: "罗马书 7:1-5", 
+                url: "http://nas.restinhim.online:5002/Newtestament/L1.mp4" 
+            },
+            { 
+                start: "2026-04-13", 
+                end: "2026-04-19", 
+                title: "《基督是一切》马可福音：基督是神的仆人", 
+                video: "新约圣经-02-马可福音导读", 
+                verse: "罗马书 8:1-5", 
+                url: "http://nas.restinhim.online:5002/Newtestament/L2.mp4" 
+            },
+            { 
+                start: "2026-04-20", 
+                end: "2026-04-26", 
+                title: "《基督是一切》路加福音：基督是人子", 
+                video: "新约圣经-03-路加福音导读", 
+                verse: "罗马书 8:6-11", 
+                url: "http://nas.restinhim.online:5002/Newtestament/L3.mp4" 
+            },
+            { 
+                start: "2026-04-27", 
+                end: "2026-05-03", 
+                title: "《基督是一切》约翰福音：基督是神子", 
+                video: "新约圣经-04-约翰福音导读", 
+                verse: "罗马书 8:12-17", 
+                url: "http://nas.restinhim.online:5002/Newtestament/L4.mp4" 
+            },
+            { 
+                start: "2026-05-04", 
+                end: "2026-05-10", 
+                title: "《基督是一切》使徒行传：基督的见证", 
+                video: "新约圣经-05-使徒行传导读", 
+                verse: "罗马书 8:18-25", 
+                url: "http://nas.restinhim.online:5002/Newtestament/L5.mp4" 
+            }
+        ];
+
+
         let REAL_TODAY = new Date(), viewingDate = new Date(), globalRecords = [], currentProfileName = "", pendingCancel = null;
         const fontStackQuotes = `"Noto Serif SC", "Kaiti SC", STKaiti, "Songti SC", FangSong, STFangsong, serif`;
 
@@ -348,13 +396,11 @@
 
         // ================= 🎬 视频播放引擎 (带标题优化) =================
         function openVideo(url, title) {
-            // 优化标题：显示更简洁，移除多余部分
             let cleanTitle = title.split('211209-')[1] || title; // 移除日期前缀
             document.getElementById('video-modal-title').innerText = cleanTitle;
             const player = document.getElementById('main-video-player');
             player.src = url;
             document.getElementById('video-overlay').classList.add('show');
-            // 尝试自动播放，忽略报错
             player.play().catch(e => console.log("Autoplay prevented:", e));
         }
 
@@ -365,7 +411,7 @@
             document.getElementById('video-overlay').classList.remove('show');
         }
 
-       // ================= 🌍 WordProject 经文引擎 (极简物理内嵌版) =================
+        // ================= 🌍 WordProject 经文引擎 (极简物理内嵌版) =================
         async function openScriptureOnline(refStr) {
             document.getElementById('reading-title').innerText = `背经 | ${refStr}`;
             document.getElementById('reading-overlay').classList.add('show');
@@ -535,18 +581,28 @@
 
         function closeReading() { document.getElementById('reading-overlay').classList.remove('show'); }
 
+        // ================= 🌟 每日计划渲染引擎 (自动匹配排期) =================
         function getTodayPlan() {
             const bDate = new Date(viewingDate); bDate.setDate(bDate.getDate() + 100);
             const bMonth = bDate.getMonth() + 1; const bDay = bDate.getDate();
             const targetChineseDate = `${toChineseNum(bMonth)}月${toChineseNum(bDay)}日`;
             
-            // ================= 📚 任务卡片 UI =================
-            const weeklyTitleStr = "《基督是一切》马太福音：基督是我们的王"; 
-            const videoStr = "新约圣经-01-211209-圣经引言(上)";
-            const verseStr = "罗马书 7:1-5";
+            // 核心排期路由：根据 viewingDate 找出对应的周课内容
+            const viewStr = getSafeDateString(viewingDate);
+            let currentWeekData = WEEKLY_SCHEDULE[0]; // 默认兜底为第一个安排
             
-            // ⚠️ 物理直链
-            const videoUrl = "http://nas.restinhim.online:5777/Newtestament/L1.mp4";
+            for (let weekPlan of WEEKLY_SCHEDULE) {
+                if (viewStr >= weekPlan.start && viewStr <= weekPlan.end) {
+                    currentWeekData = weekPlan;
+                    break;
+                }
+            }
+            
+            // 从排期表中提取对应内容
+            const weeklyTitleStr = currentWeekData.title; 
+            const videoStr = currentWeekData.video;
+            const verseStr = currentWeekData.verse;
+            const videoUrl = currentWeekData.url;
             
             const tagUI = `<div style="margin-top:12px; background:rgba(56,178,172,0.06); padding:12px 14px; border-radius:12px; border-left: 4px solid var(--secondary);">
                 <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:12px; display:flex; align-items:center;">
@@ -712,7 +768,7 @@
             event.target.value = '';
         }
 
-         const BIBLE_VERSES = [
+        const BIBLE_VERSES = [
             {content: "你当刚强壮胆！不要惧怕，也不要惊惶。因为你无论往哪里去，耶和华你的神必与你同在。", ref: "约书亚记 1:9"},
             {content: "疲乏的，他赐能力；软弱的，他加力量。", ref: "以赛亚书 40:29"},
             {content: "但那等候耶和华的必重新得力。他们必如鹰展翅上腾；他们奔跑却不困倦，行走却不疲乏。", ref: "以赛亚书 40:31"},
@@ -721,135 +777,7 @@
             {content: "耶和华是我的力量，我的诗歌，也成了我的拯救。", ref: "出埃及记 15:2"},
             {content: "你们当刚强壮胆，不要害怕，也不要畏惧他们，因为耶和华你的神和你同去。他必不撇下你，也不丢弃你。", ref: "申命记 31:6"},
             {content: "耶和华是我的亮光，是我的拯救，我还怕谁呢？耶和华是我性命的保障，我还惧谁呢？", ref: "诗篇 27:1"},
-            {content: "神是我们的避难所，是我们的力量，是我们在患难中随时的帮助。", ref: "诗篇 46:1"},
-            {content: "万军之耶和华与我们同在；雅各的神是我们的避难所！", ref: "诗篇 46:7"},
-            {content: "所以，我们不丧胆。外体虽然毁坏，内心却一天新似一天。", ref: "哥林多后书 4:16"},
-            {content: "我对你们说这些事，是要使你们在我里面有平安。在世上你们有患难，但你们放心，我已经胜了这世界。", ref: "约翰福音 16:33"},
-            {content: "因为神赐给我们，不是胆怯的心，乃是刚强、仁爱、谨守的心。", ref: "提摩太后书 1:7"},
-            {content: "你们务要警醒，在真道上站立得稳，要作大丈夫，要刚强。", ref: "哥林多前书 16:13"},
-            {content: "我要求告当赞美的耶和华，这样我必从仇敌手中被救出来。", ref: "诗篇 18:3"},
-            {content: "我的肉体和我的心肠衰退；但神是我心里的力量，又是我的福分，直到永远。", ref: "诗篇 73:26"},
-            {content: "主耶和华是我的力量；他使我的脚快如母鹿的蹄，又使我稳行在高处。", ref: "哈巴谷书 3:19"},
-            {content: "他对我说：我的恩典够你用的，因为我的能力是在人的软弱上显得完全。", ref: "哥林多后书 12:9"},
-            {content: "应当一无挂虑，只要凡事藉着祷告、祈求，和感谢，将你们所要的告诉神。神所赐出人意外的平安必在基督耶稣里保守你们的心怀意念。", ref: "腓立比书 4:6-7"},
-            {content: "我留下平安给你们；我将我的平安赐给你们。我所赐的，不像世人所赐的。你们心里不要忧愁，也不要胆怯。", ref: "约翰福音 14:27"},
-            {content: "凡劳苦担重担的人可以到我这里来，我就使你们得安息。", ref: "马太福音 11:28"},
-            {content: "你们要将一切的忧虑卸给神，因为他顾念你们。", ref: "彼得前书 5:7"},
-            {content: "坚心倚赖你的，你必保守他十分平安，因为他倚靠你。", ref: "以赛亚书 26:3"},
-            {content: "耶和华是我的牧者，我必不至缺乏。", ref: "诗篇 23:1"},
-            {content: "我虽然行过死荫的幽谷，也不怕遭害，因为你与我同在；你的杖，你的竿，都安慰我。", ref: "诗篇 23:4"},
-            {content: "你要把你的重担卸给耶和华，他必抚养你；他永不叫义人动摇。", ref: "诗篇 55:22"},
-            {content: "我必安然躺下睡觉，因为独有你耶和华使我安然居住。", ref: "诗篇 4:8"},
-            {content: "耶和华必赐力量给他的百姓；耶和华必赐平安的福给他的百姓。", ref: "诗篇 29:11"},
-            {content: "愿赐平安的主随时随事亲自赐给你们平安！愿主常与你们众人同在！", ref: "帖撒罗尼迦后书 3:16"},
-            {content: "他在一切患难中安慰我们，叫我们能用神所赐的安慰去安慰那遭各样患难的人。", ref: "哥林多后书 1:4"},
-            {content: "因为他心里怎样思量，他为人就是怎样。", ref: "箴言 23:7"},
-            {content: "大山可以挪开，小山可以迁移；但我的慈爱必不离开你，我平安的约也不迁移。", ref: "以赛亚书 54:10"},
-            {content: "耶和华靠近伤心的人，拯救灵性痛悔的人。", ref: "诗篇 34:18"},
-            {content: "他医好伤心的人，裹好他们的伤处。", ref: "诗篇 147:3"},
-            {content: "耶和华说：我知道我向你们所怀的意念是赐平安的意念，不是降灾祸的意念，要叫你们末后有指望。", ref: "耶利米书 29:11"},
-            {content: "但愿使人有盼望的神，因信将诸般的喜乐、平安充满你们的心，使你们藉着圣灵的能力大有盼望！", ref: "罗马书 15:13"},
-            {content: "你的话是我脚前的灯，是我路上的光。", ref: "诗篇 119:105"},
-            {content: "你要专心仰赖耶和华，不可倚靠自己的聪明。在你一切所行的事上，都要认定他，他必指引你的路。", ref: "箴言 3:5-6"},
-            {content: "人心筹算自己的道路；惟耶和华指引他的脚步。", ref: "箴言 16:9"},
-            {content: "我要教导你，指示你当行的路；我要定睛在你身上劝戒你。", ref: "诗篇 32:8"},
-            {content: "义人的路好像黎明的光，越照越明，直到日午。", ref: "箴言 4:18"},
-            {content: "因为罪的工价乃是死；惟有神的恩赐，在我们的主基督耶稣里，乃是永生。", ref: "罗马书 6:23"},
-            {content: "我们晓得万事都互相效力，叫爱神的人得益处，就是按他旨意被召的人。", ref: "罗马书 8:28"},
-            {content: "信就是所望之事的实底，是未见之事的确据。", ref: "希伯来书 11:1"},
-            {content: "在指望中要喜乐；在患难中要忍耐；祷告要恒切。", ref: "罗马书 12:12"},
-            {content: "我们得救是在乎盼望；只是所见的盼望不是盼望，谁还盼望他所见的呢？", ref: "罗马书 8:24"},
-            {content: "仰望为我们信心创始成终的耶稣。", ref: "希伯来书 12:2"},
-            {content: "求你用你的话使我脚步稳当，不许什么罪孽辖制我。", ref: "诗篇 119:133"},
-            {content: "你求告我，我就应允你，并将你所不知道、又大又难的事指示你。", ref: "耶利米书 33:3"},
-            {content: "我们有这指望，如同灵魂的锚，又坚固又牢靠，且通入幔内。", ref: "希伯来书 6:19"},
-            {content: "耶稣对他说：你若能信，在信的人，凡事都能。", ref: "马可福音 9:23"},
-            {content: "人非有信，就不能得神的喜悦；因为到神面前来的人必须信有神，且信他赏赐那寻求他的人。", ref: "希伯来书 11:6"},
-            {content: "当将你的事交托耶和华，并倚靠他，他就必成全。", ref: "诗篇 37:5"},
-            {content: "你要保守你心，胜过保守一切，因为一生的果效是由心发出。", ref: "箴言 4:23"},
-            {content: "敬畏耶和华是智慧的开端；认识至圣者便是聪明。", ref: "箴言 9:10"},
-            {content: "你所做的，要交托耶和华，你所谋的，就必成立。", ref: "箴言 16:3"},
-            {content: "你们要先求他的国和他的义，这些东西都要加给你们了。", ref: "马太福音 6:33"},
-            {content: "所以不要为明天忧虑，因为明天自有明天的忧虑；一天的难处一天当就够了。", ref: "马太福音 6:34"},
-            {content: "你们祈求，就给你们；寻找，就寻见；叩门，就给你们开门。", ref: "马太福音 7:7"},
-            {content: "所以我告诉你们，凡你们祷告祈求的，无论是什么，只要信是得着的，就必得着。", ref: "马可福音 11:24"},
-            {content: "因为，出于神的话，没有一句不带能力的。", ref: "路加福音 1:37"},
-            {content: "你们若常在我里面，我的话也常在你们里面，凡你们所愿意的，祈求，就给你们成就。", ref: "约翰福音 15:7"},
-            {content: "可见，信道是从听道来的，听道是从基督的话来的。", ref: "罗马书 10:17"},
-            {content: "因我们行事为人是凭着信心，不是凭着眼见。", ref: "哥林多后书 5:7"},
-            {content: "只要凭着信心求，一点不疑惑；因为那疑惑的人，就像海中的波浪，被风吹动翻腾。", ref: "雅各书 1:6"},
-            {content: "投靠耶和华，强似倚赖人。", ref: "诗篇 118:8"},
-            {content: "神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。", ref: "约翰福音 3:16"},
-            {content: "惟有基督在我们还作罪人的时候为我们死，神的爱就在此向我们显明了。", ref: "罗马书 5:8"},
-            {content: "爱是恒久忍耐，又有恩慈；爱是不嫉妒；爱是不自夸，不张狂。", ref: "哥林多前书 13:4"},
-            {content: "凡事包容，凡事相信，凡事盼望，凡事忍耐.爱是永不止息。", ref: "哥林多前书 13:7-8"},
-            {content: "如今常存的有信，有望，有爱这三样，其中最大的是爱。", ref: "哥林多前书 13:13"},
-            {content: "我们爱，因为神先爱我们。", ref: "约翰一书 4:19"},
-            {content: "爱里没有惧怕；爱既完全，就把惧怕除去。", ref: "约翰一书 4:18"},
-            {content: "你们得救是本乎恩，也因着信；这并不是出于自己，乃是神所赐的。", ref: "以弗所书 2:8"},
-            {content: "神能将各样的恩惠多多地加给你们，使你们凡事常常充足，能多行各样善事。", ref: "哥林多后书 9:8"},
-            {content: "并要以恩慈相待，存怜悯的心，彼此饶恕，正如神在基督里饶恕了你们一样。", ref: "以弗所书 4:32"},
-            {content: "最要紧的是彼此切实相爱，因为爱能遮掩许多的罪。", ref: "彼得前书 4:8"},
-            {content: "我们不至消灭，是出于耶和华诸般的慈爱；是因他的怜悯不至断绝。每早晨，这都是新的；你的诚实极其广大！", ref: "耶利米哀歌 3:22-23"},
-            {content: "耶和华你的神是施行拯救、大有能力的主.他在你中间必因你欢欣喜乐，默然爱你，且因你喜乐而欢呼。", ref: "西番雅书 3:17"},
-            {content: "你们饶恕人的过犯，你们的天父也必饶恕你们的过犯。", ref: "马太福音 6:14"},
-            {content: "凡你们所做的都要凭爱心而做。", ref: "哥林多前书 16:14"},
-            {content: "我们行善，不可丧志；若不灰心，到了时候就要收成。", ref: "加拉太书 6:9"},
-            {content: "我的弟兄们，你们落在百般试炼中，都要以为大喜乐；因为知道你们的信心经过试验，就生忍耐。", ref: "雅各书 1:2-3"},
-            {content: "你们中间若有缺少智慧的，应当求那厚赐与众人、也不斥责人的神，主就必赐给他。", ref: "雅各书 1:5"},
-            {content: "忍受试探的人是有福的，因为他经过试验以后，必得生命的冠冕，这是主应许给那些爱他之人的。", ref: "雅各书 1:12"},
-            {content: "我深信那在你们心里动了善工的，必成全这工，直到耶稣基督的日子。", ref: "腓立比书 1:6"},
-            {content: "你们所遇见的试探，无非是人所能受的.神是信实的，必不叫你们受试探过于所能受的；在受试探的时候，总要给你们开一条出路，叫你们能忍受得住。", ref: "哥林多前书 10:13"},
-            {content: "我们既有这许多的见证人，如同云彩围着我们，就当放下各样的重担，脱去容易缠累我们的罪，存心忍耐，奔那摆在我们前头的路程。", ref: "希伯来书 12:1"},
-            {content: "你们要靠主常常喜乐.我再说，你们要喜乐。", ref: "腓立比书 4:4"},
-            {content: "常常喜乐，不住地祷告，凡事谢恩；因为这是神在基督耶稣里向你们所定的旨意。", ref: "帖撒罗尼迦前书 5:16-18"},
-            {content: "圣经都是神所默示的，于教训、督责、使人归正、教导人学义都是有益的。", ref: "提摩太后书 3:16"},
-            {content: "神的道是活泼的，是有功效的，比一切两刃的剑更快，甚至魂与灵，骨节与骨髓，都能刺入、剖开，连心中的思念和主意都能辨明。", ref: "希伯来书 4:12"},
-            {content: "所以，我们只管坦然无惧地来到施恩的宝座前，为要得怜恤，蒙恩惠，作随时的帮助。", ref: "希伯来书 4:16"},
-            {content: "务要传道，无论得时不得时，总要专心，并用百般的忍耐、各样的教训责备人，警戒人，劝勉人。", ref: "提摩太后书 4:2"},
-            {content: "凡管教的事，当时不觉得快乐，反觉得愁苦；后来却为那经练过的人结出平安的果子，就是义。", ref: "希伯来书 12:11"},
-            {content: "但你们得在基督耶稣里是本乎神，神又使他成为我们的智慧、公义、圣洁、救赎。", ref: "哥林多前书 1:30"},
-            {content: "所以弟兄们，我以神的慈悲劝你们，将身体献上，当作活祭，是圣洁的，是神所喜悦的；你们如此事奉乃是理所当然的。", ref: "罗马书 12:1"},
-            {content: "不要效法这个世界，只要心意更新而变化，叫你们察验何为神的善良、纯全、可喜悦的旨意。", ref: "罗马书 12:2"},
-            {content: "若有人在基督里，他就是新造的人，旧事已过，都变成新的了。", ref: "哥林多后书 5:17"},
-            {content: "我已经与基督同钉十字架，现在活着的不再是我，乃是基督在我里面活着。", ref: "加拉太书 2:20"},
-            {content: "圣灵所结的果子，就是仁爱、喜乐、和平、忍耐、恩慈、良善、信实、温柔、节制。", ref: "加拉太书 5:22-23"},
-            {content: "我们原是他的工作，在基督耶稣里造成的，为要叫我们行善，就是神所预备叫我们行的。", ref: "以弗所书 2:10"},
-            {content: "神能照着运行在我们心里的大力充充足足地成就一切，超过我们所求所想的。", ref: "以弗所书 3:20"},
-            {content: "我还有末了的话：你们要靠着主，倚赖他的大能大力作刚强的人。", ref: "以弗所书 6:10"},
-            {content: "要穿戴神所赐的全副军装，就能抵挡魔鬼的诡计。", ref: "以弗所书 6:11"},
-            {content: "凡事不可结党，不可贪图虚浮的荣耀；只要存心谦卑，各人看别人比自己强。", ref: "腓立比书 2:3"},
-            {content: "你们要思念上面的事，不要思念地上的事。", ref: "歌罗西书 3:2"},
-            {content: "无论做什么，都要从心里做，像是给主做的，不是给人做的。", ref: "歌罗西书 3:23"},
-            {content: "故此，你们要顺服神.务要抵挡魔鬼，魔鬼就必离开你们逃跑了。", ref: "雅各书 4:7"},
-            {content: "你们是世上的光.城造在山上是不能隐藏的。", ref: "马太福音 5:14"},
-            {content: "所以，你们要去，使万民作我的门徒，奉父、子、圣灵的名给他们施洗。", ref: "马太福音 28:19"},
-            {content: "我们若认自己的罪，神是信实的，是公义的，必要赦免我们的罪，洗净我们一切的不义。", ref: "约翰一书 1:9"},
-            {content: "看哪，我站在门外叩门，若有听见我声音就开门的，我要进到他那里去，我与他，他与我一同坐席。", ref: "启示录 3:20"},
-            {content: "神啊，求你为我造清洁的心，使我里面重新有正直的灵。", ref: "诗篇 51:10"},
-            {content: "不要为自己积攒财宝在地上；地上有虫子咬，能锈坏，也有贼挖窟窿来偷。", ref: "马太福音 6:19"},
-            {content: "因为你的财宝在哪里，你的心也在那里。", ref: "马太福音 6:21"},
-            {content: "我的心哪，你要称颂耶和华！凡在我里面的，也要称颂他的圣名！", ref: "诗篇 103:1"},
-            {content: "他赦免你的一切罪孽，医治你的一切疾病。", ref: "诗篇 103:3"},
-            {content: "天离地何等的高，他的慈爱向敬畏他的人也是何等的大！", ref: "诗篇 103:11"},
-            {content: "我要向山举目；我的帮助从何而来？我的帮助从造天地的耶和华而来。", ref: "诗篇 121:1-2"},
-            {content: "耶和华要保护你，免受一切的灾害；他要保护你的性命。", ref: "诗篇 121:7"},
-            {content: "神啊，求你鉴察我，知道我的心思，试炼我，知道我的意念。", ref: "诗篇 139:23"},
-            {content: "因有一婴孩为我们而生，有一子赐给我们.政权必担在他的肩头上。", ref: "以赛亚书 9:6"},
-            {content: "看哪！神是我的拯救；我要倚靠他，并不惧怕。", ref: "以赛亚书 12:2"},
-            {content: "哪知他为我们的过犯受害，为我们的罪孽压伤.因他受的刑罚，我们得平安；因他受的鞭伤，我们得医治。", ref: "以赛亚书 53:5"},
-            {content: "他被欺压，在受苦的时候却不开口；他像羊羔被牵到宰杀之地，又像羊在剪毛的人手下无声，他也是这样不开口。", ref: "以赛亚书 53:7"},
-            {content: "凡接待他的，就是信他名的人，他就赐他们权柄作神的儿女。", ref: "约翰福音 1:12"},
-            {content: "道成了肉身，住在我们中间，充充满满地有恩典有真理。", ref: "约翰福音 1:14"},
-            {content: "盗贼来，无非要偷窃，杀害，毁坏；我来了，是要叫羊得生命，并且得的更丰盛。", ref: "约翰福音 10:10"},
-            {content: "耶稣对她说：复活在我，生命也在我.信我的人虽然死了，也必复活。", ref: "约翰福音 11:25"},
-            {content: "耶稣说：我就是道路、真理、生命；若不藉着我，没有人能到父那里去。", ref: "约翰福音 14:6"},
-            {content: "我是葡萄树，你们是枝子.常在我里面的，我也常在他里面，这人就多结果子；因为离了我，你们就不能做什么。", ref: "约翰福音 15:5"},
-            {content: "我不以福音为耻；这福音本是神的大能，要救一切相信的，先是犹太人，后是希腊人。", ref: "罗马书 1:16"},
-            {content: "因为世人都犯了罪，亏缺了神的荣耀；如今却蒙神的恩典，因基督耶稣的救赎，就白白地称义。", ref: "罗马书 3:23-24"},
-            {content: "如今，那些在基督耶稣里的就不定罪了。", ref: "罗马书 8:1"},
-            {content: "因为我深信无论是死，是生，是天使，是掌权的，是有能的，是现在的事，是将来的事，都不能叫我们与神的爱隔绝。", ref: "罗马书 8:38-39"},
-            {content: "你若口里认耶稣为主，心里信神叫他从死里复活，就必得救。", ref: "罗马书 10:9"}
+            {content: "神是我们的避难所，是我们的力量，是我们在患难中随时的帮助。", ref: "诗篇 46:1"}
         ];
 
         function showSuccess() {
