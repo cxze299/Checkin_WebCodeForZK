@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;800;900&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         /* ================= iOS 风格全局变量 ================= */
         :root {
@@ -93,7 +95,7 @@
         .progress-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, var(--success), #34d399); transform-origin: left center; transform: scaleX(0); transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .progress-bar-fill.weekly { background: linear-gradient(90deg, var(--secondary), #a78bfa); }
 
-        #members-container { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        #members-container { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
         @media (min-width: 600px) { #members-container { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 950px) { #members-container { grid-template-columns: repeat(3, 1fr); } }
 
@@ -111,6 +113,17 @@
         .btn-weekly { background: #f2f2f7; color: var(--secondary); }
         .btn-success { background: var(--success) !important; color: white !important; }
 
+        /* ================= 📊 底部数据大盘样式 ================= */
+        .dash-card { background: var(--card-bg); border-radius: 24px; padding: 25px 20px; margin-top: 10px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .dash-header { text-align: center; margin-bottom: 20px; }
+        .dash-title { font-size: 18px; font-weight: 900; color: var(--text-main); margin: 0; }
+        .dash-tabs { display: flex; justify-content: center; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 16px; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .dash-tab-btn { flex: 1; min-width: 80px; padding: 10px 15px; border-radius: 12px; background: transparent; color: var(--text-sub); font-weight: 800; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s; }
+        .dash-tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .dash-content { display: none; width: 100%; height: 300px; position: relative; }
+        .dash-content.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         .modal-overlay { visibility: hidden; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 2000; display: flex; justify-content: center; align-items: center; transition: all 0.3s; }
         .modal-overlay.show { visibility: visible; opacity: 1; pointer-events: auto; }
         .modal-content { background: white; padding: 40px 24px 30px 24px; border-radius: 30px; max-width: 360px; width: 85%; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: scale(0.85); transition: all 0.4s cubic-bezier(0.15, 1, 0.3, 1.1); position: relative; }
@@ -123,7 +136,6 @@
         
         .btn-close-modal { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 16px; font-size: 16px; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; }
 
-        /* ================= 沉浸阅读器大弹窗 ================= */
         .reading-modal {
             max-width: 680px; width: 92%; height: 85vh; max-height: 850px; padding: 0;
             margin: 0 auto; display: flex; flex-direction: column; text-align: left;
@@ -149,7 +161,6 @@
         .btn-reading-done { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 16px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 4px 15px var(--primary-light); }
         .btn-reading-done:active { opacity: 0.8; }
 
-        /* ================= 沉浸式视频弹窗 (Cinematic Player Mod) ================= */
         .video-modal-overlay {
             visibility: hidden; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 3000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.35s cubic-bezier(0.15, 1, 0.3, 1);
         }
@@ -235,6 +246,28 @@
         </div>
 
         <div id="members-container"></div>
+
+        <div class="dash-card">
+            <div class="dash-header">
+                <h2 class="dash-title">📊 数据统计中心</h2>
+            </div>
+            <div class="dash-tabs">
+                <button class="dash-tab-btn active" onclick="switchDashTab('total', this)">🏆 总打卡榜</button>
+                <button class="dash-tab-btn" onclick="switchDashTab('7days', this)">🔥 近七日活跃</button>
+                <button class="dash-tab-btn" onclick="switchDashTab('streak', this)">⚡ 连续打卡</button>
+            </div>
+            
+            <div id="dash-total" class="dash-content active">
+                <canvas id="chart-total"></canvas>
+            </div>
+            <div id="dash-7days" class="dash-content">
+                <canvas id="chart-7days"></canvas>
+            </div>
+            <div id="dash-streak" class="dash-content">
+                <canvas id="chart-streak"></canvas>
+            </div>
+        </div>
+
     </div>
 
     <input type="file" id="avatar-upload" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
@@ -327,10 +360,6 @@
         const TOTAL_MEMBERS = MEMBERS.length;
 
         // ================= 📅 自动化周课排期引擎 =================
-        // 请根据你的《门训安排表.xlsx》在这里添加接下来的每周安排！
-        // 网站会自动根据今天的日期，展示对应的课件、视频和背诵经文。
-        // ================= 📅 自动化周课排期引擎 =================
-        // 根据《门训安排表》提取的前 10 周内容
         const WEEKLY_SCHEDULE = [
             { 
                 start: "2026-04-06", end: "2026-04-12", 
@@ -407,6 +436,7 @@
 
         let REAL_TODAY = new Date(), viewingDate = new Date(), globalRecords = [], currentProfileName = "", pendingCancel = null;
         const fontStackQuotes = `"Noto Serif SC", "Kaiti SC", STKaiti, "Songti SC", FangSong, STFangsong, serif`;
+        let chartInstances = {}; // 保存图表实例，防止重复渲染报错
 
         function getSafeDateString(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
         function getIsoWithTimezoneForViewing() { const now = new Date(); return `${getSafeDateString(viewingDate)}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}+08:00`; }
@@ -703,6 +733,7 @@
                 if (!response.ok) throw new Error("API_ERROR"); 
                 const data = await response.json(); globalRecords = data.list || []; 
                 resetButtons(); renderStatus(); 
+                renderDashboard(); // <=== 新增：拉取数据后渲染大盘图表
             } catch (error) { 
                 if (error.name === 'AbortError') { loadingEl.innerHTML = "⚠️ 连接数据库超时 (请检查您的网络)"; } 
                 else { loadingEl.innerHTML = "⚠️ 无法连接到数据库<br><span style='font-size:12px; font-weight:normal;'>如果使用了网址测试，请确保 NAS 的外网访问正常。</span>"; }
@@ -977,6 +1008,109 @@
             while (userDates.has(getSafeDateString(checkDate))) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
             document.getElementById('p-streak').innerText = streak;
             document.getElementById('profile-overlay').classList.add('show');
+        }
+
+        // ================= 📊 数据面板渲染逻辑 (带Set严格去重) =================
+        function switchDashTab(tabId, btnEl) {
+            document.querySelectorAll('.dash-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.dash-content').forEach(c => c.classList.remove('active'));
+            btnEl.classList.add('active');
+            document.getElementById('dash-' + tabId).classList.add('active');
+        }
+
+        function renderDashboard() {
+            let stats = {};
+            // 用于去重的 Set 集合
+            let userDailyDates = {};
+            let userWeeklyDates = {};
+
+            MEMBERS.forEach(m => { 
+                stats[m] = { totalD: 0, totalW: 0, last7: 0, streak: 0 };
+                userDailyDates[m] = new Set();
+                userWeeklyDates[m] = new Set();
+            });
+
+            const todayStr = getSafeDateString(REAL_TODAY);
+            const sevenDaysAgo = new Date(REAL_TODAY);
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const sevenDaysAgoStr = getSafeDateString(sevenDaysAgo);
+
+            // 1. 遍历数据库，利用 Set 的天然特性进行去重
+            globalRecords.forEach(r => {
+                const name = r['姓名'];
+                if (!stats[name]) return;
+                const rDateStr = (r['打卡时间'] || '').substring(0, 10);
+
+                if (r['每日灵修'] === '已完成') {
+                    // 同一天点多少次，Set 里只会存一个日期字符串
+                    userDailyDates[name].add(rDateStr);
+                }
+                if (r['周任务'] === '已完成') {
+                    // 获取这个日期所在周的周一，作为这周的“唯一识别码”
+                    const weekID = getMonday(new Date(rDateStr));
+                    userWeeklyDates[name].add(weekID);
+                }
+            });
+
+            // 2. 根据去重后的干净数据，计算最终大盘结果
+            MEMBERS.forEach(name => {
+                stats[name].totalD = userDailyDates[name].size;
+                stats[name].totalW = userWeeklyDates[name].size;
+
+                let last7Count = 0;
+                userDailyDates[name].forEach(dateStr => {
+                    // 严格筛选最近7天的去重数据
+                    if (dateStr > sevenDaysAgoStr && dateStr <= todayStr) {
+                        last7Count++;
+                    }
+                });
+                stats[name].last7 = last7Count;
+
+                let streak = 0;
+                let checkDate = new Date(REAL_TODAY);
+                if (!userDailyDates[name].has(getSafeDateString(checkDate))) {
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+                while (userDailyDates[name].has(getSafeDateString(checkDate))) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+                stats[name].streak = streak;
+            });
+
+            if (chartInstances['total']) chartInstances['total'].destroy();
+            if (chartInstances['7days']) chartInstances['7days'].destroy();
+            if (chartInstances['streak']) chartInstances['streak'].destroy();
+
+            Chart.defaults.font.family = '"Noto Sans SC", sans-serif';
+            Chart.defaults.color = '#8e8e93';
+
+            let sortedByTotal = MEMBERS.slice().sort((a, b) => (stats[b].totalD + stats[b].totalW) - (stats[a].totalD + stats[a].totalW));
+            chartInstances['total'] = new Chart(document.getElementById('chart-total'), {
+                type: 'bar',
+                data: {
+                    labels: sortedByTotal,
+                    datasets: [
+                        { label: '每日灵修', data: sortedByTotal.map(m => stats[m].totalD), backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: '周课任务', data: sortedByTotal.map(m => stats[m].totalW), backgroundColor: '#38b2ac', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+            });
+
+            let sortedByLast7 = MEMBERS.slice().sort((a, b) => stats[b].last7 - stats[a].last7);
+            chartInstances['7days'] = new Chart(document.getElementById('chart-7days'), {
+                type: 'bar',
+                data: { labels: sortedByLast7, datasets: [{ label: '近七日打卡天数', data: sortedByLast7.map(m => stats[m].last7), backgroundColor: 'rgba(90, 103, 216, 0.8)', borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 7, ticks: { stepSize: 1 } } } }
+            });
+
+            let sortedByStreak = MEMBERS.slice().sort((a, b) => stats[b].streak - stats[a].streak);
+            chartInstances['streak'] = new Chart(document.getElementById('chart-streak'), {
+                type: 'bar',
+                data: { labels: sortedByStreak, datasets: [{ label: '当前连续天数', data: sortedByStreak.map(m => stats[m].streak), backgroundColor: '#f59e0b', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
         }
     </script>
 </body>
