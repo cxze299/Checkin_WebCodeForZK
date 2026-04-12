@@ -1,0 +1,21 @@
+{
+  "name": "科大门训打卡 | ZUST",
+  "short_name": "ZheKe Checkin",
+  "display": "standalone",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "./icon_ios_v2.png", 
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon_ios_v2.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "scope": "./",
+  "background_color": "#f2f2f7",
+  "theme_color": "#ffffff"
+}
