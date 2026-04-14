@@ -181,6 +181,8 @@
         .video-modal-header { width: 100%; padding: 15px 20px; display: flex; justify-content: center; align-items: center; color: white; box-sizing: border-box; background: rgba(255, 255, 255, 0.04); border-radius: 18px 18px 0 0; position: relative; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .video-modal-header h2 { font-size: 16px; font-weight: 900; color: #fff; margin: 0; letter-spacing: 0.8px; text-align: center; max-width: 80%; text-transform: uppercase; display: flex; align-items: center; gap: 8px;}
         .btn-close-video { position: absolute; right: 15px; top: 12px; background: rgba(255,255,255,0.15); border: none; color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;}
+        .btn-close-video:hover { background: var(--secondary); color: white; transform: rotate(90deg); }
+        .btn-close-video:active { background: rgba(255,255,255,0.3); transform: scale(0.9); }
         .video-player-container { width: 100%; aspect-ratio: 16 / 9; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border-radius: 0 0 18px 18px; overflow: hidden; position: relative; border: 2px solid rgba(255,255,255,0.02); }
         .video-player-container video { width: 100%; height: 100%; border-radius: 0 0 16px 16px; outline: none; }
 
@@ -233,11 +235,11 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="saturday-reminder" class="saturday-reminder-card" style="display: none;">
             🔔 <strong>周末提醒：</strong>今天是周六啦！请检查您的<strong>「周课任务」</strong>是否都已打卡，明天就是主日咯，还未完成的肢体请抓紧时间哦！💪
         </div>
-
+        
         <div id="loading-status">🔄 正在初始化系统...</div>
 
         <div class="stats-dashboard">
@@ -410,11 +412,11 @@
         function getSafeDateString(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
         function getIsoWithTimezoneForViewing() { const now = new Date(); return `${getSafeDateString(viewingDate)}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}+08:00`; }
         
-        // 🗓️ 核心升级：找周日作为每周第一天
+        // 🗓️ 找周日作为每周第一天
         function getWeekStart(d) { 
             let tempDate = new Date(d); 
-            let day = tempDate.getDay(); // 0 是周日
-            let diff = tempDate.getDate() - day; // 退回到周日
+            let day = tempDate.getDay(); 
+            let diff = tempDate.getDate() - day; 
             tempDate.setDate(diff); 
             return getSafeDateString(tempDate); 
         }
@@ -588,30 +590,28 @@
 
         // ================= 🚀 核心升级：军工级防丢与重试引擎 =================
 
-        // 带退避重试的通用 Fetch 引擎 (解决硬盘休眠/网络波动)
         async function fetchWithRetry(url, options, retries = 3) {
             let lastErr;
             for (let i = 0; i < retries; i++) {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000); // 12秒充足时间给NAS
+                const timeoutId = setTimeout(() => controller.abort(), 12000); 
                 try {
                     const response = await fetch(url, { ...options, signal: controller.signal });
                     clearTimeout(timeoutId);
                     if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-                    return response; // 成功则直接返回原生的 response
+                    return response; 
                 } catch (err) {
                     clearTimeout(timeoutId);
                     lastErr = err;
-                    if (i < retries - 1) await new Promise(res => setTimeout(res, 1000 * (i + 1))); // 指数退避: 1s, 2s...
+                    if (i < retries - 1) await new Promise(res => setTimeout(res, 1000 * (i + 1))); 
                 }
             }
-            throw lastErr; // 全部失败才抛出异常
+            throw lastErr; 
         }
 
-        // 尝试从本地加载上一次的缓存数据（网页秒开）
         function loadLocalCache() {
             try {
-                const cached = localStorage.getItem('zk_checkin_cache');
+                const cached = localStorage.getItem('keda_checkin_cache');
                 if (cached) {
                     globalRecords = JSON.parse(cached);
                     resetButtons(); renderStatus(); renderDashboard();
@@ -623,8 +623,8 @@
             try { 
                 updateDateUI(); 
                 renderMembers(); 
-                loadLocalCache(); // 优先加载缓存，告别白屏傻等
-                fetchStatus();    // 后台静默拉取真实数据
+                loadLocalCache(); 
+                fetchStatus();    
             } catch(e) { document.getElementById('loading-status').innerHTML = `⚠️ 初始化错误: ${e.message}`; } 
         };
 
@@ -665,29 +665,20 @@
             });
         }
 
-        // ================= 🔄 数据同步引擎 =================
         async function fetchStatus() {
             const loadingEl = document.getElementById('loading-status');
-            
-            if (globalRecords.length === 0) {
-                loadingEl.style.display = 'block'; loadingEl.innerHTML = "🔄 正在连接云端数据库...";
-            } else {
-                loadingEl.style.display = 'block'; loadingEl.innerHTML = "<span style='font-size:12px; color:var(--text-sub);'>🔄 后台数据同步中...</span>";
-            }
+            if (globalRecords.length === 0) { loadingEl.style.display = 'block'; loadingEl.innerHTML = "🔄 正在连接云端数据库..."; } 
+            else { loadingEl.style.display = 'block'; loadingEl.innerHTML = "<span style='font-size:12px; color:var(--text-sub);'>🔄 后台数据同步中...</span>"; }
 
             try {
-                // 使用重试引擎拉取，并强行清理浏览器缓存
                 const response = await fetchWithRetry(`${NOCODB_API_URL}?limit=1000&_t=${Date.now()}`, { 
                     method: 'GET', 
-                    headers: { 
-                        'xc-token': API_TOKEN,
-                        'Cache-Control': 'no-cache, no-store, must-revalidate' // 强杀所有残余缓存
-                    } 
+                    headers: { 'xc-token': API_TOKEN, 'Cache-Control': 'no-cache, no-store, must-revalidate' } 
                 }, 3);
                 
                 const data = await response.json();
                 globalRecords = data.list || []; 
-                localStorage.setItem('zk_checkin_cache', JSON.stringify(globalRecords)); // 更新本地缓存库
+                localStorage.setItem('keda_checkin_cache', JSON.stringify(globalRecords)); // 刷新缓存
 
                 resetButtons(); renderStatus(); renderDashboard(); 
             } catch (error) { 
@@ -710,7 +701,6 @@
                 const name = r['姓名'], rDate = (r['打卡时间'] || '').substring(0, 10), isRetro = r['是否补签'] === '是';
                 if (rDate === viewStr && r['每日灵修'] === '已完成') { doneD.add(name); setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔"); }
                 
-                // 周课只要打卡时间在这周（周日到下周日之前）内，就算有效
                 if (rDate >= viewWeekStart && rDate < weekEndStr) {
                     if (r['周读物'] === '已完成') { doneB.add(name); setSuccess(document.getElementById(`book-${name}`), isRetro ? "已补" : "✔"); }
                     if (r['周视频'] === '已完成') { doneV.add(name); setSuccess(document.getElementById(`video-${name}`), isRetro ? "已补" : "✔"); }
@@ -727,20 +717,33 @@
 
         function setSuccess(btn, txt) { if(btn){ btn.innerHTML = `${txt}`; btn.className = "action-btn btn-success"; btn.disabled = false; } }
 
+        // ================= 📝 提交打卡 (100%弹窗 + 自动生成打卡详情) =================
         async function submitCheckin(name, type, btn) {
             if (btn.classList.contains('btn-success')) { pendingCancel = { name, type, btn }; document.getElementById('cancel-modal-overlay').classList.add('show'); return; }
             const oldTxt = btn.innerHTML; btn.innerHTML = "..."; btn.disabled = true;
             const isPast = getSafeDateString(viewingDate) < getSafeDateString(REAL_TODAY);
-            let payload = { "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", [type]: "已完成" };
+            
+            // 组装打卡详情字符串
+            const vMonth = viewingDate.getMonth() + 1;
+            const vDay = viewingDate.getDate();
+            const dateLabel = `${vMonth}月${vDay}日`;
+            let detailStr = (isPast ? "【补签】" : "【按时】") + dateLabel + " " + type;
+
+            let payload = { 
+                "姓名": name, 
+                "打卡时间": getIsoWithTimezoneForViewing(), 
+                "是否补签": isPast ? "是" : "否", 
+                [type]: "已完成",
+                "打卡详情": detailStr
+            };
+            
             try {
-                // 使用带重试的引擎发送 POST
                 await fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([payload]) }, 3);
                 
                 document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！"; 
                 showSuccess(); 
                 
-                await new Promise(r => setTimeout(r, 800)); // <--- 重点：等800毫秒让数据库存稳了再去拉取
-                await fetchStatus(); 
+                setTimeout(() => { fetchStatus(); }, 800); // 避让机制
             } catch (e) {
                 await new Promise(r => setTimeout(r, 600)); await fetchStatus();
                 if (btn.classList.contains('btn-success')) { document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！"; showSuccess(); } 
@@ -758,14 +761,17 @@
             });
             if (recordToCancel) {
                 try {
-                    // 使用带重试的引擎发送 DELETE 和 POST 撤回
                     await fetchWithRetry(NOCODB_API_URL, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([{ "Id": recordToCancel.Id }]) }, 3);
                     const isPast = getSafeDateString(viewingDate) < getSafeDateString(REAL_TODAY);
-                    let cancelPayload = { "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", [type]: "已撤回" };
+                    
+                    const vMonth = viewingDate.getMonth() + 1;
+                    const vDay = viewingDate.getDate();
+                    let detailStr = "【撤销】" + `${vMonth}月${vDay}日` + " " + type;
+
+                    let cancelPayload = { "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", [type]: "已撤回", "打卡详情": detailStr };
                     await fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([cancelPayload]) }, 3);
                     
-                    await new Promise(r => setTimeout(r, 800)); // <--- 同理：等800毫秒让数据库存稳
-                    await fetchStatus(); 
+                    setTimeout(() => { fetchStatus(); }, 800); 
                 } catch (e) { 
                     await new Promise(r => setTimeout(r, 600)); await fetchStatus(); 
                     if (btn.classList.contains('btn-success')) { alert("撤销失败，请重试"); btn.innerHTML = originalText; btn.disabled = false; }
@@ -808,7 +814,7 @@
             event.target.value = '';
         }
 
-        const BIBLE_VERSES = [
+          const BIBLE_VERSES = [
             {content: "你当刚强壮胆！不要惧怕，也不要惊惶。因为你无论往哪里去，耶和华你的神必与你同在。", ref: "约书亚记 1:9"},
             {content: "疲乏的，他赐能力；软弱的，他加力量。", ref: "以赛亚书 40:29"},
             {content: "但那等候耶和华的必重新得力。他们必如鹰展翅上腾；他们奔跑却不困倦，行走却不疲乏。", ref: "以赛亚书 40:31"},
@@ -984,7 +990,7 @@
             document.getElementById('profile-overlay').classList.add('show');
         }
 
-        // ================= 📊 数据大盘渲染引擎 (带细分去重与完美通关统计) =================
+        // ================= 📊 数据大盘渲染引擎 =================
         function switchDashTab(tabId, btnEl) {
             document.querySelectorAll('.dash-tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.dash-content').forEach(c => c.classList.remove('active'));
@@ -1006,11 +1012,10 @@
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
             const sevenDaysAgoStr = getSafeDateString(sevenDaysAgo);
 
-            // 1. 遍历数据库，利用 Set 严格去重
             globalRecords.forEach(r => {
                 const name = r['姓名']; if (!stats[name]) return;
                 const rDateStr = (r['打卡时间'] || '').substring(0, 10);
-                const weekID = getWeekStart(new Date(rDateStr)); // 采用周日作为唯一ID计算归属周
+                const weekID = getWeekStart(new Date(rDateStr)); 
 
                 if (r['每日灵修'] === '已完成') userDailyDates[name].add(rDateStr);
                 if (r['周读物'] === '已完成') userBookDates[name].add(weekID);
@@ -1018,14 +1023,12 @@
                 if (r['周背经'] === '已完成') userVerseDates[name].add(weekID);
             });
 
-            // 2. 数据计算
             MEMBERS.forEach(name => {
                 stats[name].totalD = userDailyDates[name].size;
                 stats[name].totalB = userBookDates[name].size;
                 stats[name].totalV = userVideoDates[name].size;
                 stats[name].totalVerse = userVerseDates[name].size;
 
-                // 🌟 完美通关聚合统计：只有同一周内，书、视频、背经都打了，才算一次完美通关
                 let perfectCount = 0;
                 userBookDates[name].forEach(weekID => {
                     if (userVideoDates[name].has(weekID) && userVerseDates[name].has(weekID)) {
@@ -1051,7 +1054,6 @@
 
             Chart.defaults.font.family = '"Noto Sans SC", sans-serif'; Chart.defaults.color = '#8e8e93';
 
-            // =========== 图表1：分项总榜 (4项堆叠柱状图，加上 autoSkip 强制显示所有名字) ===========
             let sortedByTotal = MEMBERS.slice().sort((a, b) => (stats[b].totalD + stats[b].totalB + stats[b].totalV + stats[b].totalVerse) - (stats[a].totalD + stats[a].totalB + stats[a].totalV + stats[a].totalVerse));
             chartInstances['total'] = new Chart(document.getElementById('chart-total'), {
                 type: 'bar',
@@ -1064,60 +1066,28 @@
                         { label: '背经', data: sortedByTotal.map(m => stats[m].totalVerse), backgroundColor: '#8b5cf6', borderRadius: 4 }
                     ]
                 },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } } }, 
-                    scales: { 
-                        x: { stacked: true, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, 
-                        y: { stacked: true, beginAtZero: true } 
-                    } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } } }, scales: { x: { stacked: true, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { stacked: true, beginAtZero: true } } }
             });
 
-            // =========== 图表2：🥇完美通关榜 (加上 autoSkip) ===========
             let sortedByPerfect = MEMBERS.slice().sort((a, b) => stats[b].perfectWeeks - stats[a].perfectWeeks);
             chartInstances['perfect'] = new Chart(document.getElementById('chart-perfect'), {
                 type: 'bar',
                 data: { labels: sortedByPerfect, datasets: [{ label: '三项全通关周数', data: sortedByPerfect.map(m => stats[m].perfectWeeks), backgroundColor: '#f59e0b', borderRadius: 6 }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { 
-                        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, 
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } } 
-                    } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 
-            // =========== 图表3：近7日活跃度 (加上 autoSkip) ===========
             let sortedByLast7 = MEMBERS.slice().sort((a, b) => stats[b].last7 - stats[a].last7);
             chartInstances['7days'] = new Chart(document.getElementById('chart-7days'), {
                 type: 'bar',
                 data: { labels: sortedByLast7, datasets: [{ label: '近七日打卡天数', data: sortedByLast7.map(m => stats[m].last7), backgroundColor: 'rgba(56, 178, 172, 0.8)', borderRadius: 6 }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { 
-                        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, 
-                        y: { beginAtZero: true, max: 7, ticks: { stepSize: 1 } } 
-                    } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, max: 7, ticks: { stepSize: 1 } } } }
             });
 
-            // =========== 图表4：连续打卡之星 (加上 autoSkip) ===========
             let sortedByStreak = MEMBERS.slice().sort((a, b) => stats[b].streak - stats[a].streak);
             chartInstances['streak'] = new Chart(document.getElementById('chart-streak'), {
                 type: 'bar',
                 data: { labels: sortedByStreak, datasets: [{ label: '当前连续天数', data: sortedByStreak.map(m => stats[m].streak), backgroundColor: 'rgba(90, 103, 216, 0.8)', borderRadius: 4 }] },
-                options: { 
-                    indexAxis: 'y', 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { 
-                        x: { beginAtZero: true, ticks: { stepSize: 1 } },
-                        y: { ticks: { autoSkip: false } } 
-                    } 
-                }
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { ticks: { autoSkip: false } } } }
             });
         }
     </script>
