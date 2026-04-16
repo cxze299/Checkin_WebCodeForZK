@@ -421,6 +421,29 @@
             return getSafeDateString(tempDate); 
         }
 
+        // ================= 🛠️ 智能防错乱：逻辑日期抽取引擎 =================
+        function getLogicalDateStr(r) {
+            // 优先通过打卡详情提取用户真正想要打卡的“逻辑日期”
+            if (r['打卡详情']) {
+                let match = r['打卡详情'].match(/(\d+)月(\d+)日/);
+                if (match) {
+                    let y = new Date().getFullYear();
+                    if (r['打卡时间']) {
+                        let d = new Date(r['打卡时间']);
+                        if (!isNaN(d)) y = d.getFullYear();
+                    }
+                    return `${y}-${String(match[1]).padStart(2, '0')}-${String(match[2]).padStart(2, '0')}`;
+                }
+            }
+            // 兜底方案
+            if (!r['打卡时间']) return "";
+            try {
+                let d = new Date(r['打卡时间']);
+                if (!isNaN(d)) return getSafeDateString(d); 
+            } catch(e) {}
+            return r['打卡时间'].substring(0, 10);
+        }
+
         function toChineseNum(num) { const chars = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十']; if (num <= 10) return chars[num]; if (num < 20) return '十' + (num % 10 === 0 ? '' : chars[num % 10]); if (num < 100) return chars[Math.floor(num / 10)] + '十' + (num % 10 === 0 ? '' : chars[num % 10]); return num; }
 
         function isTitleMatch(mdTitle, targetTitle) {
@@ -665,19 +688,35 @@
             });
         }
 
+        // ================= 🔄 深度挖掘读取算法 (破除1000条限制) =================
         async function fetchStatus() {
             const loadingEl = document.getElementById('loading-status');
             if (globalRecords.length === 0) { loadingEl.style.display = 'block'; loadingEl.innerHTML = "🔄 正在连接云端数据库..."; } 
             else { loadingEl.style.display = 'block'; loadingEl.innerHTML = "<span style='font-size:12px; color:var(--text-sub);'>🔄 后台数据同步中...</span>"; }
 
             try {
-                const response = await fetchWithRetry(`${NOCODB_API_URL}?limit=1000&_t=${Date.now()}`, { 
-                    method: 'GET', 
-                    headers: { 'xc-token': API_TOKEN, 'Cache-Control': 'no-cache, no-store, must-revalidate' } 
-                }, 3);
+                let allRecords = [];
+                let offset = 0;
+                const limit = 1000;
+                let hasMore = true;
                 
-                const data = await response.json();
-                globalRecords = data.list || []; 
+                // 循环翻页，榨干数据库每一条记录
+                while(hasMore) {
+                    const response = await fetchWithRetry(`${NOCODB_API_URL}?limit=${limit}&offset=${offset}&_t=${Date.now()}`, { 
+                        method: 'GET', headers: { 'xc-token': API_TOKEN, 'Cache-Control': 'no-cache, no-store, must-revalidate' } 
+                    }, 3);
+                    const data = await response.json();
+                    
+                    if (data.list && data.list.length > 0) {
+                        allRecords.push(...data.list);
+                        if (data.list.length < limit) hasMore = false;
+                        else offset += limit;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                globalRecords = allRecords; 
                 localStorage.setItem('keda_checkin_cache', JSON.stringify(globalRecords)); // 刷新缓存
 
                 resetButtons(); renderStatus(); renderDashboard(); 
@@ -691,20 +730,38 @@
             }
         }
 
-        // ================= 📊 渲染四大进度条 =================
+        // ================= 🧠 智能内容穿透判定算法 =================
         function renderStatus() {
             let doneD = new Set(), doneB = new Set(), doneV = new Set(), doneVerse = new Set();
-            const viewStr = getSafeDateString(viewingDate), viewWeekStart = getWeekStart(viewingDate), isFuture = viewStr > getSafeDateString(REAL_TODAY);
-            const weekEndStr = getSafeDateString(new Date(new Date(viewWeekStart).getTime() + 7*86400000));
+            const viewStr = getSafeDateString(viewingDate);
+            const isFuture = viewStr > getSafeDateString(REAL_TODAY);
+            
+            // 拿到当前正在查看的网页是哪一周的任务
+            let currentWeekData = null;
+            for (let weekPlan of WEEKLY_SCHEDULE) {
+                if (viewStr >= weekPlan.start && viewStr <= weekPlan.end) { currentWeekData = weekPlan; break; }
+            }
             
             globalRecords.forEach(r => {
-                const name = r['姓名'], rDate = (r['打卡时间'] || '').substring(0, 10), isRetro = r['是否补签'] === '是';
-                if (rDate === viewStr && r['每日灵修'] === '已完成') { doneD.add(name); setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔"); }
+                const name = r['姓名'], isRetro = r['是否补签'] === '是';
+                const rLogicalDate = getLogicalDateStr(r); // 获取当时打卡真正想补的日期
                 
-                if (rDate >= viewWeekStart && rDate < weekEndStr) {
-                    if (r['周读物'] === '已完成') { doneB.add(name); setSuccess(document.getElementById(`book-${name}`), isRetro ? "已补" : "✔"); }
-                    if (r['周视频'] === '已完成') { doneV.add(name); setSuccess(document.getElementById(`video-${name}`), isRetro ? "已补" : "✔"); }
-                    if (r['周背经'] === '已完成') { doneVerse.add(name); setSuccess(document.getElementById(`verse-${name}`), isRetro ? "已补" : "✔"); }
+                // 1. 每日灵修依旧按天严格对应
+                if (rLogicalDate === viewStr && r['每日灵修'] === '已完成') { 
+                    doneD.add(name); 
+                    setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔"); 
+                }
+                
+                // 2. 内容智能穿透：只要以前打过一次同样的内容，不管哪一周，全部视为已完成！
+                let rWeekData = null;
+                for (let weekPlan of WEEKLY_SCHEDULE) {
+                    if (rLogicalDate >= weekPlan.start && rLogicalDate <= weekPlan.end) { rWeekData = weekPlan; break; }
+                }
+
+                if (currentWeekData && rWeekData) {
+                    if (r['周读物'] === '已完成' && rWeekData.title === currentWeekData.title) { doneB.add(name); setSuccess(document.getElementById(`book-${name}`), "✔"); }
+                    if (r['周视频'] === '已完成' && rWeekData.video === currentWeekData.video) { doneV.add(name); setSuccess(document.getElementById(`video-${name}`), "✔"); }
+                    if (r['周背经'] === '已完成' && rWeekData.verse === currentWeekData.verse) { doneVerse.add(name); setSuccess(document.getElementById(`verse-${name}`), "✔"); }
                 }
             });
             
@@ -717,66 +774,84 @@
 
         function setSuccess(btn, txt) { if(btn){ btn.innerHTML = `${txt}`; btn.className = "action-btn btn-success"; btn.disabled = false; } }
 
-        // ================= 📝 提交打卡 (100%弹窗 + 自动生成打卡详情) =================
-        async function submitCheckin(name, type, btn) {
+        // ================= 📝 乐观提交打卡 (瞬间弹窗) =================
+        function submitCheckin(name, type, btn) {
             if (btn.classList.contains('btn-success')) { pendingCancel = { name, type, btn }; document.getElementById('cancel-modal-overlay').classList.add('show'); return; }
-            const oldTxt = btn.innerHTML; btn.innerHTML = "..."; btn.disabled = true;
+            
             const isPast = getSafeDateString(viewingDate) < getSafeDateString(REAL_TODAY);
+            const oldHtml = btn.innerHTML; const oldClass = btn.className;
+            
+            // 瞬间视觉反馈
+            btn.innerHTML = isPast ? "已补" : "✔"; 
+            btn.className = "action-btn btn-success"; 
+            btn.disabled = false;
+            
+            document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！"; 
+            showSuccess(); 
             
             // 组装打卡详情字符串
-            const vMonth = viewingDate.getMonth() + 1;
-            const vDay = viewingDate.getDate();
-            const dateLabel = `${vMonth}月${vDay}日`;
-            let detailStr = (isPast ? "【补签】" : "【按时】") + dateLabel + " " + type;
+            const vMonth = viewingDate.getMonth() + 1; const vDay = viewingDate.getDate();
+            let detailStr = (isPast ? "【补签】" : "【按时】") + `${vMonth}月${vDay}日 ` + type;
 
             let payload = { 
-                "姓名": name, 
-                "打卡时间": getIsoWithTimezoneForViewing(), 
-                "是否补签": isPast ? "是" : "否", 
-                [type]: "已完成",
-                "打卡详情": detailStr
+                "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", 
+                [type]: "已完成", "打卡详情": detailStr
             };
             
-            try {
-                await fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([payload]) }, 3);
-                
-                document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！"; 
-                showSuccess(); 
-                
-                setTimeout(() => { fetchStatus(); }, 800); // 避让机制
-            } catch (e) {
-                await new Promise(r => setTimeout(r, 600)); await fetchStatus();
-                if (btn.classList.contains('btn-success')) { document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！"; showSuccess(); } 
-                else { alert("网络异常导致多次请求均失败，请检查网络后重试"); btn.innerHTML = oldTxt; btn.disabled = false; }
-            }
+            fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([payload]) }, 3)
+            .then(() => { setTimeout(() => { fetchStatus(); }, 1000); })
+            .catch(e => {
+                btn.innerHTML = oldHtml; btn.className = oldClass;
+                alert("严重网络异常，打卡未保存，请检查网络！");
+            });
         }
 
-        async function confirmCancelCheckin() {
-            if (!pendingCancel) return; const { name, type, btn } = pendingCancel; const originalText = btn.innerHTML; btn.innerHTML = "撤销中"; btn.disabled = true; closeCancelModal();
-            const viewDateStr = getSafeDateString(viewingDate); const viewWeekStartStr = getWeekStart(viewingDate);
-            let recordToCancel = globalRecords.find(r => {
-                const rDate = (r['打卡时间'] || '').substring(0, 10);
-                if (type !== '每日灵修') return r['姓名'] === name && rDate >= viewWeekStartStr && rDate < getSafeDateString(new Date(new Date(viewWeekStartStr).getTime() + 7*86400000)) && r[type] === '已完成';
-                return r['姓名'] === name && rDate === viewDateStr && r[type] === '已完成';
-            });
-            if (recordToCancel) {
-                try {
-                    await fetchWithRetry(NOCODB_API_URL, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([{ "Id": recordToCancel.Id }]) }, 3);
-                    const isPast = getSafeDateString(viewingDate) < getSafeDateString(REAL_TODAY);
-                    
-                    const vMonth = viewingDate.getMonth() + 1;
-                    const vDay = viewingDate.getDate();
-                    let detailStr = "【撤销】" + `${vMonth}月${vDay}日` + " " + type;
+        function confirmCancelCheckin() {
+            if (!pendingCancel) return; const { name, type, btn } = pendingCancel; 
+            const originalText = btn.innerHTML; const oldClass = btn.className;
+            
+            btn.innerHTML = "撤销中"; btn.disabled = true; closeCancelModal();
+            
+            const viewDateStr = getSafeDateString(viewingDate);
+            
+            let currentWeekData = null;
+            for (let weekPlan of WEEKLY_SCHEDULE) {
+                if (viewDateStr >= weekPlan.start && viewDateStr <= weekPlan.end) { currentWeekData = weekPlan; break; }
+            }
 
-                    let cancelPayload = { "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", [type]: "已撤回", "打卡详情": detailStr };
-                    await fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([cancelPayload]) }, 3);
-                    
-                    setTimeout(() => { fetchStatus(); }, 800); 
-                } catch (e) { 
-                    await new Promise(r => setTimeout(r, 600)); await fetchStatus(); 
-                    if (btn.classList.contains('btn-success')) { alert("撤销失败，请重试"); btn.innerHTML = originalText; btn.disabled = false; }
+            // 撤销时，智能寻找含有相同内容的记录进行删除
+            let recordToCancel = globalRecords.find(r => {
+                const rLogicalDate = getLogicalDateStr(r);
+                if (type !== '每日灵修') {
+                    let rWeekData = null;
+                    for (let weekPlan of WEEKLY_SCHEDULE) {
+                        if (rLogicalDate >= weekPlan.start && rLogicalDate <= weekPlan.end) { rWeekData = weekPlan; break; }
+                    }
+                    if (rWeekData && currentWeekData) {
+                        if (type === '周读物' && r['周读物'] === '已完成' && rWeekData.title === currentWeekData.title) return r['姓名'] === name;
+                        if (type === '周视频' && r['周视频'] === '已完成' && rWeekData.video === currentWeekData.video) return r['姓名'] === name;
+                        if (type === '周背经' && r['周背经'] === '已完成' && rWeekData.verse === currentWeekData.verse) return r['姓名'] === name;
+                    }
                 }
-            } else { await fetchStatus(); }
+                return r['姓名'] === name && rLogicalDate === viewDateStr && r[type] === '已完成';
+            });
+            
+            if (recordToCancel) {
+                const isPast = getSafeDateString(viewingDate) < getSafeDateString(REAL_TODAY);
+                const vMonth = viewingDate.getMonth() + 1; const vDay = viewingDate.getDate();
+                let detailStr = "【撤销】" + `${vMonth}月${vDay}日 ` + type;
+                let cancelPayload = { "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", [type]: "已撤回", "打卡详情": detailStr };
+                
+                Promise.all([
+                    fetchWithRetry(NOCODB_API_URL, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([{ "Id": recordToCancel.Id }]) }, 3),
+                    fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([cancelPayload]) }, 3)
+                ]).then(() => {
+                    setTimeout(() => { fetchStatus(); }, 1000); 
+                }).catch(e => {
+                    btn.innerHTML = originalText; btn.className = oldClass; btn.disabled = false;
+                    alert("撤销失败，请重试");
+                });
+            } else { fetchStatus(); }
         }
 
         function resetButtons() {
@@ -814,7 +889,7 @@
             event.target.value = '';
         }
 
-          const BIBLE_VERSES = [
+        const BIBLE_VERSES = [
             {content: "你当刚强壮胆！不要惧怕，也不要惊惶。因为你无论往哪里去，耶和华你的神必与你同在。", ref: "约书亚记 1:9"},
             {content: "疲乏的，他赐能力；软弱的，他加力量。", ref: "以赛亚书 40:29"},
             {content: "但那等候耶和华的必重新得力。他们必如鹰展翅上腾；他们奔跑却不困倦，行走却不疲乏。", ref: "以赛亚书 40:31"},
@@ -972,7 +1047,7 @@
 
             const userDates = new Set();
             globalRecords.forEach(r => {
-                if(r['姓名'] === name && r['每日灵修'] === '已完成') userDates.add(r['打卡时间'].substring(0, 10));
+                if(r['姓名'] === name && r['每日灵修'] === '已完成') userDates.add(getLogicalDateStr(r));
             });
             let recent7Count = 0; let calendarHTML = '';
             for(let i = 6; i >= 0; i--) {
@@ -990,7 +1065,7 @@
             document.getElementById('profile-overlay').classList.add('show');
         }
 
-        // ================= 📊 数据大盘渲染引擎 =================
+        // ================= 📊 数据大盘渲染引擎 (带内容去重与完美通关统计) =================
         function switchDashTab(tabId, btnEl) {
             document.querySelectorAll('.dash-tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.dash-content').forEach(c => c.classList.remove('active'));
@@ -1000,11 +1075,11 @@
 
         function renderDashboard() {
             let stats = {};
-            let userDailyDates = {}; let userBookDates = {}; let userVideoDates = {}; let userVerseDates = {};
+            let userDailyDates = {}; let userBookContents = {}; let userVideoContents = {}; let userVerseContents = {};
 
             MEMBERS.forEach(m => { 
                 stats[m] = { totalD: 0, totalB: 0, totalV: 0, totalVerse: 0, perfectWeeks: 0, last7: 0, streak: 0 };
-                userDailyDates[m] = new Set(); userBookDates[m] = new Set(); userVideoDates[m] = new Set(); userVerseDates[m] = new Set();
+                userDailyDates[m] = new Set(); userBookContents[m] = new Set(); userVideoContents[m] = new Set(); userVerseContents[m] = new Set();
             });
 
             const todayStr = getSafeDateString(REAL_TODAY);
@@ -1012,27 +1087,41 @@
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
             const sevenDaysAgoStr = getSafeDateString(sevenDaysAgo);
 
+            // 1. 提取去重数据：周课不再用日期去重，而是直接将“真正的任务内容（标题/视频等）”塞进 Set 集合中！
             globalRecords.forEach(r => {
                 const name = r['姓名']; if (!stats[name]) return;
-                const rDateStr = (r['打卡时间'] || '').substring(0, 10);
-                const weekID = getWeekStart(new Date(rDateStr)); 
+                const rLogicalDate = getLogicalDateStr(r);
+                
+                if (r['每日灵修'] === '已完成') userDailyDates[name].add(rLogicalDate);
+                
+                let rWeekData = null;
+                for (let weekPlan of WEEKLY_SCHEDULE) {
+                    if (rLogicalDate >= weekPlan.start && rLogicalDate <= weekPlan.end) { rWeekData = weekPlan; break; }
+                }
 
-                if (r['每日灵修'] === '已完成') userDailyDates[name].add(rDateStr);
-                if (r['周读物'] === '已完成') userBookDates[name].add(weekID);
-                if (r['周视频'] === '已完成') userVideoDates[name].add(weekID);
-                if (r['周背经'] === '已完成') userVerseDates[name].add(weekID);
+                if (rWeekData) {
+                    if (r['周读物'] === '已完成') userBookContents[name].add(rWeekData.title);
+                    if (r['周视频'] === '已完成') userVideoContents[name].add(rWeekData.video);
+                    if (r['周背经'] === '已完成') userVerseContents[name].add(rWeekData.verse);
+                }
             });
 
+            // 2. 数据计算
             MEMBERS.forEach(name => {
                 stats[name].totalD = userDailyDates[name].size;
-                stats[name].totalB = userBookDates[name].size;
-                stats[name].totalV = userVideoDates[name].size;
-                stats[name].totalVerse = userVerseDates[name].size;
+                stats[name].totalB = userBookContents[name].size; // 算出这学期到底读了几本*不同的*书
+                stats[name].totalV = userVideoContents[name].size;
+                stats[name].totalVerse = userVerseContents[name].size;
 
+                // 🌟 完美通关聚合统计：遍历本学期所有要求过的周课，检查用户是否三项全沾
                 let perfectCount = 0;
-                userBookDates[name].forEach(weekID => {
-                    if (userVideoDates[name].has(weekID) && userVerseDates[name].has(weekID)) {
-                        perfectCount++;
+                WEEKLY_SCHEDULE.forEach(weekPlan => {
+                    if (weekPlan.start <= todayStr) {
+                        if (userBookContents[name].has(weekPlan.title) &&
+                            userVideoContents[name].has(weekPlan.video) &&
+                            userVerseContents[name].has(weekPlan.verse)) {
+                            perfectCount++;
+                        }
                     }
                 });
                 stats[name].perfectWeeks = perfectCount;
@@ -1079,7 +1168,7 @@
             let sortedByLast7 = MEMBERS.slice().sort((a, b) => stats[b].last7 - stats[a].last7);
             chartInstances['7days'] = new Chart(document.getElementById('chart-7days'), {
                 type: 'bar',
-                data: { labels: sortedByLast7, datasets: [{ label: '近七日打卡天数', data: sortedByLast7.map(m => stats[m].last7), backgroundColor: 'rgba(56, 178, 172, 0.8)', borderRadius: 6 }] },
+                data: { labels: sortedByLast7, datasets: [{ label: '近七日灵修天数', data: sortedByLast7.map(m => stats[m].last7), backgroundColor: 'rgba(56, 178, 172, 0.8)', borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, max: 7, ticks: { stepSize: 1 } } } }
             });
 
