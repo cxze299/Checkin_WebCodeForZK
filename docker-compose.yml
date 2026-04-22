@@ -1,0 +1,14 @@
+services:
+  zk-checkin:
+    build: .
+    container_name: zk-checkin
+    restart: unless-stopped
+    ports:
+      - "778:3012"
+    environment:
+      PORT: "3012"
+      HOST: "0.0.0.0"
+      DATABASE_PATH: "/app/data/app.json"
+      SESSION_SECRET: "${SESSION_SECRET:-please-change-this-to-a-long-random-string}"
+    volumes:
+      - ./data:/app/data
