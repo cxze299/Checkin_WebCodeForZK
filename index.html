@@ -121,10 +121,17 @@
         @media (min-width: 1000px) { #members-container { grid-template-columns: repeat(3, 1fr); } }
 
         .member-card { background: var(--card-bg); border-radius: 16px; padding: 18px; border: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: 0 6px 16px rgba(15,23,42,0.025); }
-        .member-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .member-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+        .member-person { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .avatar { width: 44px; height: 44px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 800; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
         .avatar:active { transform: scale(0.9); }
-        .member-name { font-size: 17px; font-weight: 800; }
+        .member-name { font-size: 17px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .member-reflection-btn { flex: 0 0 auto; border: 1px solid #d4e8fb; background: #f6fbff; color: var(--primary); border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 900; cursor: pointer; }
+        .member-reflection-btn.has-reflection { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .member-notes { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f6fbff; border: 1px solid #d4e8fb; color: #334155; font-size: 13px; font-weight: 700; line-height: 1.55; }
+        .member-notes.show { display: block; }
+        .member-note-item + .member-note-item { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(17, 137, 235, 0.12); }
+        .member-note-type { color: var(--primary); font-weight: 900; margin-right: 6px; }
 
         /* 四个按钮并排网格 */
         .btn-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -206,30 +213,48 @@
         .profile-calendar-nav { display: flex; align-items: center; justify-content: center; gap: 34px; margin-bottom: 16px; }
         .profile-month-btn { width: 34px; height: 34px; border: none; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .profile-month-title { min-width: 130px; text-align: center; font-size: 18px; font-weight: 900; color: var(--text-main); }
-        .profile-calendar-shell { border: 1px solid var(--border-color); border-radius: 18px; padding: 18px 14px; background: #ffffff; }
+        .profile-calendar-shell { border: 1px solid var(--border-color); border-radius: 18px; padding: 18px 14px; background: #ffffff; overflow: hidden; }
         .profile-weekdays, .profile-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
         .profile-weekdays { margin-bottom: 10px; }
         .profile-weekday { text-align: center; color: var(--text-sub); font-size: 13px; font-weight: 900; }
-        .profile-day { min-height: 68px; border: 1px solid #eef0f5; border-radius: 10px; background: #ffffff; position: relative; padding: 10px 9px; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; }
+        .profile-day { min-height: 68px; border: 1px solid #eef0f5; border-radius: 10px; background: #ffffff; position: relative; padding: 8px 8px 7px 8px; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 4px; overflow: hidden; font: inherit; cursor: pointer; text-align: left; }
+        .profile-day:active { transform: scale(0.98); }
         .profile-day.outside { color: #b8bdc7; background: #fcfcfd; }
         .profile-day.today { border-color: #9db5ff; box-shadow: inset 0 0 0 1px #9db5ff; }
         .profile-day.daily-done { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.35); }
         .profile-day.complete { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); }
-        .profile-day-number { font-size: 14px; font-weight: 900; color: #3f4654; }
+        .profile-day-number { align-self: flex-end; min-height: 16px; font-size: 14px; line-height: 1; font-weight: 900; color: #3f4654; }
         .profile-day.outside .profile-day-number { color: #b8bdc7; }
-        .profile-day-badge { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 28, 30, 0.82); color: white; border-radius: 4px; padding: 4px 7px; font-size: 11px; font-weight: 900; white-space: nowrap; }
+        .profile-day-badge { align-self: center; margin: auto 0; min-width: 40px; height: 22px; display: inline-flex; align-items: center; justify-content: center; background: rgba(28, 28, 30, 0.82); color: white; border-radius: 4px; padding: 0 7px; box-sizing: border-box; font-size: 12px; line-height: 1; font-weight: 900; white-space: nowrap; }
         .profile-day.daily-done .profile-day-badge { background: var(--video); }
         .profile-day.complete .profile-day-badge { background: var(--success); }
         @media (max-width: 560px) {
             .header-inner { flex-direction: column; }
             .header-side { width: 100%; justify-content: flex-start; }
-            .profile-content { width: 92%; padding: 24px 16px; }
-            .profile-calendar-shell { padding: 14px 10px; }
-            .profile-weekdays, .profile-calendar-grid { gap: 6px; }
-            .profile-day { min-height: 58px; padding: 8px 7px; }
-            .profile-day-badge { left: 5px; bottom: 6px; font-size: 10px; padding: 3px 5px; }
-            .profile-top { gap: 10px; }
+            .profile-content { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); padding: 18px 12px 14px 12px; border-radius: 18px; box-sizing: border-box; }
+            .profile-top { gap: 10px; margin-bottom: 14px; }
+            .profile-kicker { font-size: 12px; margin-bottom: 5px; }
+            .profile-name { font-size: 20px; margin-bottom: 8px; }
+            .profile-note { font-size: 12px; line-height: 1.45; }
+            .profile-close-btn { padding: 9px 12px; font-size: 13px; border-radius: 8px; flex: 0 0 auto; }
+            .profile-calendar-nav { gap: 14px; margin-bottom: 10px; }
+            .profile-month-btn { width: 30px; height: 30px; font-size: 18px; }
+            .profile-month-title { min-width: 106px; font-size: 16px; }
+            .profile-calendar-shell { padding: 10px 8px; border-radius: 14px; }
+            .profile-weekdays, .profile-calendar-grid { gap: 4px; }
+            .profile-weekdays { margin-bottom: 6px; }
+            .profile-weekday { font-size: 12px; }
+            .profile-day { min-height: 48px; padding: 5px 4px 4px 4px; border-radius: 8px; }
+            .profile-day-number { min-height: 13px; font-size: 12px; }
+            .profile-day-badge { min-width: 30px; height: 18px; font-size: 10px; padding: 0 4px; }
             .weekly-summary-wrap { grid-template-columns: 1fr; height: auto; }
+        }
+        @media (max-width: 380px) {
+            .profile-content { width: calc(100vw - 8px); padding-left: 8px; padding-right: 8px; }
+            .profile-calendar-shell { padding: 8px 6px; }
+            .profile-weekdays, .profile-calendar-grid { gap: 3px; }
+            .profile-day { min-height: 44px; padding: 4px 3px; }
+            .profile-day-badge { min-width: 28px; height: 17px; font-size: 10px; padding: 0 3px; }
         }
 
         .admin-entry { margin-top: 14px; display: flex; justify-content: center; }
@@ -259,10 +284,19 @@
         .admin-login-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
         .admin-hidden { display: none !important; }
         .admin-note { color: var(--text-sub); font-size: 12px; line-height: 1.6; margin-top: 10px; }
+        .server-records-panel { margin-top: 12px; display: grid; gap: 8px; }
+        .server-record-card { border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; padding: 10px 12px; font-size: 13px; line-height: 1.55; color: var(--text-main); }
+        .server-record-title { display: flex; justify-content: space-between; gap: 10px; font-weight: 900; }
+        .server-record-meta { color: var(--text-sub); font-size: 12px; font-weight: 700; margin-top: 3px; }
+        .server-record-note { margin-top: 5px; color: #475569; font-weight: 700; }
+        .storage-status-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+        .storage-status-item { border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff; padding: 9px 10px; font-size: 12px; line-height: 1.5; word-break: break-all; }
+        .storage-status-label { color: var(--text-sub); font-weight: 900; display: block; margin-bottom: 2px; }
         @media (max-width: 520px) {
             .admin-actions { grid-template-columns: 1fr; }
             .admin-input-row { flex-direction: column; }
             .admin-field-grid { grid-template-columns: 1fr; }
+            .storage-status-grid { grid-template-columns: 1fr; }
         }
     
     
@@ -272,7 +306,26 @@
         .hero-kicker { color: #1189eb; font-size: 12px; font-weight: 900; letter-spacing: 0.18em; margin-bottom: 10px; }
         .header h1 { font-family: "Noto Serif SC", "Songti SC", serif; font-size: 56px; line-height: 1.05; font-weight: 900; margin: 0 0 14px 0; color: #1f2933; letter-spacing: 0; }
         .hero-copy p { max-width: 620px; margin: 0; color: #64748b; font-size: 15px; line-height: 1.9; font-weight: 700; }
+        .hero-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
         .hero-settings { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.85); color: var(--text-main); border-radius: 8px; padding: 11px 16px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 14px rgba(15,23,42,0.04); }
+        .hero-feedback { color: #1189eb; background: #f6fbff; border-color: #d4e8fb; }
+        .feedback-content { max-width: 520px; width: 92%; text-align: left; padding: 26px 24px; }
+        .feedback-title { margin: 0 0 6px 0; font-size: 22px; font-weight: 900; color: var(--text-main); text-align: center; }
+        .feedback-note { margin: 0 0 18px 0; color: var(--text-sub); font-size: 13px; line-height: 1.6; text-align: center; font-weight: 700; }
+        .feedback-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .feedback-field label { color: var(--text-sub); font-size: 12px; font-weight: 900; }
+        .feedback-field input, .feedback-field textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: 8px; padding: 11px 12px; font-size: 14px; font-family: inherit; outline: none; background: #fff; }
+        .feedback-field textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+        .feedback-status { min-height: 20px; margin-top: 8px; color: var(--text-sub); font-size: 13px; font-weight: 800; text-align: center; }
+        .record-note-content { max-width: 460px; width: 92%; text-align: left; padding: 24px 22px; }
+        .record-note-title { margin: 0 0 6px 0; font-size: 21px; font-weight: 900; color: var(--text-main); text-align: center; }
+        .record-note-subtitle { margin: 0 0 16px 0; color: var(--text-sub); font-size: 13px; line-height: 1.6; text-align: center; font-weight: 700; }
+        .record-note-type { color: var(--primary); }
+        .record-note-textarea { width: 100%; box-sizing: border-box; min-height: 124px; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; font-family: inherit; resize: vertical; outline: none; background: #fff; }
+        .reflection-history { margin-top: 14px; max-height: 220px; overflow-y: auto; display: grid; gap: 8px; }
+        .reflection-item { border: 1px solid var(--border-color); border-radius: 8px; background: #f8fbff; padding: 10px 12px; color: #334155; font-size: 13px; font-weight: 700; line-height: 1.55; }
+        .reflection-date { color: var(--primary); font-size: 12px; font-weight: 900; margin-bottom: 4px; }
+        .reflection-empty { color: var(--text-sub); font-size: 13px; font-weight: 800; text-align: center; padding: 10px; }
         .hero-bottomline { display: flex; flex-direction: column; gap: 16px; align-items: stretch; margin-top: 28px; }
         .hero-date-wrap { max-width: 370px; width: 100%; margin: 0 auto; position: relative; }
         .hero-date-nav { display: inline-flex; width: 100%; justify-content: space-between; align-items: center; box-sizing: border-box; padding: 8px; background: #eaf4ff; border: 1px solid #d4e8fb; border-radius: 999px; box-shadow: 0 8px 18px rgba(17,137,235,0.06); }
@@ -287,6 +340,9 @@
         .task-extra-line { display: flex; align-items: baseline; gap: 8px; font-size: 15px; font-weight: 800; line-height: 1.6; color: var(--text-main); }
         .task-extra-line a { color: var(--video); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
         .task-extra-line.verse a { color: var(--verse); }
+        .task-extra-line.outline a { color: var(--success); }
+        .outline-image-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box; }
+        .outline-image { max-width: 100%; max-height: 72vh; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(15,23,42,0.08); background: #fff; object-fit: contain; }
         .date-calendar-popover { position: absolute; left: 0; top: calc(100% + 10px); width: 292px; padding: 18px 16px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 18px; box-shadow: 0 18px 45px rgba(15,23,42,0.16); z-index: 20; display: none; }
         .date-calendar-popover.show { display: block; }
         .date-calendar-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -306,7 +362,7 @@
             .header h1 { font-size: 40px; }
             .hero-date-wrap { width: 100%; margin: 0 auto; }
             .hero-date-nav { max-width: 420px; }
-            .hero-settings { align-self: flex-end; }
+            .hero-actions { align-self: flex-end; }
         }
         @media (max-width: 520px) {
             .header h1 { font-size: 34px; }
@@ -326,7 +382,10 @@
                     <h1>黑门甘露</h1>
                     <p>门训打卡（点击头像可以查看人物月历）</p>
                 </div>
-                <button class="hero-settings" onclick="openAdminPanel()" title="&#x8BBE;&#x7F6E;">&#9881; <span>&#x8BBE;&#x7F6E;</span></button>
+                <div class="hero-actions">
+                    <button class="hero-settings hero-feedback" onclick="openFeedbackPanel()" title="&#x53CD;&#x9988;&#x4E0E;&#x5EFA;&#x8BAE;">&#9993; <span>&#x53CD;&#x9988;</span></button>
+                    <button class="hero-settings" onclick="openAdminPanel()" title="&#x8BBE;&#x7F6E;">&#9881; <span>&#x8BBE;&#x7F6E;</span></button>
+                </div>
             </div>
             <div class="hero-bottomline">
                 <div class="task-info-card hero-task-card">
@@ -455,6 +514,7 @@
 
     <input type="file" id="avatar-upload" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
     <input type="file" id="admin-import-file" accept="application/json,.json" style="display: none;" onchange="importBackupJson(event)">
+    <input type="file" id="training-task-import-file" accept=".xls,.xml,application/vnd.ms-excel,text/xml,application/xml" style="display: none;" onchange="importTrainingTasksExcel(event)">
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="avatar" style="width:54px; height:54px; margin:0 auto 15px auto; background:var(--success); color:white; font-size:24px; border:none;">✔</div>
@@ -473,6 +533,65 @@
                 <button class="btn-close-modal" style="background:#f2f2f7; color:var(--text-sub); box-shadow:none;" onclick="closeCancelModal()">暂不取消</button>
                 <button class="btn-close-modal" style="background:var(--warning);" onclick="confirmCancelCheckin()">确认撤销</button>
             </div>
+        </div>
+    </div>
+
+    <div id="record-note-overlay" class="modal-overlay" onclick="closeRecordNoteModal()">
+        <div class="modal-content record-note-content" onclick="event.stopPropagation()">
+            <h2 class="record-note-title">记录一句话</h2>
+            <p class="record-note-subtitle">给 <span id="record-note-name"></span> 的 <span id="record-note-type" class="record-note-type"></span> 留一点问题、分享或记忆点。</p>
+            <textarea id="record-note-text" class="record-note-textarea" placeholder="可选。比如今天最触动的一句、一个问题，或者一句分享。"></textarea>
+            <div class="admin-actions" style="margin-top:14px;">
+                <button class="admin-action-btn secondary" onclick="skipRecordNote()">直接打卡</button>
+                <button class="admin-action-btn" onclick="confirmRecordNote()">保存并打卡</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reflection-overlay" class="modal-overlay" onclick="closeReflectionPanel()">
+        <div class="modal-content record-note-content" onclick="event.stopPropagation()">
+            <h2 class="record-note-title"><span id="reflection-name">姓名</span>的得着</h2>
+            <p class="record-note-subtitle">可以补写问题、分享和记忆点，和当天打卡分开保存。</p>
+            <div class="admin-field" style="margin-bottom:12px;">
+                <label for="reflection-part">对应部分</label>
+                <select id="reflection-part">
+                    <option value="每日灵修">每日灵修</option>
+                    <option value="周读物">周读物</option>
+                    <option value="周视频">周视频</option>
+                    <option value="周背经">周背经</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <textarea id="reflection-text" class="record-note-textarea" placeholder="写下今天的得着、问题或分享。"></textarea>
+            <div class="admin-actions" style="margin-top:14px;">
+                <button id="reflection-submit-btn" class="admin-action-btn" onclick="submitReflection()">提交得着</button>
+                <button class="admin-action-btn secondary" onclick="closeReflectionPanel()">关闭</button>
+            </div>
+            <div id="reflection-history" class="reflection-history"></div>
+        </div>
+    </div>
+
+    <div id="feedback-overlay" class="modal-overlay" onclick="closeFeedbackPanel()">
+        <div class="modal-content feedback-content" onclick="event.stopPropagation()">
+            <h2 class="feedback-title">&#x53CD;&#x9988;&#x4E0E;&#x5EFA;&#x8BAE;</h2>
+            <p class="feedback-note">&#x9047;&#x5230;&#x95EE;&#x9898;&#x6216;&#x60F3;&#x8BA9;&#x7F51;&#x7AD9;&#x66F4;&#x597D;&#x7528;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x8FD9;&#x91CC;&#x7559;&#x4E0B;&#x6765;&#x3002;</p>
+            <div class="feedback-field">
+                <label for="feedback-name">&#x59D3;&#x540D;</label>
+                <input id="feedback-name" type="text" placeholder="&#x53EF;&#x4EE5;&#x586B;&#x5199;&#x59D3;&#x540D;&#x6216;&#x6635;&#x79F0;">
+            </div>
+            <div class="feedback-field">
+                <label for="feedback-contact">&#x8054;&#x7CFB;&#x65B9;&#x5F0F;</label>
+                <input id="feedback-contact" type="text" placeholder="&#x53EF;&#x9009;&#xFF0C;&#x4FBF;&#x4E8E;&#x56DE;&#x590D;">
+            </div>
+            <div class="feedback-field">
+                <label for="feedback-message">&#x5185;&#x5BB9;</label>
+                <textarea id="feedback-message" placeholder="&#x8BF7;&#x5199;&#x4E0B;&#x95EE;&#x9898;&#x3001;&#x5EFA;&#x8BAE;&#x6216;&#x60F3;&#x8981;&#x7684;&#x529F;&#x80FD;"></textarea>
+            </div>
+            <div class="admin-actions">
+                <button id="feedback-submit-btn" class="admin-action-btn" onclick="submitFeedback()">&#x63D0;&#x4EA4;&#x53CD;&#x9988;</button>
+                <button class="admin-action-btn secondary" onclick="closeFeedbackPanel()">&#x5173;&#x95ED;</button>
+            </div>
+            <div id="feedback-status" class="feedback-status"></div>
         </div>
     </div>
 
@@ -573,6 +692,10 @@
                             <label for="admin-week-url">视频地址</label>
                             <input id="admin-week-url" type="url" placeholder="https:// 或 http://">
                         </div>
+                        <div class="admin-field full">
+                            <label for="admin-week-outline-image">大纲图片地址</label>
+                            <input id="admin-week-outline-image" type="text" placeholder="例如：/images/outline-01.jpg 或 https://...">
+                        </div>
                     </div>
                     <div class="admin-actions" style="margin-top:12px;">
                         <button class="admin-action-btn" onclick="saveWeekPlanFromAdmin()">保存当前周</button>
@@ -588,6 +711,9 @@
                     <div class="admin-actions">
                         <button class="admin-action-btn" onclick="exportRecordsCsv()">导出打卡明细 CSV</button>
                         <button class="admin-action-btn" onclick="exportDailySummaryCsv()">导出每日汇总 CSV</button>
+                        <button class="admin-action-btn" onclick="exportTrainingTasksExcel()">&#x5BFC;&#x51FA;&#x95E8;&#x8BAD;&#x4EFB;&#x52A1; Excel</button>
+                        <button class="admin-action-btn secondary" onclick="document.getElementById('training-task-import-file').click()">&#x5BFC;&#x5165;&#x95E8;&#x8BAD;&#x4EFB;&#x52A1; Excel</button>
+                        <button class="admin-action-btn secondary" onclick="exportFeedbackCsv()">&#x5BFC;&#x51FA;&#x53CD;&#x9988; CSV</button>
                         <button class="admin-action-btn secondary" onclick="exportBackupJson()">导出本地备份 JSON</button>
                         <button class="admin-action-btn secondary" onclick="document.getElementById('admin-import-file').click()">导入本地备份 JSON</button>
                     </div>
@@ -595,9 +721,21 @@
                 </div>
 
                 <div class="admin-section">
+                    <h3>服务器记录</h3>
+                    <div class="admin-actions">
+                        <button class="admin-action-btn" onclick="loadRecentServerRecords()">查看最近记录</button>
+                        <button class="admin-action-btn secondary" onclick="loadStorageStatus()">检查存储状态</button>
+                        <button class="admin-action-btn secondary" onclick="createManualRecordsBackup()">手动备份 records.json</button>
+                    </div>
+                    <div id="server-records-panel" class="server-records-panel">
+                        <div class="admin-note">这里读取 NAS 后端的真实记录文件，用来确认打卡是否已经写进服务器。</div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
                     <h3>维护</h3>
                     <div class="admin-actions">
-                        <button class="admin-action-btn secondary" onclick="fetchStatus()">重新同步云端数据</button>
+                        <button class="admin-action-btn secondary" onclick="fetchStatus()">重新同步本地数据</button>
                         <button class="admin-action-btn warning" onclick="resetAdminMembers()">恢复默认成员</button>
                     </div>
                 </div>
@@ -645,7 +783,18 @@
         };
 
         // ============================ 科大专属配置区 ============================
-        const API_BASE = "/api"; 
+        const API_PORT = "778";
+        const API_BASES = (() => {
+            const saved = localStorage.getItem('keda_api_base');
+            const bases = [];
+            if (saved) bases.push(saved);
+            bases.push('/api');
+            if (location.hostname) {
+                bases.push(`${location.protocol}//${location.hostname}:${API_PORT}/api`);
+                if (location.protocol === 'https:') bases.push(`http://${location.hostname}:${API_PORT}/api`);
+            }
+            return [...new Set(bases)];
+        })();
         const DEFAULT_MEMBERS = ["顺丞", "信择", "明明", "亮亮", "杰涛", "嘉杰", "银华", "青青", "依萱", "喜悦", "胡蜜", "馨香", "虹伊", "刘欣", "义路"]; 
         let MEMBERS = loadMembersConfig();
         let TOTAL_MEMBERS = MEMBERS.length;
@@ -664,7 +813,7 @@
         ];
         let WEEKLY_SCHEDULE = loadWeeklySchedule();
 
-        let viewingDate = new Date(), profileMonthDate = new Date(), datePickerMonthDate = new Date(), globalRecords = [], currentProfileName = "", pendingCancel = null;
+        let viewingDate = new Date(), profileMonthDate = new Date(), datePickerMonthDate = new Date(), globalRecords = [], currentProfileName = "", pendingCancel = null, pendingCheckin = null, currentReflectionName = "";
         let adminAuthenticated = false;
         let mdCache = { daily: null, weekly: null }; 
         
@@ -701,7 +850,8 @@
                 title: String(plan.title || '').trim(),
                 video: String(plan.video || '').trim(),
                 verse: String(plan.verse || '').trim(),
-                url: String(plan.url || '').trim()
+                url: String(plan.url || '').trim(),
+                outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim()
             };
         }
 
@@ -736,9 +886,76 @@
             return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ');
         }
 
+        function cleanMemoryVerseText(value) {
+            return String(value || '')
+                .replace(/[（(]\s*背诵\s*[）)]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function normalizeVerseRef(value) {
+            return cleanMemoryVerseText(value).replace(/：/g, ':').replace(/[－—–]/g, '-').trim();
+        }
+
+        function extractScriptureReference(value) {
+            const text = normalizeVerseRef(value);
+            const bookPattern = '创世记|出埃及记|利未记|民数记|申命记|约书亚记|士师记|路得记|撒上|撒母耳记上|撒下|撒母耳记下|王上|列王纪上|王下|列王纪下|代上|历代志上|代下|历代志下|以斯拉记|尼希米记|以斯帖记|约伯记|诗篇|箴言|传道书|雅歌|以赛亚书|耶利米书|耶利米哀歌|以西结书|但以理书|何西阿书|约珥书|阿摩司书|俄巴底亚书|约拿书|弥迦书|那鸿书|哈巴谷书|西番雅书|哈该书|撒迦利亚书|玛拉基书|马太福音|马可福音|路加福音|约翰福音|使徒行传|罗马书|林前|哥林多前书|林后|哥林多后书|加拉太书|以弗所书|腓立比书|歌罗西书|帖前|帖撒罗尼迦前书|帖后|帖撒罗尼迦后书|提前|提摩太前书|提后|提摩太后书|提多书|腓利门书|希伯来书|雅各书|彼前|彼得前书|彼后|彼得后书|约壹|约翰一书|约贰|约翰二书|约叁|约翰三书|犹大书|启示录';
+            const match = text.match(new RegExp(`(${bookPattern})\\s*\\d+\\s*:\\s*\\d+(?:\\s*-\\s*\\d+)?`));
+            return match ? normalizeVerseRef(match[0]) : text;
+        }
+
+        function extractMemoryVerseFromWeeklyText(text, targetTitle, fallback) {
+            if (!text) return cleanMemoryVerseText(fallback);
+            const lines = text.split('\n');
+            let isCapturing = false;
+            const sectionLines = [];
+            for (const rawLine of lines) {
+                const line = rawLine.trim();
+                if (!isCapturing) {
+                    const titleMatch = line.match(/^##\s+(.*)/);
+                    if (titleMatch && isTitleMatch(titleMatch[1].trim(), targetTitle)) isCapturing = true;
+                } else {
+                    if (/^##\s/.test(line)) break;
+                    sectionLines.push(rawLine);
+                }
+            }
+            const sectionText = sectionLines.join('\n');
+            const marked = sectionText.match(/([\u4e00-\u9fa5]{1,12}\s*\d+\s*[:：]\s*\d+(?:\s*[-－—–]\s*\d+)?)\s*[（(]\s*背诵\s*[）)]/);
+            if (marked) return normalizeVerseRef(marked[1]);
+            return cleanMemoryVerseText(fallback);
+        }
+
+        function getRecordNote(record) {
+            const direct = record.note || record['分享记录'] || record['文字记录'];
+            if (direct) return String(direct).trim();
+            const detail = String(record['打卡详情'] || '');
+            const match = detail.match(/(?:分享|记录|问题)[:：]\s*([\s\S]+)$/);
+            return match ? match[1].trim() : '';
+        }
+
+        function isReflectionRecord(record) {
+            const detail = String(record['打卡详情'] || '');
+            return record['类型'] === 'reflection' || detail.includes('得着') || detail.includes('感言') || detail.includes('分享');
+        }
+
+        function getReflectionPart(record) {
+            if (record['部分'] || record.part) return String(record['部分'] || record.part).trim();
+            const detail = String(record['打卡详情'] || '');
+            const known = ['每日灵修', '周读物', '周视频', '周背经', '其他'];
+            return known.find(part => detail.includes(part)) || '其他';
+        }
+
         function csvCell(value) {
             const text = value == null ? '' : String(value);
             return `"${text.replace(/"/g, '""')}"`;
+        }
+
+        function xmlCell(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
 
         function downloadTextFile(filename, content, mimeType) {
@@ -755,6 +972,15 @@
         }
 
         function getSafeDateString(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+
+        function formatLocalDateTime(value) {
+            if (!value) return '';
+            if (/^\d{4}-\d{2}-\d{2}$/.test(String(value).trim())) return String(value).trim();
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return String(value);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ` +
+                   `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        }
         
         function getIsoWithTimezoneForViewing() { 
             const now = new Date(); 
@@ -776,6 +1002,10 @@
 
         // ================= 🛠️ 智能防错乱：逻辑日期抽取引擎 =================
         function getLogicalDateStr(r) {
+            const explicitDate = String(r.logical_date || r['逻辑日期'] || '').trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(explicitDate)) return explicitDate;
+            if (/^\d{4}-\d{2}-\d{2}/.test(explicitDate)) return explicitDate.slice(0, 10);
+
             if (r['打卡详情']) {
                 let match = r['打卡详情'].match(/(\d+)月(\d+)日/);
                 if (match) {
@@ -789,6 +1019,7 @@
             }
             if (!r['打卡时间']) return "";
             try {
+                if (/^\d{4}-\d{2}-\d{2}$/.test(String(r['打卡时间']).trim())) return String(r['打卡时间']).trim();
                 let d = new Date(r['打卡时间']);
                 if (!isNaN(d)) return getSafeDateString(d); 
             } catch(e) {}
@@ -815,6 +1046,7 @@
         function closeVideo() { const player = document.getElementById('main-video-player'); player.pause(); player.src = ""; document.getElementById('video-overlay').classList.remove('show'); }
 
         async function openScriptureOnline(refStr) {
+            refStr = extractScriptureReference(refStr);
             document.getElementById('reading-title').innerText = `背经 | ${refStr}`;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
@@ -826,6 +1058,18 @@
                 let bookId = wpBookMap[match[1]]; let chapter = match[2]; let startVerse = match[3] ? parseInt(match[3]) : null;
                 bodyEl.innerHTML = `<div style="font-family: ${fontStackQuotes}; padding: 10px;"><h2 style="text-align:center; color:var(--text-main); font-weight:900; margin-bottom: 20px; border:none;">${refStr}</h2></div><iframe src="https://www.wordproject.org/bibles/gb/${bookId}/${chapter}.htm${startVerse ? '#'+startVerse : ''}" style="width:100%; height:70vh; border:none; border-radius:12px; background:#fff;"></iframe>`;
             } catch (error) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>经文格式解析失败</strong><br></div>`; }
+        }
+
+        function openOutlineImage(imageUrl, title = '大纲默写') {
+            const cleanUrl = String(imageUrl || '').trim();
+            document.getElementById('reading-title').innerText = title;
+            document.getElementById('reading-overlay').classList.add('show');
+            const bodyEl = document.getElementById('reading-body');
+            if (!cleanUrl) {
+                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>还没有配置大纲图片。</strong></div>`;
+                return;
+            }
+            bodyEl.innerHTML = `<div class="outline-image-wrap"><img class="outline-image" src="${escapeHtml(cleanUrl)}" alt="大纲图片" onerror="this.closest('.outline-image-wrap').innerHTML='<div style=&quot;text-align:center; color:var(--warning); font-weight:900;&quot;>图片加载失败，请检查图片地址。</div>'"></div>`;
         }
 
         function formatMarkdownBlocks(contentLines) {
@@ -921,6 +1165,16 @@
 
         function closeReading() { document.getElementById('reading-overlay').classList.remove('show'); }
 
+        async function hydrateWeeklyCache() {
+            if (mdCache.weekly) return;
+            try {
+                const res = await fetch(`./weekly_task.md?v=${getSafeDateString(getRealToday())}`);
+                if (!res.ok) return;
+                mdCache.weekly = await res.text();
+                updateDateUI();
+            } catch (error) {}
+        }
+
         function getTodayPlan() {
             const bMonth = viewingDate.getMonth() + 1;
             const bDay = viewingDate.getDate();
@@ -937,12 +1191,15 @@
 
             const weeklyTitleStr = currentWeekData.title;
             const videoStr = currentWeekData.video;
-            const verseStr = currentWeekData.verse;
+            const verseStr = extractMemoryVerseFromWeeklyText(mdCache.weekly, currentWeekData.title, currentWeekData.verse);
             const videoUrl = currentWeekData.url;
+            const outlineImage = currentWeekData.outlineImage || '';
+            const outlineUI = outlineImage ? `<div class="task-extra-line outline"><span>&#128444;</span><span>&#x5927;&#x7EB2;&#xFF1A;</span><a onclick="openOutlineImage('${escapeJs(outlineImage)}', '${escapeJs(weeklyTitleStr)} 大纲')">&#x70B9;&#x51FB;&#x67E5;&#x770B;&#x5927;&#x7EB2;&#x56FE;&#x7247;</a></div>` : '';
 
             const tagUI = `<div class="task-extra-list">
                 <div class="task-extra-line"><span>&#9654;</span><span>&#x89C6;&#x9891;&#xFF1A;</span><a onclick="openVideo('${videoUrl}', '${videoStr}')">${videoStr} (&#x64AD;&#x653E;)</a></div>
-                <div class="task-extra-line verse"><span>&#128214;</span><span>&#x80CC;&#x7ECF;&#xFF1A;</span><a onclick="openScriptureOnline('${verseStr}')">${verseStr} (&#x80CC;&#x8BF5;)</a></div>
+                <div class="task-extra-line verse"><span>&#128214;</span><span>&#x80CC;&#x7ECF;&#xFF1A;</span><a onclick="openScriptureOnline('${escapeJs(verseStr)}')">${escapeHtml(verseStr)}</a></div>
+                ${outlineUI}
             </div>`;
 
             return {
@@ -1005,6 +1262,7 @@
             try { 
                 viewingDate = getRealToday();
                 updateDateUI(); 
+                hydrateWeeklyCache();
                 renderMembers(); 
                 loadLocalCache(); 
                 fetchStatus();    
@@ -1037,177 +1295,21 @@
                 const card = document.createElement('div'); card.className = 'member-card'; card.id = `card-${name}`;
                 card.innerHTML = `
                     <div class="member-header">
-                        <div class="avatar" onclick="showProfile('${jsName}')" ${avatarStyle}>${savedAvatar ? '' : escapeHtml(name.charAt(name.length-1))}</div>
-                        <div class="member-name">${safeName}</div>
+                        <div class="member-person">
+                            <div class="avatar" onclick="showProfile('${jsName}')" ${avatarStyle}>${savedAvatar ? '' : escapeHtml(name.charAt(name.length-1))}</div>
+                            <div class="member-name">${safeName}</div>
+                        </div>
+                        <button type="button" class="member-reflection-btn" id="reflection-btn-${safeName}" onclick="openReflectionPanel('${jsName}')">得着</button>
                     </div>
                     <div class="btn-group">
                         <button class="action-btn btn-daily" id="daily-${safeName}" onclick="submitCheckin('${jsName}', '每日灵修', this)">灵修</button>
                         <button class="action-btn btn-book" id="book-${safeName}" onclick="submitCheckin('${jsName}', '周读物', this)">书</button>
                         <button class="action-btn btn-video" id="video-${safeName}" onclick="submitCheckin('${jsName}', '周视频', this)">视频</button>
                         <button class="action-btn btn-verse" id="verse-${safeName}" onclick="submitCheckin('${jsName}', '周背经', this)">背经</button>
-                    </div>`;
+                    </div>
+                    <div class="member-notes" id="notes-${safeName}"></div>`;
                 container.appendChild(card);
             });
-        }
-
-        async function fetchStatus() {
-            const loadingEl = document.getElementById('loading-status');
-            if (globalRecords.length === 0) { loadingEl.style.display = 'block'; loadingEl.innerHTML = "🔄 正在连接云端数据库..."; } 
-            else { loadingEl.style.display = 'block'; loadingEl.innerHTML = "<span style='font-size:12px; color:var(--text-sub);'>🔄 后台数据同步中...</span>"; }
-
-            try {
-                let allRecords = [];
-                let offset = 0;
-                const limit = 1000;
-                let hasMore = true;
-                
-                while(hasMore) {
-                    const response = await fetchWithRetry(`${NOCODB_API_URL}?limit=${limit}&offset=${offset}&_t=${Date.now()}`, { 
-                        method: 'GET', headers: { 'xc-token': API_TOKEN, 'Cache-Control': 'no-cache, no-store, must-revalidate' } 
-                    }, 3);
-                    const data = await response.json();
-                    
-                    if (data.list && data.list.length > 0) {
-                        allRecords.push(...data.list);
-                        if (data.list.length < limit) hasMore = false;
-                        else offset += limit;
-                    } else {
-                        hasMore = false;
-                    }
-                }
-                
-                globalRecords = allRecords; 
-                localStorage.setItem('keda_checkin_cache', JSON.stringify(globalRecords)); 
-
-                resetButtons(); renderStatus(); renderDashboard(); 
-            } catch (error) { 
-                if (globalRecords.length === 0) {
-                    loadingEl.innerHTML = "⚠️ 网络延迟或连接失败<br><span style='font-size:12px; font-weight:normal;'>请检查您的网络、NAS 状态或数据库列名。</span>"; 
-                } else {
-                    loadingEl.innerHTML = "⚠️ 后台同步延迟，当前显示为本地缓存数据";
-                    setTimeout(() => { loadingEl.style.display = 'none'; }, 4000);
-                }
-            }
-        }
-
-        function renderStatus() {
-            let doneD = new Set(), doneB = new Set(), doneV = new Set(), doneVerse = new Set();
-            const viewStr = getSafeDateString(viewingDate);
-            const isFuture = viewStr > getSafeDateString(getRealToday());
-            
-            let currentWeekData = null;
-            for (let weekPlan of WEEKLY_SCHEDULE) {
-                if (viewStr >= weekPlan.start && viewStr <= weekPlan.end) { currentWeekData = weekPlan; break; }
-            }
-            
-            globalRecords.forEach(r => {
-                const name = r['姓名'], isRetro = r['是否补签'] === '是';
-                const rLogicalDate = getLogicalDateStr(r); 
-                
-                if (rLogicalDate === viewStr && r['每日灵修'] === '已完成') { 
-                    doneD.add(name); 
-                    setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔"); 
-                }
-                
-                let rWeekData = null;
-                for (let weekPlan of WEEKLY_SCHEDULE) {
-                    if (rLogicalDate >= weekPlan.start && rLogicalDate <= weekPlan.end) { rWeekData = weekPlan; break; }
-                }
-
-                if (currentWeekData && rWeekData) {
-                    if (r['周读物'] === '已完成' && rWeekData.title === currentWeekData.title) { doneB.add(name); setSuccess(document.getElementById(`book-${name}`), "✔"); }
-                    if (r['周视频'] === '已完成' && rWeekData.video === currentWeekData.video) { doneV.add(name); setSuccess(document.getElementById(`video-${name}`), "✔"); }
-                    if (r['周背经'] === '已完成' && rWeekData.verse === currentWeekData.verse) { doneVerse.add(name); setSuccess(document.getElementById(`verse-${name}`), "✔"); }
-                }
-            });
-            
-            document.getElementById('daily-total').innerText = `/${TOTAL_MEMBERS}`;
-            document.getElementById('book-total').innerText = `/${TOTAL_MEMBERS}`;
-            document.getElementById('video-total').innerText = `/${TOTAL_MEMBERS}`;
-            document.getElementById('verse-total').innerText = `/${TOTAL_MEMBERS}`;
-            document.getElementById('daily-count').innerText = doneD.size; document.getElementById('daily-progress').style.transform = `scaleX(${doneD.size/TOTAL_MEMBERS})`;
-            document.getElementById('book-count').innerText = doneB.size;  document.getElementById('book-progress').style.transform = `scaleX(${doneB.size/TOTAL_MEMBERS})`;
-            document.getElementById('video-count').innerText = doneV.size; document.getElementById('video-progress').style.transform = `scaleX(${doneV.size/TOTAL_MEMBERS})`;
-            document.getElementById('verse-count').innerText = doneVerse.size; document.getElementById('verse-progress').style.transform = `scaleX(${doneVerse.size/TOTAL_MEMBERS})`;
-            document.getElementById('loading-status').style.display = 'none'; 
-        }
-
-        function setSuccess(btn, txt) { if(btn){ btn.innerHTML = `${txt}`; btn.className = "action-btn btn-success"; btn.disabled = false; } }
-
-        function submitCheckin(name, type, btn) {
-            if (btn.classList.contains('btn-success')) { pendingCancel = { name, type, btn }; document.getElementById('cancel-modal-overlay').classList.add('show'); return; }
-            
-            const isPast = getSafeDateString(viewingDate) < getSafeDateString(getRealToday());
-            const oldHtml = btn.innerHTML; const oldClass = btn.className;
-            
-            btn.innerHTML = isPast ? "已补" : "✔"; 
-            btn.className = "action-btn btn-success"; 
-            btn.disabled = false;
-            
-            document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！"; 
-            showSuccess(); 
-            
-            const vMonth = viewingDate.getMonth() + 1; const vDay = viewingDate.getDate();
-            let detailStr = (isPast ? "【补签】" : "【按时】") + `${vMonth}月${vDay}日 ` + type;
-
-            let payload = { 
-                "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", 
-                [type]: "已完成", "打卡详情": detailStr
-            };
-            
-            fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([payload]) }, 3)
-            .then(() => { setTimeout(() => { fetchStatus(); }, 1000); })
-            .catch(e => {
-                btn.innerHTML = oldHtml; btn.className = oldClass;
-                alert("严重网络异常，打卡未保存，请检查网络！");
-            });
-        }
-
-        function confirmCancelCheckin() {
-            if (!pendingCancel) return; const { name, type, btn } = pendingCancel; 
-            const originalText = btn.innerHTML; const oldClass = btn.className;
-            
-            btn.innerHTML = "撤销中"; btn.disabled = true; closeCancelModal();
-            
-            const viewDateStr = getSafeDateString(viewingDate);
-            
-            let currentWeekData = null;
-            for (let weekPlan of WEEKLY_SCHEDULE) {
-                if (viewDateStr >= weekPlan.start && viewDateStr <= weekPlan.end) { currentWeekData = weekPlan; break; }
-            }
-
-            let recordToCancel = globalRecords.find(r => {
-                const rLogicalDate = getLogicalDateStr(r);
-                if (type !== '每日灵修') {
-                    let rWeekData = null;
-                    for (let weekPlan of WEEKLY_SCHEDULE) {
-                        if (rLogicalDate >= weekPlan.start && rLogicalDate <= weekPlan.end) { rWeekData = weekPlan; break; }
-                    }
-                    if (rWeekData && currentWeekData) {
-                        if (type === '周读物' && r['周读物'] === '已完成' && rWeekData.title === currentWeekData.title) return r['姓名'] === name;
-                        if (type === '周视频' && r['周视频'] === '已完成' && rWeekData.video === currentWeekData.video) return r['姓名'] === name;
-                        if (type === '周背经' && r['周背经'] === '已完成' && rWeekData.verse === currentWeekData.verse) return r['姓名'] === name;
-                    }
-                }
-                return r['姓名'] === name && rLogicalDate === viewDateStr && r[type] === '已完成';
-            });
-            
-            if (recordToCancel) {
-                const isPast = getSafeDateString(viewingDate) < getSafeDateString(getRealToday());
-                const vMonth = viewingDate.getMonth() + 1; const vDay = viewingDate.getDate();
-                let detailStr = "【撤销】" + `${vMonth}月${vDay}日 ` + type;
-                let cancelPayload = { "姓名": name, "打卡时间": getIsoWithTimezoneForViewing(), "是否补签": isPast ? "是" : "否", [type]: "已撤回", "打卡详情": detailStr };
-                
-                Promise.all([
-                    fetchWithRetry(NOCODB_API_URL, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([{ "Id": recordToCancel.Id }]) }, 3),
-                    fetchWithRetry(NOCODB_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'xc-token': API_TOKEN }, body: JSON.stringify([cancelPayload]) }, 3)
-                ]).then(() => {
-                    setTimeout(() => { fetchStatus(); }, 1000); 
-                }).catch(e => {
-                    btn.innerHTML = originalText; btn.className = oldClass; btn.disabled = false;
-                    alert("撤销失败，请重试");
-                });
-            } else { fetchStatus(); }
         }
 
         function resetButtons() {
@@ -1219,6 +1321,95 @@
                 if(v){ v.disabled = isFuture; v.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-video'); v.innerHTML = isFuture ? '⏳' : (isPast ? '补视频' : '视频'); }
                 if(verse){ verse.disabled = isFuture; verse.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-verse'); verse.innerHTML = isFuture ? '⏳' : (isPast ? '补背经' : '背经'); }
             });
+        }
+
+        function setSuccess(btn, text = "✔") {
+            if (!btn) return;
+            btn.disabled = false;
+            btn.className = "action-btn btn-success";
+            btn.innerHTML = text;
+        }
+
+        function renderMemberNotes() {
+            const viewStr = getSafeDateString(viewingDate);
+            MEMBERS.forEach(name => {
+                const notesEl = document.getElementById(`notes-${name}`);
+                const btn = document.getElementById(`reflection-btn-${name}`);
+                const reflectionCount = globalRecords
+                    .filter(record => record['姓名'] === name && getLogicalDateStr(record) === viewStr)
+                    .filter(record => isReflectionRecord(record) && getRecordNote(record))
+                    .length;
+                if (btn) {
+                    btn.innerText = reflectionCount > 0 ? `得着 ${reflectionCount}` : '得着';
+                    btn.classList.toggle('has-reflection', reflectionCount > 0);
+                }
+                if (notesEl) {
+                    notesEl.classList.remove('show');
+                    notesEl.innerHTML = '';
+                }
+            });
+        }
+
+        function renderStatus() {
+            const viewStr = getSafeDateString(viewingDate);
+            const doneD = new Set(), doneB = new Set(), doneV = new Set(), doneVerse = new Set();
+            let currentWeekData = null;
+            for (const weekPlan of WEEKLY_SCHEDULE) {
+                if (viewStr >= weekPlan.start && viewStr <= weekPlan.end) {
+                    currentWeekData = weekPlan;
+                    break;
+                }
+            }
+
+            globalRecords.forEach(record => {
+                const name = record['姓名'];
+                if (!name || !MEMBERS.includes(name)) return;
+                const recordDate = getLogicalDateStr(record);
+                const isRetro = record['是否补签'] === '是';
+
+                if (recordDate === viewStr && record['每日灵修'] === '已完成') {
+                    doneD.add(name);
+                    setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔");
+                }
+
+                if (!currentWeekData) return;
+                let recordWeekData = null;
+                for (const weekPlan of WEEKLY_SCHEDULE) {
+                    if (recordDate >= weekPlan.start && recordDate <= weekPlan.end) {
+                        recordWeekData = weekPlan;
+                        break;
+                    }
+                }
+                if (!recordWeekData) return;
+
+                if (record['周读物'] === '已完成' && recordWeekData.title === currentWeekData.title) {
+                    doneB.add(name);
+                    setSuccess(document.getElementById(`book-${name}`));
+                }
+                if (record['周视频'] === '已完成' && recordWeekData.video === currentWeekData.video) {
+                    doneV.add(name);
+                    setSuccess(document.getElementById(`video-${name}`));
+                }
+                if (record['周背经'] === '已完成' && recordWeekData.verse === currentWeekData.verse) {
+                    doneVerse.add(name);
+                    setSuccess(document.getElementById(`verse-${name}`));
+                }
+            });
+
+            const updateStat = (key, count) => {
+                const countEl = document.getElementById(`${key}-count`);
+                const totalEl = document.getElementById(`${key}-total`);
+                const progressEl = document.getElementById(`${key}-progress`);
+                if (countEl) countEl.innerText = count;
+                if (totalEl) totalEl.innerText = `/${TOTAL_MEMBERS}`;
+                if (progressEl) progressEl.style.transform = `scaleX(${TOTAL_MEMBERS ? count / TOTAL_MEMBERS : 0})`;
+            };
+
+            updateStat('daily', doneD.size);
+            updateStat('book', doneB.size);
+            updateStat('video', doneV.size);
+            updateStat('verse', doneVerse.size);
+            renderMemberNotes();
         }
 
         async function handleAvatarUpload(event) {
@@ -1398,6 +1589,157 @@
         function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
         function closeCancelModal() { document.getElementById('cancel-modal-overlay').classList.remove('show'); pendingCancel = null; }
         function closeProfile() { document.getElementById('profile-overlay').classList.remove('show'); }
+        function closeRecordNoteModal() {
+            document.getElementById('record-note-overlay').classList.remove('show');
+            pendingCheckin = null;
+        }
+
+        function closeReflectionPanel() {
+            document.getElementById('reflection-overlay').classList.remove('show');
+            currentReflectionName = "";
+        }
+
+        function renderReflectionHistory(name) {
+            const historyEl = document.getElementById('reflection-history');
+            if (!historyEl) return;
+            const items = globalRecords
+                .filter(record => record['姓名'] === name && getRecordNote(record))
+                .filter(isReflectionRecord)
+                .sort((a, b) => String(getLogicalDateStr(b)).localeCompare(String(getLogicalDateStr(a))) || String(b['打卡时间'] || '').localeCompare(String(a['打卡时间'] || '')));
+            if (items.length === 0) {
+                historyEl.innerHTML = '<div class="reflection-empty">还没有得着。</div>';
+                return;
+            }
+            historyEl.innerHTML = items.slice(0, 20).map(record => `
+                <div class="reflection-item">
+                    <div class="reflection-date">${escapeHtml(getLogicalDateStr(record) || formatLocalDateTime(record['打卡时间']))}｜${escapeHtml(getReflectionPart(record))}</div>
+                    <div>${escapeHtml(getRecordNote(record))}</div>
+                </div>
+            `).join('');
+        }
+
+        function openReflectionPanel(name) {
+            currentReflectionName = name;
+            document.getElementById('reflection-name').innerText = name;
+            document.getElementById('reflection-text').value = '';
+            document.getElementById('reflection-part').value = '每日灵修';
+            renderReflectionHistory(name);
+            document.getElementById('reflection-overlay').classList.add('show');
+            setTimeout(() => document.getElementById('reflection-text')?.focus(), 60);
+        }
+
+        async function submitReflection() {
+            const noteEl = document.getElementById('reflection-text');
+            const partEl = document.getElementById('reflection-part');
+            const btn = document.getElementById('reflection-submit-btn');
+            const note = noteEl.value.trim();
+            if (!currentReflectionName || !note) {
+                noteEl.focus();
+                return;
+            }
+            btn.disabled = true;
+            try {
+                await apiRequest('/reflections', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: currentReflectionName,
+                        logicalDate: getSafeDateString(viewingDate),
+                        createdAt: getIsoWithTimezoneForViewing(),
+                        part: partEl.value,
+                        note
+                    })
+                });
+                noteEl.value = '';
+                await fetchStatus();
+                renderReflectionHistory(currentReflectionName);
+            } catch (error) {
+                alert("得着提交失败，请检查 NAS 后端服务。");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function openRecordNoteModal(name, type, btn) {
+            pendingCheckin = { name, type, btn };
+            document.getElementById('record-note-name').innerText = name;
+            document.getElementById('record-note-type').innerText = type;
+            const textEl = document.getElementById('record-note-text');
+            textEl.value = '';
+            document.getElementById('record-note-overlay').classList.add('show');
+            setTimeout(() => textEl.focus(), 60);
+        }
+
+        function skipRecordNote() {
+            if (!pendingCheckin) return;
+            const { name, type, btn } = pendingCheckin;
+            document.getElementById('record-note-overlay').classList.remove('show');
+            pendingCheckin = null;
+            proceedSubmitCheckin(name, type, btn, '');
+        }
+
+        function confirmRecordNote() {
+            if (!pendingCheckin) return;
+            const { name, type, btn } = pendingCheckin;
+            const note = document.getElementById('record-note-text').value.trim();
+            document.getElementById('record-note-overlay').classList.remove('show');
+            pendingCheckin = null;
+            proceedSubmitCheckin(name, type, btn, note);
+        }
+
+        function openFeedbackPanel() {
+            const statusEl = document.getElementById('feedback-status');
+            if (statusEl) statusEl.innerText = '';
+            document.getElementById('feedback-overlay').classList.add('show');
+            setTimeout(() => document.getElementById('feedback-message')?.focus(), 80);
+        }
+
+        function closeFeedbackPanel() {
+            document.getElementById('feedback-overlay').classList.remove('show');
+        }
+
+        function saveFeedbackLocally(payload) {
+            const localFeedback = JSON.parse(localStorage.getItem('keda_feedback_cache') || '[]');
+            localFeedback.unshift({ ...payload, id: Date.now(), savedLocally: true });
+            localStorage.setItem('keda_feedback_cache', JSON.stringify(localFeedback.slice(0, 50)));
+        }
+
+        async function submitFeedback() {
+            const nameEl = document.getElementById('feedback-name');
+            const contactEl = document.getElementById('feedback-contact');
+            const messageEl = document.getElementById('feedback-message');
+            const statusEl = document.getElementById('feedback-status');
+            const btn = document.getElementById('feedback-submit-btn');
+            const message = messageEl.value.trim();
+            if (!message) {
+                statusEl.innerText = '请先填写反馈内容。';
+                messageEl.focus();
+                return;
+            }
+
+            const payload = {
+                name: nameEl.value.trim(),
+                contact: contactEl.value.trim(),
+                message,
+                page: location.href,
+                createdAt: new Date().toISOString()
+            };
+
+            btn.disabled = true;
+            statusEl.innerText = '正在提交...';
+            try {
+                await apiRequest('/feedback', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                statusEl.innerText = '已提交，谢谢你的反馈。';
+                messageEl.value = '';
+            } catch (error) {
+                saveFeedbackLocally(payload);
+                statusEl.innerText = '后端暂时不可用，反馈已先保存在本机浏览器。';
+            } finally {
+                btn.disabled = false;
+            }
+        }
 
         function openAdminPanel() {
             renderAdminAuthState();
@@ -1522,13 +1864,14 @@
         function loadSelectedWeekForEdit() {
             const select = document.getElementById('admin-week-select');
             if (!select) return;
-            const plan = WEEKLY_SCHEDULE[Number(select.value)] || { start: '', end: '', title: '', video: '', verse: '', url: '' };
+            const plan = WEEKLY_SCHEDULE[Number(select.value)] || { start: '', end: '', title: '', video: '', verse: '', url: '', outlineImage: '' };
             document.getElementById('admin-week-start').value = plan.start || '';
             document.getElementById('admin-week-end').value = plan.end || '';
             document.getElementById('admin-week-title').value = plan.title || '';
             document.getElementById('admin-week-video').value = plan.video || '';
             document.getElementById('admin-week-verse').value = plan.verse || '';
             document.getElementById('admin-week-url').value = plan.url || '';
+            document.getElementById('admin-week-outline-image').value = plan.outlineImage || '';
         }
 
         function readWeekPlanForm() {
@@ -1538,7 +1881,8 @@
                 title: document.getElementById('admin-week-title').value,
                 video: document.getElementById('admin-week-video').value,
                 verse: document.getElementById('admin-week-verse').value,
-                url: document.getElementById('admin-week-url').value
+                url: document.getElementById('admin-week-url').value,
+                outlineImage: document.getElementById('admin-week-outline-image').value
             });
         }
 
@@ -1599,9 +1943,11 @@
         }
 
         function exportRecordsCsv() {
-            const headers = ["姓名", "打卡时间", "逻辑日期", "是否补签", "每日灵修", "周读物", "周视频", "周背经", "打卡详情"];
+            const headers = ["姓名", "打卡时间", "逻辑日期", "是否补签", "每日灵修", "周读物", "周视频", "周背经", "分享记录", "部分", "打卡详情"];
             const rows = globalRecords.map(record => headers.map(header => {
                 if (header === "逻辑日期") return csvCell(getLogicalDateStr(record));
+                if (header === "打卡时间") return csvCell(formatLocalDateTime(record[header]));
+                if (header === "分享记录") return csvCell(getRecordNote(record));
                 return csvCell(record[header]);
             }).join(','));
             downloadTextFile(`科大门训打卡明细_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
@@ -1625,6 +1971,136 @@
             downloadTextFile(`科大门训每日汇总_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
         }
 
+        async function exportFeedbackCsv() {
+            const headers = ['提交时间', '姓名', '联系方式', '反馈内容', '页面'];
+            let feedbacks = [];
+            try {
+                const result = await apiRequest('/admin/feedback');
+                feedbacks = Array.isArray(result.feedbacks) ? result.feedbacks : [];
+            } catch (error) {
+                feedbacks = JSON.parse(localStorage.getItem('keda_feedback_cache') || '[]');
+            }
+            const rows = feedbacks.map(item => [
+                formatLocalDateTime(item.created_at || item.createdAt),
+                item.name || '',
+                item.contact || '',
+                item.message || '',
+                item.page || ''
+            ].map(csvCell).join(','));
+            downloadTextFile(`反馈与建议_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
+        }
+
+        function excelWorksheetXml(name, rows) {
+            const body = rows.map(row => `
+                <Row>${row.map(value => `<Cell><Data ss:Type="String">${xmlCell(value)}</Data></Cell>`).join('')}</Row>
+            `).join('');
+            return `
+                <Worksheet ss:Name="${xmlCell(name).slice(0, 31)}">
+                    <Table>${body}</Table>
+                </Worksheet>
+            `;
+        }
+
+        function exportTrainingTasksExcel() {
+            const dailySheetName = '\u6bcf\u65e5\u7075\u4fee';
+            const weeklySheetName = '\u5468\u4efb\u52a1';
+            const devotionTitle = '\u65f7\u91ce\u7075\u4fee';
+            const dailyRows = [['\u65e5\u671f', '\u6bcf\u65e5\u7075\u4fee', '\u7075\u4fee\u6807\u8bb0']];
+            const weeklyRows = [['\u5f00\u59cb\u65e5\u671f', '\u7ed3\u675f\u65e5\u671f', '\u8bfb\u7269', '\u89c6\u9891', '\u80cc\u7ecf', '\u5927\u7eb2\u56fe\u7247']];
+
+            const plans = WEEKLY_SCHEDULE.map(normalizeWeekPlan)
+                .filter(plan => plan.start && plan.end)
+                .sort((a, b) => a.start.localeCompare(b.start));
+
+            const startStr = plans[0]?.start || getSafeDateString(getRealToday());
+            const endStr = plans[plans.length - 1]?.end || startStr;
+            const current = new Date(startStr + 'T12:00:00');
+            const end = new Date(endStr + 'T12:00:00');
+
+            while (current <= end) {
+                const month = current.getMonth() + 1;
+                const day = current.getDate();
+                dailyRows.push([
+                    getSafeDateString(current),
+                    devotionTitle,
+                    `${toChineseNum(month)}\u6708${toChineseNum(day)}\u65e5`
+                ]);
+                current.setDate(current.getDate() + 1);
+            }
+
+            plans.forEach(plan => {
+                weeklyRows.push([
+                    plan.start,
+                    plan.end,
+                    plan.title || '',
+                    plan.video || '',
+                    plan.verse || '',
+                    plan.outlineImage || ''
+                ]);
+            });
+
+            const workbook = `<?xml version="1.0" encoding="UTF-8"?>
+                <?mso-application progid="Excel.Sheet"?>
+                <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+                    xmlns:o="urn:schemas-microsoft-com:office:office"
+                    xmlns:x="urn:schemas-microsoft-com:office:excel"
+                    xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+                    ${excelWorksheetXml(dailySheetName, dailyRows)}
+                    ${excelWorksheetXml(weeklySheetName, weeklyRows)}
+                </Workbook>`;
+
+            downloadTextFile(`\u95e8\u8bad\u4efb\u52a1_${getSafeDateString(getRealToday())}.xls`, workbook, 'application/vnd.ms-excel');
+        }
+
+        function worksheetRowsFromExcelXml(xmlText, preferredName) {
+            const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+            if (doc.querySelector('parsererror')) throw new Error('\u6587\u4ef6\u4e0d\u662f\u53ef\u8bc6\u522b\u7684 Excel XML \u683c\u5f0f');
+            const worksheets = Array.from(doc.getElementsByTagName('Worksheet'));
+            const worksheet = worksheets.find(sheet => {
+                const name = sheet.getAttribute('ss:Name') || sheet.getAttribute('Name') || sheet.getAttributeNS('urn:schemas-microsoft-com:office:spreadsheet', 'Name');
+                return name === preferredName;
+            }) || worksheets[1] || worksheets[0];
+            if (!worksheet) throw new Error('\u627e\u4e0d\u5230\u5de5\u4f5c\u8868');
+            return Array.from(worksheet.getElementsByTagName('Row')).map(row =>
+                Array.from(row.getElementsByTagName('Cell')).map(cell => {
+                    const data = cell.getElementsByTagName('Data')[0];
+                    return (data ? data.textContent : cell.textContent || '').trim();
+                })
+            );
+        }
+
+        async function importTrainingTasksExcel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const weeklyRows = worksheetRowsFromExcelXml(e.target.result, '\u5468\u4efb\u52a1');
+                    const imported = weeklyRows.slice(1).map(row => normalizeWeekPlan({
+                        start: row[0],
+                        end: row[1],
+                        title: row[2],
+                        video: row[3],
+                        verse: row[4],
+                        outlineImage: row[5] || '',
+                        url: row[6] || ''
+                    })).filter(plan => plan.start && plan.end && plan.title);
+
+                    if (imported.length === 0) throw new Error('\u6ca1\u6709\u8bfb\u5230\u53ef\u7528\u7684\u5468\u4efb\u52a1');
+                    if (!confirm(`\u5c06\u5bfc\u5165 ${imported.length} \u6761\u5468\u4efb\u52a1\uff0c\u5e76\u8986\u76d6\u5f53\u524d\u5468\u4efb\u52a1\u5b89\u6392\u3002\u7ee7\u7eed\u5417\uff1f`)) return;
+
+                    WEEKLY_SCHEDULE = imported;
+                    await persistWeeklySchedule();
+                    renderWeekPlanOptions();
+                    alert('\u95e8\u8bad\u4efb\u52a1\u5df2\u5bfc\u5165\u3002');
+                } catch (error) {
+                    alert('\u5bfc\u5165\u5931\u8d25\uff1a' + (error.message || error));
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file, 'utf-8');
+        }
         function exportBackupJson() {
             const backup = {
                 exportedAt: new Date().toISOString(),
@@ -1725,14 +2201,24 @@
                 if (completion.complete) classes.push('complete');
 
                 html += `
-                    <div class="${classes.join(' ')}">
+                    <button type="button" class="${classes.join(' ')}" onclick="pickProfileCalendarDate(${cellDate.getFullYear()}, ${cellDate.getMonth()}, ${cellDate.getDate()})">
                         <div class="profile-day-number">${cellDate.getDate()}</div>
-                        ${completion.totalCount > 0 ? `<div class="profile-day-badge">已完成 ${completion.totalCount}/4</div>` : ''}
-                    </div>
+                        ${completion.totalCount > 0 ? `<div class="profile-day-badge">${completion.totalCount}/4</div>` : ''}
+                    </button>
                 `;
             }
 
             grid.innerHTML = html;
+        }
+
+        function pickProfileCalendarDate(year, month, day) {
+            viewingDate = new Date(year, month, day, 12, 0, 0);
+            closeProfile();
+            updateDateUI();
+            resetButtons();
+            renderStatus();
+            renderDashboard();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openDatePicker() {
@@ -1887,12 +2373,22 @@
             const token = localStorage.getItem('keda_admin_token');
             if (token) headers.Authorization = `Bearer ${token}`;
             if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-            const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
-            if (!response.ok) {
-                const detail = await response.json().catch(() => ({}));
-                throw new Error(detail.error || `HTTP ${response.status}`);
+            let lastError = null;
+            for (const base of API_BASES) {
+                try {
+                    const response = await fetch(`${base}${path}`, { ...options, headers });
+                    if (!response.ok) {
+                        const detail = await response.json().catch(() => ({}));
+                        throw new Error(detail.error || `HTTP ${response.status}`);
+                    }
+                    const data = await response.json();
+                    localStorage.setItem('keda_api_base', base);
+                    return data;
+                } catch (error) {
+                    lastError = error;
+                }
             }
-            return response.json();
+            throw lastError || new Error('api_unreachable');
         }
 
         function applyBackendState(state) {
@@ -1931,7 +2427,7 @@
                 applyBackendState(state);
                 loadingEl.style.display = 'none';
             } catch (error) {
-                loadingEl.innerHTML = "⚠️ 无法连接 NAS 后端<br><span style='font-size:12px; font-weight:normal;'>请确认 Node 服务已启动，或检查 Docker/端口配置。</span>";
+                loadingEl.innerHTML = `⚠️ 无法连接 NAS 后端<br><span style='font-size:12px; font-weight:normal;'>请确认页面和 Node 服务已更新。错误：${escapeHtml(error.message || String(error))}</span>`;
             }
         }
 
@@ -1941,19 +2437,19 @@
                 document.getElementById('cancel-modal-overlay').classList.add('show');
                 return;
             }
+            proceedSubmitCheckin(name, type, btn, '');
+        }
 
+        async function proceedSubmitCheckin(name, type, btn, note) {
             const isPast = getSafeDateString(viewingDate) < getSafeDateString(getRealToday());
             const oldHtml = btn.innerHTML;
             const oldClass = btn.className;
             btn.innerHTML = isPast ? "已补" : "✔";
             btn.className = "action-btn btn-success";
             btn.disabled = false;
-            document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！";
-            showSuccess();
-
             const vMonth = viewingDate.getMonth() + 1;
             const vDay = viewingDate.getDate();
-            const detailStr = (isPast ? "【补签】" : "【按时】") + `${vMonth}月${vDay}日 ` + type;
+            const detailStr = (isPast ? "【补签】" : "【按时】") + `${vMonth}月${vDay}日 ` + type + (note ? `\n分享：${note}` : "");
 
             try {
                 await apiRequest('/checkins', {
@@ -1964,10 +2460,13 @@
                         logicalDate: getSafeDateString(viewingDate),
                         checkinTime: getIsoWithTimezoneForViewing(),
                         isRetro: isPast,
-                        detail: detailStr
+                        detail: detailStr,
+                        note
                     })
                 });
                 await fetchStatus();
+                document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！";
+                showSuccess();
             } catch (error) {
                 btn.innerHTML = oldHtml;
                 btn.className = oldClass;
@@ -2089,6 +2588,92 @@
                 alert("管理员密码已更新。");
             } catch (error) {
                 alert("修改失败，请重新登录后台。");
+            }
+        }
+
+        function recordDoneLabel(record) {
+            return ['每日灵修', '周读物', '周视频', '周背经']
+                .filter(key => record[key] === '已完成')
+                .join(' / ') || '打卡';
+        }
+
+        function renderServerPanel(html) {
+            const panel = document.getElementById('server-records-panel');
+            if (panel) panel.innerHTML = html;
+        }
+
+        async function loadRecentServerRecords() {
+            renderServerPanel('<div class="admin-note">正在读取服务器 records.json...</div>');
+            try {
+                const result = await apiRequest('/admin/recent-records?limit=20');
+                const records = Array.isArray(result.records) ? result.records : [];
+                if (records.length === 0) {
+                    renderServerPanel('<div class="admin-note">服务器目前没有打卡记录。</div>');
+                    return;
+                }
+                renderServerPanel(records.map(record => {
+                    const note = getRecordNote(record);
+                    return `
+                        <div class="server-record-card">
+                            <div class="server-record-title">
+                                <span>${escapeHtml(record['姓名'] || '')}</span>
+                                <span>${escapeHtml(recordDoneLabel(record))}</span>
+                            </div>
+                            <div class="server-record-meta">
+                                日期：${escapeHtml(getLogicalDateStr(record))} ｜ 时间：${escapeHtml(formatLocalDateTime(record['打卡时间']))}
+                            </div>
+                            ${note ? `<div class="server-record-note">记录：${escapeHtml(note)}</div>` : ''}
+                        </div>
+                    `;
+                }).join(''));
+            } catch (error) {
+                renderServerPanel(`<div class="admin-note">读取失败：${escapeHtml(error.message || String(error))}</div>`);
+            }
+        }
+
+        async function loadStorageStatus() {
+            renderServerPanel('<div class="admin-note">正在检查服务器存储...</div>');
+            try {
+                const status = await apiRequest('/admin/storage/status');
+                const backups = Array.isArray(status.latestBackups) ? status.latestBackups : [];
+                renderServerPanel(`
+                    <div class="server-record-card">
+                        <div class="server-record-title">
+                            <span>${status.writable ? '存储可写' : '存储不可写'}</span>
+                            <span>${Number(status.recordsCount || 0)} 条记录</span>
+                        </div>
+                        ${status.error ? `<div class="server-record-note">错误：${escapeHtml(status.error)}</div>` : ''}
+                        <div class="storage-status-grid">
+                            <div class="storage-status-item"><span class="storage-status-label">记录文件</span>${escapeHtml(status.recordsPath || '')}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">文件大小</span>${Number(status.recordsFileSize || 0)} bytes</div>
+                            <div class="storage-status-item"><span class="storage-status-label">备份目录</span>${escapeHtml(status.backupDir || '')}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">备份策略</span>${status.backupEnabled ? `开启，保留 ${Number(status.backupLimit || 0)} 份` : '关闭'}</div>
+                        </div>
+                    </div>
+                    ${backups.length ? backups.map(backup => `
+                        <div class="server-record-card">
+                            <div class="server-record-title">
+                                <span>${escapeHtml(backup.name)}</span>
+                                <span>${Number(backup.size || 0)} bytes</span>
+                            </div>
+                            <div class="server-record-meta">${escapeHtml(formatLocalDateTime(backup.modifiedAt))}</div>
+                        </div>
+                    `).join('') : '<div class="admin-note">还没有生成备份。新打卡、删除、导入或手动备份后会出现。</div>'}
+                `);
+            } catch (error) {
+                renderServerPanel(`<div class="admin-note">检查失败：${escapeHtml(error.message || String(error))}</div>`);
+            }
+        }
+
+        async function createManualRecordsBackup() {
+            renderServerPanel('<div class="admin-note">正在创建 records.json 备份...</div>');
+            try {
+                const result = await apiRequest('/admin/records/backup', { method: 'POST' });
+                const pathText = result.backupPath ? `已备份到：${escapeHtml(result.backupPath)}` : '当前还没有 records.json 可备份。';
+                renderServerPanel(`<div class="server-record-card">${pathText}</div>`);
+                await loadStorageStatus();
+            } catch (error) {
+                renderServerPanel(`<div class="admin-note">备份失败：${escapeHtml(error.message || String(error))}</div>`);
             }
         }
 
