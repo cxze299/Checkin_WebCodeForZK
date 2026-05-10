@@ -334,6 +334,7 @@
         .hero-task-card { margin-top: 0; width: 100%; box-sizing: border-box; border-radius: 8px; padding: 18px 20px; background: #ffffff; box-shadow: 0 8px 22px rgba(15,23,42,0.025); }
         .hero-task-card .task-row { margin-bottom: 14px; }
         .hero-task-card .task-row:last-child { margin-bottom: 0; }
+<<<<<<< HEAD
         .hero-task-card .task-row { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 16px; align-items: start; }
         .hero-task-card .task-row > strong { min-height: 40px; display: flex; align-items: center; justify-content: center; text-align: center; white-space: nowrap; }
         .hero-task-card .task-content { background: #f6fbff; border-left: 3px solid #1189eb; border-radius: 8px; padding: 10px 14px; min-height: 40px; display: block; }
@@ -351,6 +352,17 @@
         .outline-image-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box; }
         .outline-image { max-width: 100%; max-height: 72vh; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(15,23,42,0.08); background: #fff; object-fit: contain; }
         .pdf-frame { width: 100%; height: 72vh; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fbff; }
+=======
+        .hero-task-card .task-content { background: #f6fbff; border-left: 3px solid #1189eb; border-radius: 8px; padding: 10px 14px; min-height: 40px; display: block; }
+        .hero-task-card .clickable-task { display: inline; }
+        .task-extra-list { margin-top: 10px; display: grid; gap: 8px; }
+        .task-extra-line { display: flex; align-items: baseline; gap: 8px; font-size: 15px; font-weight: 800; line-height: 1.6; color: var(--text-main); }
+        .task-extra-line a { color: var(--video); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+        .task-extra-line.verse a { color: var(--verse); }
+        .task-extra-line.outline a { color: var(--success); }
+        .outline-image-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box; }
+        .outline-image { max-width: 100%; max-height: 72vh; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(15,23,42,0.08); background: #fff; object-fit: contain; }
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
         .date-calendar-popover { position: absolute; left: 0; top: calc(100% + 10px); width: 292px; padding: 18px 16px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 18px; box-shadow: 0 18px 45px rgba(15,23,42,0.16); z-index: 20; display: none; }
         .date-calendar-popover.show { display: block; }
         .date-calendar-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -371,10 +383,13 @@
             .hero-date-wrap { width: 100%; margin: 0 auto; }
             .hero-date-nav { max-width: 420px; }
             .hero-actions { align-self: flex-end; }
+<<<<<<< HEAD
             .hero-task-card .task-row { grid-template-columns: 1fr; gap: 8px; }
             .hero-task-card .task-row > strong { width: fit-content; justify-content: flex-start; padding-inline: 16px; }
             .share-links { grid-template-columns: 1fr; }
             .video-links { grid-template-columns: 1fr; }
+=======
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
         }
         @media (max-width: 520px) {
             .header h1 { font-size: 34px; }
@@ -409,10 +424,13 @@
                         <strong>&#128218; &#x5468;&#x8BFE;&#x4EFB;&#x52A1;</strong>
                         <div id="plan-weekly" class="task-content">&#x52A0;&#x8F7D;&#x4E2D;...</div>
                     </div>
+<<<<<<< HEAD
                     <div class="task-row">
                         <strong>&#128196; &#x8BFE;&#x4EE3;&#x8868;&#x5206;&#x4EAB;</strong>
                         <div id="plan-share" class="task-content">&#x52A0;&#x8F7D;&#x4E2D;...</div>
                     </div>
+=======
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
                 </div>
                 <div class="date-navigator-wrapper hero-date-wrap">
                     <div class="date-navigator hero-date-nav">
@@ -709,12 +727,17 @@
                             <input id="admin-week-url" type="url" placeholder="https:// 或 http://">
                         </div>
                         <div class="admin-field full">
+<<<<<<< HEAD
                             <label for="admin-week-videos">多个视频（每行：标题 | 地址）</label>
                             <textarea id="admin-week-videos" rows="5" placeholder="新约圣经-01-圣经引言(上) | https://.../L1.mp4&#10;新约圣经-02-圣经引言(下) | https://.../L2.mp4"></textarea>
                         </div>
                         <div class="admin-field full">
                             <label for="admin-week-outline-image">提纲背诵图片地址</label>
                             <input id="admin-week-outline-image" type="text" placeholder="例如：recite1.jpg 或 https://...">
+=======
+                            <label for="admin-week-outline-image">大纲图片地址</label>
+                            <input id="admin-week-outline-image" type="text" placeholder="例如：/images/outline-01.jpg 或 https://...">
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
                         </div>
                     </div>
                     <div class="admin-actions" style="margin-top:12px;">
@@ -818,11 +841,14 @@
         const DEFAULT_MEMBERS = ["顺丞", "信择", "明明", "亮亮", "杰涛", "嘉杰", "银华", "青青", "依萱", "喜悦", "胡蜜", "馨香", "虹伊", "刘欣", "义路"]; 
         let MEMBERS = loadMembersConfig();
         let TOTAL_MEMBERS = MEMBERS.length;
+<<<<<<< HEAD
         const DEFAULT_CLASS_REP_SHARES = [
             { title: "圣经纵览的目的与价值", url: "/圣经纵览的目的与价值.pdf" },
             { title: "圣经引言（上）内容概要", url: "/圣经引言（上）内容概要.pdf" },
             { title: "圣经引言（下）内容概要", url: "/圣经引言（下）内容概要.pdf" }
         ];
+=======
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 
         const DEFAULT_WEEKLY_SCHEDULE = [
             { start: "2026-04-06", end: "2026-04-12", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-01-211209-圣经引言(上)", verse: "罗马书 7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
@@ -868,6 +894,7 @@
             renderAdminMembers();
         }
 
+<<<<<<< HEAD
         function normalizeShareItem(item) {
             if (typeof item === 'string') {
                 const url = item.trim();
@@ -921,16 +948,26 @@
         function normalizeWeekPlan(plan) {
             const videos = normalizeWeekVideos(plan);
             const firstVideo = videos[0] || { title: '', url: '' };
+=======
+        function normalizeWeekPlan(plan) {
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
             return {
                 start: String(plan.start || '').trim(),
                 end: String(plan.end || '').trim(),
                 title: String(plan.title || '').trim(),
+<<<<<<< HEAD
                 video: firstVideo.title,
                 verse: String(plan.verse || '').trim(),
                 url: firstVideo.url,
                 videos,
                 outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim(),
                 shares: normalizeClassRepShares(plan.shares || plan.classRepShares || plan.class_rep_shares)
+=======
+                video: String(plan.video || '').trim(),
+                verse: String(plan.verse || '').trim(),
+                url: String(plan.url || '').trim(),
+                outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim()
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
             };
         }
 
@@ -1139,12 +1176,17 @@
             } catch (error) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>经文格式解析失败</strong><br></div>`; }
         }
 
+<<<<<<< HEAD
         function openOutlineImage(imageUrl, title = '提纲背诵') {
+=======
+        function openOutlineImage(imageUrl, title = '大纲默写') {
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
             const cleanUrl = String(imageUrl || '').trim();
             document.getElementById('reading-title').innerText = title;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
             if (!cleanUrl) {
+<<<<<<< HEAD
                 bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>还没有配置提纲背诵图片。</strong></div>`;
                 return;
             }
@@ -1167,6 +1209,12 @@
                     <a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:900;">在新窗口打开 PDF</a>
                 </div>
             `;
+=======
+                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>还没有配置大纲图片。</strong></div>`;
+                return;
+            }
+            bodyEl.innerHTML = `<div class="outline-image-wrap"><img class="outline-image" src="${escapeHtml(cleanUrl)}" alt="大纲图片" onerror="this.closest('.outline-image-wrap').innerHTML='<div style=&quot;text-align:center; color:var(--warning); font-weight:900;&quot;>图片加载失败，请检查图片地址。</div>'"></div>`;
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
         }
 
         function formatMarkdownBlocks(contentLines) {
@@ -1287,6 +1335,7 @@
             }
 
             const weeklyTitleStr = currentWeekData.title;
+<<<<<<< HEAD
             const verseStr = extractMemoryVerseFromWeeklyText(mdCache.weekly, currentWeekData.title, currentWeekData.verse);
             const videoItems = normalizeWeekVideos(currentWeekData);
             const videoLinks = videoItems.map(item => {
@@ -1314,6 +1363,23 @@
                 devotion: `<div class="clickable-task" onclick="openDailyReading()">&#128214; &#x65F7;&#x91CE;&#x7075;&#x4FEE;&#xFF08;<span class="task-highlight">${targetChineseDate}</span>&#xFF09;<span class="read-badge">&#x70B9;&#x51FB;&#x9605;&#x8BFB;</span></div>`,
                 weekly: `<div class="clickable-task" onclick="openWeeklyReading('${weeklyTitleStr}')">&#128218; &#x8BFB;&#x7269;&#xFF1A;${weeklyTitleStr}<span class="read-badge weekly-badge">&#x70B9;&#x51FB;&#x9605;&#x8BFB;</span></div>${tagUI}`,
                 share: sharePanelUI
+=======
+            const videoStr = currentWeekData.video;
+            const verseStr = extractMemoryVerseFromWeeklyText(mdCache.weekly, currentWeekData.title, currentWeekData.verse);
+            const videoUrl = currentWeekData.url;
+            const outlineImage = currentWeekData.outlineImage || '';
+            const outlineUI = outlineImage ? `<div class="task-extra-line outline"><span>&#128444;</span><span>&#x5927;&#x7EB2;&#xFF1A;</span><a onclick="openOutlineImage('${escapeJs(outlineImage)}', '${escapeJs(weeklyTitleStr)} 大纲')">&#x70B9;&#x51FB;&#x67E5;&#x770B;&#x5927;&#x7EB2;&#x56FE;&#x7247;</a></div>` : '';
+
+            const tagUI = `<div class="task-extra-list">
+                <div class="task-extra-line"><span>&#9654;</span><span>&#x89C6;&#x9891;&#xFF1A;</span><a onclick="openVideo('${videoUrl}', '${videoStr}')">${videoStr} (&#x64AD;&#x653E;)</a></div>
+                <div class="task-extra-line verse"><span>&#128214;</span><span>&#x80CC;&#x7ECF;&#xFF1A;</span><a onclick="openScriptureOnline('${escapeJs(verseStr)}')">${escapeHtml(verseStr)}</a></div>
+                ${outlineUI}
+            </div>`;
+
+            return {
+                devotion: `<div class="clickable-task" onclick="openDailyReading()">&#128214; &#x65F7;&#x91CE;&#x7075;&#x4FEE;&#xFF08;<span class="task-highlight">${targetChineseDate}</span>&#xFF09;<span class="read-badge">&#x70B9;&#x51FB;&#x9605;&#x8BFB;</span></div>`,
+                weekly: `<div class="clickable-task" onclick="openWeeklyReading('${weeklyTitleStr}')">&#128218; &#x8BFB;&#x7269;&#xFF1A;${weeklyTitleStr}<span class="read-badge weekly-badge">&#x70B9;&#x51FB;&#x9605;&#x8BFB;</span></div>${tagUI}`
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
             };
         }
         function updateDateUI() {
@@ -1982,8 +2048,11 @@
             document.getElementById('admin-week-video').value = plan.video || '';
             document.getElementById('admin-week-verse').value = plan.verse || '';
             document.getElementById('admin-week-url').value = plan.url || '';
+<<<<<<< HEAD
             const videosEl = document.getElementById('admin-week-videos');
             if (videosEl) videosEl.value = normalizeWeekVideos(plan).map(item => `${item.title} | ${item.url}`).join('\n');
+=======
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
             document.getElementById('admin-week-outline-image').value = plan.outlineImage || '';
         }
 
@@ -1995,7 +2064,10 @@
                 video: document.getElementById('admin-week-video').value,
                 verse: document.getElementById('admin-week-verse').value,
                 url: document.getElementById('admin-week-url').value,
+<<<<<<< HEAD
                 videos: document.getElementById('admin-week-videos')?.value || '',
+=======
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
                 outlineImage: document.getElementById('admin-week-outline-image').value
             });
         }
@@ -2120,7 +2192,11 @@
             const weeklySheetName = '\u5468\u4efb\u52a1';
             const devotionTitle = '\u65f7\u91ce\u7075\u4fee';
             const dailyRows = [['\u65e5\u671f', '\u6bcf\u65e5\u7075\u4fee', '\u7075\u4fee\u6807\u8bb0']];
+<<<<<<< HEAD
             const weeklyRows = [['\u5f00\u59cb\u65e5\u671f', '\u7ed3\u675f\u65e5\u671f', '\u8bfb\u7269', '\u89c6\u9891', '\u80cc\u7ecf', '\u63d0\u7eb2\u80cc\u8bf5\u56fe\u7247']];
+=======
+            const weeklyRows = [['\u5f00\u59cb\u65e5\u671f', '\u7ed3\u675f\u65e5\u671f', '\u8bfb\u7269', '\u89c6\u9891', '\u80cc\u7ecf', '\u5927\u7eb2\u56fe\u7247']];
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 
             const plans = WEEKLY_SCHEDULE.map(normalizeWeekPlan)
                 .filter(plan => plan.start && plan.end)
@@ -2147,7 +2223,11 @@
                     plan.start,
                     plan.end,
                     plan.title || '',
+<<<<<<< HEAD
                     normalizeWeekVideos(plan).map(item => `${item.title} | ${item.url}`).join('\n'),
+=======
+                    plan.video || '',
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
                     plan.verse || '',
                     plan.outlineImage || ''
                 ]);
@@ -2194,7 +2274,11 @@
                         start: row[0],
                         end: row[1],
                         title: row[2],
+<<<<<<< HEAD
                         videos: row[3],
+=======
+                        video: row[3],
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
                         verse: row[4],
                         outlineImage: row[5] || '',
                         url: row[6] || ''
@@ -2758,8 +2842,11 @@
                         </div>
                         ${status.error ? `<div class="server-record-note">错误：${escapeHtml(status.error)}</div>` : ''}
                         <div class="storage-status-grid">
+<<<<<<< HEAD
                             <div class="storage-status-item"><span class="storage-status-label">成员名单</span>${escapeHtml(status.membersPath || '')}<br>${Number(status.membersCount || 0)} 人</div>
                             <div class="storage-status-item"><span class="storage-status-label">周任务</span>${escapeHtml(status.weeklySchedulePath || '')}<br>${Number(status.weeklyScheduleCount || 0)} 条</div>
+=======
+>>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
                             <div class="storage-status-item"><span class="storage-status-label">记录文件</span>${escapeHtml(status.recordsPath || '')}</div>
                             <div class="storage-status-item"><span class="storage-status-label">文件大小</span>${Number(status.recordsFileSize || 0)} bytes</div>
                             <div class="storage-status-item"><span class="storage-status-label">备份目录</span>${escapeHtml(status.backupDir || '')}</div>
