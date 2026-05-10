@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>横线直接作答 自动打分默写器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            padding: 20px 15px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 22px;
+            color: #2c3e50;
+        }
+        .tip {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        #originText {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 1px solid #dcdfe6;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            outline: none;
+        }
+        #originText:focus {
+            border-color: #409eff;
+        }
+        .control {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        input[type="number"] {
+            width: 70px;
+            padding: 10px 8px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+            -webkit-appearance: none;
+            outline: none;
+        }
+        input[type="number"]:focus {
+            border-color: #409eff;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #409eff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            -webkit-appearance: none;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        button:hover {
+            background: #337ecc;
+        }
+        #result {
+            font-size: 18px;
+            line-height: 2.4;
+            padding: 20px;
+            background: #fdfdfd;
+            border-radius: 8px;
+            min-height: 100px;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+            border: 1px solid #ebeef5;
+        }
+        .blank-input {
+            border: none;
+            border-bottom: 2px solid #333;
+            font-size: 18px;
+            text-align: center;
+            background: transparent;
+            outline: none;
+            margin: 0 4px;
+            padding: 0 2px;
+            color: #000;
+            min-width: 50px; 
+            max-width: 100%;
+            transition: color 0.3s, border-color 0.3s, width 0.2s;
+            border-radius: 0;
+            -webkit-appearance: none;
+            vertical-align: baseline;
+        }
+        .blank-input:focus {
+            border-bottom-color: #409eff;
+        }
+        .score-box {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            background: #ecf5ff;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #303133;
+        }
+        .score-desc {
+            font-size: 14px;
+            color: #909399;
+            font-weight: normal;
+            margin: 5px 0 10px 0;
+        }
+        .hide {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px 10px; }
+            .container { padding: 20px 15px; }
+            h2 { font-size: 20px; }
+            .control { gap: 8px; }
+            button {
+                padding: 10px 16px;
+                font-size: 15px;
+                flex: 1;
+                min-width: 80px;
+            }
+            .control-group {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 5px;
+            }
+            #result { padding: 15px; font-size: 17px; }
+            .blank-input { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>横线直接作答 智能默写打分</h2>
+        <div class="tip">标点与章节号不挖空｜最高可挖空100%｜点击错题可看答案</div>
+
+        <textarea id="originText" placeholder="粘贴要默写的原文...">7:1弟兄们，我现在对明白律法的人说：你们岂不晓得律法管人是在活着的时候吗？
+7:2就如女人有了丈夫，丈夫还活着，就被律法约束；丈夫若死了，就脱离了丈夫的律法。
+7:3所以丈夫活着，她若归于别人，便叫淫妇；丈夫若死了，她就脱离了丈夫的律法，虽然归于别人，也不是淫妇。
+7:4我的弟兄们，这样说来，你们藉着基督的身体，在律法上也是死了，叫你们归于别人，就是归于那从死里复活的，叫我们结果子给　神。
+7:5因为我们属肉体的时候，那因律法而生的恶欲就在我们肢体中发动，以致结成死亡的果子。
+7:6但我们既然在捆我们的律法上死了，现今就脱离了律法，叫我们服侍主，要按着心灵的新样，不按着仪文的旧样。
+7:7这样，我们可说什么呢？律法是罪吗？断乎不是！只是非因律法，我就不知何为罪。非律法说，“不可起贪心”，我就不知何为贪心。
+7:8然而罪趁着机会，就藉着诫命叫诸般的贪心在我里头发动，因为没有律法，罪是死的。
+7:9我以前没有律法，是活着的；但是诫命来到，罪又活了，我就死了。
+7:10那本来叫人活的诫命，反倒叫我死</textarea>
+
+        <div class="control">
+            <div class="control-group">
+                <span>挖空比例：</span>
+                <input type="number" id="blankPercent" value="50" min="10" max="100">
+                <span>%</span>
+            </div>
+            <button onclick="createBlank()">生成默写卷</button>
+            <button onclick="checkScore()">批改打分</button>
+            <button onclick="clearAll()" style="background:#f56c6c;">重置</button>
+        </div>
+
+        <div id="result"></div>
+        <div id="scoreBox" class="score-box" style="display:none;"></div>
+    </div>
+
+    <script>
+        let originTextRaw = "";
+        let wordList = [];
+        let blankIndex = [];
+        let blankAnswerMap = {};
+        
+        const splitReg = /(\d+:\d+|[，。！？；：、,.!?;:\s“”‘’（）()《》])/;
+        const unblankableReg = /^(\d+:\d+|[，。！？；：、,.!?;:\s“”‘’（）()《》])$/;
+
+        function splitToWords(text) {
+            return text.split(splitReg).filter(item => item !== "");
+        }
+
+        function isUnblankable(str) {
+            return unblankableReg.test(str);
+        }
+
+        function createBlank() {
+            const text = document.getElementById('originText').value.trim();
+            originTextRaw = text;
+            let percent = parseInt(document.getElementById('blankPercent').value);
+
+            if (!text) {
+                alert('请先输入原文');
+                return;
+            }
+            if (percent < 10) percent = 10;
+            // 允许最大100%挖空
+            if (percent > 100) percent = 100;
+            document.getElementById('blankPercent').value = percent;
+
+            document.getElementById('originText').classList.add('hide');
+
+            wordList = splitToWords(text);
+            let canBlankIdx = [];
+            for (let i = 0; i < wordList.length; i++) {
+                if (!isUnblankable(wordList[i])) {
+                    canBlankIdx.push(i);
+                }
+            }
+            if (canBlankIdx.length === 0) {
+                alert('没有可挖空的文字');
+                document.getElementById('originText').classList.remove('hide');
+                return;
+            }
+
+            let blankCount = Math.round(canBlankIdx.length * percent / 100);
+            if (blankCount < 1) blankCount = 1;
+            // 当比例为100%时，允许挖掉所有可挖空的词
+            if (blankCount > canBlankIdx.length) blankCount = canBlankIdx.length;
+
+            blankIndex = [];
+            blankAnswerMap = {};
+            while (blankIndex.length < blankCount) {
+                let rnd = Math.floor(Math.random() * canBlankIdx.length);
+                let idx = canBlankIdx[rnd];
+                if (!blankIndex.includes(idx)) {
+                    blankIndex.push(idx);
+                    blankAnswerMap[idx] = wordList[idx];
+                }
+            }
+
+            renderResult();
+            document.getElementById('scoreBox').style.display = 'none';
+        }
+
+        function renderResult() {
+            let html = '';
+            for (let i = 0; i < wordList.length; i++) {
+                if (blankIndex.includes(i)) {
+                    let wordLen = wordList[i].length;
+                    let baseWidth = Math.max(50, wordLen * 20 + 10);
+                    
+                    html += `<input class="blank-input" style="width: ${baseWidth}px;" data-key="${i}" data-base="${baseWidth}" placeholder="..." oninput="this.style.width = Math.max(this.dataset.base, this.value.length * 20 + 10) + 'px'">`;
+                } else {
+                    if (wordList[i] === '\n') {
+                        html += '<br>';
+                    } else {
+                        html += wordList[i];
+                    }
+                }
+            }
+            document.getElementById('result').innerHTML = html;
+        }
+
+        function checkScore() {
+            let inputs = document.querySelectorAll('.blank-input');
+            let total = blankIndex.length;
+            let right = 0;
+            let percent = parseInt(document.getElementById('blankPercent').value);
+
+            if (total === 0) {
+                alert('请先生成默写卷');
+                return;
+            }
+
+            inputs.forEach(inp => {
+                let key = inp.getAttribute('data-key');
+                let userVal = inp.value.trim();
+                let stdVal = blankAnswerMap[key];
+                
+                inp.readOnly = true;
+                inp.onclick = null;
+                inp.style.cursor = 'default';
+
+                if (userVal === stdVal) {
+                    right++;
+                    inp.style.borderBottomColor = '#67c23a';
+                    inp.style.color = '#67c23a';
+                } else {
+                    inp.style.borderBottomColor = '#f56c6c';
+                    inp.style.color = '#f56c6c';
+                    inp.style.cursor = 'pointer';
+                    
+                    inp.setAttribute('data-user-val', inp.value);
+                    
+                    inp.onclick = function() {
+                        let currentVal = this.value;
+                        if (currentVal === stdVal) {
+                            this.value = this.getAttribute('data-user-val');
+                            this.style.color = '#f56c6c'; 
+                        } else {
+                            this.value = stdVal;
+                            this.style.color = '#e6a23c'; 
+                            this.style.width = Math.max(this.dataset.base, this.value.length * 20 + 10) + 'px';
+                        }
+                    };
+                }
+            });
+
+            // 分数按答对比例乘以设定的难度比例计算
+            let score = Math.round((right / total) * percent);
+            
+            document.getElementById('scoreBox').style.display = 'block';
+            document.getElementById('scoreBox').innerHTML = 
+                `得分：<span style="color:#1989fa;font-size:28px;">${score}</span> 分
+                 <div class="score-desc">( 当前难度 ${percent}%，本卷全对满分为 ${percent} 分 )</div>
+                 <span style="font-size:16px;font-weight:normal;color:#666;">答对 ${right} 空 / 共 ${total} 空</span>`;
+            
+            document.getElementById('scoreBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function clearAll() {
+            document.getElementById('originText').classList.remove('hide');
+            document.getElementById('blankPercent').value = 50; // 重置时恢复默认的50%
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('scoreBox').style.display = 'none';
+            wordList = [];
+            blankIndex = [];
+            blankAnswerMap = {};
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
