@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>绉戝ぇ闂ㄨ鎵撳崱</title>
+    <title>科大门训打卡</title>
     <link rel="icon" href="/icon_ios_v2.png" type="image/png">
     <link rel="apple-touch-icon" href="/icon_ios_v2.png">
     
@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* ================= iOS 椋庢牸鍏ㄥ眬鍙橀噺 ================= */
+        /* ================= iOS 风格全局变量 ================= */
         :root {
             --primary: #1189eb; 
             --primary-light: rgba(17, 137, 235, 0.09);
@@ -67,7 +67,7 @@
             .task-content { padding-left: 0; font-size: 18px; padding-top: 5px;}
         }
 
-        /* ================= 馃敂 鍛ㄥ叚鎻愰啋妯″潡鏍峰紡 ================= */
+        /* ================= 🔔 周六提醒模块样式 ================= */
         .saturday-reminder-card {
             background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
             border-radius: 18px;
@@ -90,7 +90,7 @@
 
         #loading-status { text-align: center; color: var(--primary); font-size: 14px; margin: 15px 0; font-weight: 800;}
 
-        /* 鍥涘ぇ杩涘害鏉＄綉鏍?*/
+        /* 四大进度条网格 */
         .stats-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
         @media (min-width: 768px) { .stats-dashboard { grid-template-columns: repeat(4, 1fr); } }
 
@@ -133,7 +133,7 @@
         .member-note-item + .member-note-item { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(17, 137, 235, 0.12); }
         .member-note-type { color: var(--primary); font-weight: 900; margin-right: 6px; }
 
-        /* 鍥涗釜鎸夐挳骞舵帓缃戞牸 */
+        /* 四个按钮并排网格 */
         .btn-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         button.action-btn { width: 100%; border: none; border-radius: 10px; padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
         button.action-btn:active:not(:disabled) { transform: scale(0.92); background: #e2e8f0 !important; color: #64748b !important; }
@@ -145,7 +145,7 @@
         .btn-verse { background: rgba(139, 92, 246, 0.08); color: var(--verse); }
         .btn-success { background: var(--success) !important; color: white !important; font-size: 12px !important; }
 
-        /* ================= 馃搳 鏁版嵁澶х洏鏍峰紡 ================= */
+        /* ================= 📊 数据大盘样式 ================= */
         .dash-card { background: var(--card-bg); border-radius: 16px; padding: 25px 20px; margin-top: 10px; border: 1px solid var(--border-color); box-shadow: 0 8px 20px rgba(15,23,42,0.025); }
         .dash-header { text-align: center; margin-bottom: 20px; }
         .dash-title { font-size: 18px; font-weight: 900; color: var(--text-main); margin: 0; }
@@ -167,7 +167,7 @@
         .weekly-summary-empty { color: var(--text-sub); font-weight: 800; padding: 14px; background: #f8fbff; border: 1px dashed var(--border-color); border-radius: 8px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ================= 鍚勭被寮圭獥 ================= */
+        /* ================= 各类弹窗 ================= */
         .modal-overlay { visibility: hidden; opacity: 0; pointer-events: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 2000; display: flex; justify-content: center; align-items: center; transition: all 0.3s; }
         .modal-overlay.show { visibility: visible; opacity: 1; pointer-events: auto; }
         .modal-content { background: white; padding: 40px 24px 30px 24px; border-radius: 30px; max-width: 360px; width: 85%; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: scale(0.85); transition: all 0.4s cubic-bezier(0.15, 1, 0.3, 1.1); position: relative; }
@@ -175,8 +175,8 @@
         
         .modal-verse { font-size: 19px; font-weight: 800; line-height: 1.6; margin: 20px 0; position: relative; color: var(--text-main); z-index: 1;}
         #modal-verse-content::before, #modal-verse-content::after { position: absolute; font-size: 80px; color: rgba(90, 103, 216, 0.1); font-family: Georgia, serif; z-index: -1; line-height: 1; }
-        #modal-verse-content::before { content: "鈥?; top: -35px; left: -5px; }
-        #modal-verse-content::after { content: "鈥?; bottom: -35px; right: -5px; }
+        #modal-verse-content::before { content: "“"; top: -35px; left: -5px; }
+        #modal-verse-content::after { content: "”"; bottom: -35px; right: -5px; }
         .btn-close-modal { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 16px; font-size: 16px; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; }
 
         .reading-modal { max-width: 680px; width: 92%; height: 85vh; max-height: 850px; padding: 0; margin: 0 auto; display: flex; flex-direction: column; text-align: left; background: #ffffff; border-radius: 28px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.15); }
@@ -348,9 +348,40 @@
         .share-links a { display: block; min-width: 0; padding: 6px 10px; border-radius: 8px; background: #ffffff; border: 1px solid rgba(17,137,235,0.18); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .video-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
         .video-links a { display: block; min-width: 0; padding: 6px 10px; border-radius: 8px; background: #ffffff; border: 1px solid rgba(17,137,235,0.18); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .recite-practice-btn { display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; padding: 3px 9px; border-radius: 8px; background: rgba(139, 92, 246, 0.1); color: var(--verse) !important; text-decoration: none !important; font-size: 13px; font-weight: 900; white-space: nowrap; }
         .outline-image-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box; }
         .outline-image { max-width: 100%; max-height: 72vh; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(15,23,42,0.08); background: #fff; object-fit: contain; }
         .pdf-frame { width: 100%; height: 72vh; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fbff; }
+        .recite-modal { max-width: 920px; width: 94%; max-height: 90vh; overflow: hidden; padding: 0; }
+        .recite-body { padding: 20px; overflow-y: auto; max-height: calc(90vh - 80px); box-sizing: border-box; }
+        .recite-tip { margin: 0 0 14px; color: var(--text-sub); font-size: 13px; line-height: 1.6; font-weight: 700; text-align: center; }
+        .recite-origin { width: 100%; min-height: 150px; box-sizing: border-box; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; line-height: 1.7; resize: vertical; outline: none; color: var(--text-main); background: #f8fbff; }
+        .recite-origin:focus { border-color: var(--primary); background: #fff; }
+        .recite-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 14px 0; }
+        .recite-controls label { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; color: var(--text-main); }
+        .recite-controls input { width: 74px; padding: 9px 8px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; font-weight: 900; text-align: center; }
+        .recite-controls button { border: none; border-radius: 8px; padding: 10px 14px; font-weight: 900; color: #fff; background: var(--primary); cursor: pointer; }
+        .recite-controls .danger { background: var(--warning); }
+        .recite-result { font-size: 17px; line-height: 2.4; padding: 18px; background: #f8fbff; border: 1px solid var(--border-color); border-radius: 8px; min-height: 86px; word-wrap: break-word; }
+        .recite-blank-input { border: none; border-bottom: 2px solid var(--text-main); font-size: 17px; text-align: center; background: transparent; outline: none; margin: 0 4px; padding: 0 2px; color: var(--text-main); min-width: 50px; max-width: 100%; border-radius: 0; vertical-align: baseline; }
+        .recite-blank-input:focus { border-bottom-color: var(--primary); }
+        .recite-score { display: none; margin-top: 14px; padding: 16px; border-radius: 8px; background: #eaf4ff; color: var(--text-main); font-size: 17px; font-weight: 900; text-align: center; }
+        .recite-meta-grid { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 12px; margin: 0 0 14px; align-items: end; }
+        .recite-meta-field { display: grid; gap: 6px; }
+        .recite-meta-field label { color: var(--text-sub); font-size: 12px; font-weight: 900; }
+        .recite-meta-field select, .recite-meta-field input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; color: var(--text-main); font-size: 14px; font-weight: 900; outline: none; }
+        .recite-meta-field select:focus, .recite-meta-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(17,137,235,0.1); }
+        .recite-leaderboard { margin-top: 14px; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; }
+        .recite-leaderboard-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+        .recite-leaderboard-title { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 900; }
+        .recite-leaderboard-rule { color: var(--text-sub); font-size: 12px; font-weight: 800; line-height: 1.5; }
+        .recite-leaderboard-list { display: grid; gap: 8px; }
+        .recite-rank-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 8px; background: #f8fbff; border: 1px solid rgba(17,137,235,0.12); }
+        .recite-rank-no { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(17,137,235,0.12); color: var(--primary); font-weight: 900; }
+        .recite-rank-name { color: var(--text-main); font-size: 14px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .recite-rank-meta { color: var(--text-sub); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .recite-rank-score { color: var(--primary); font-size: 18px; font-weight: 900; }
+        .recite-empty { color: var(--text-sub); font-size: 13px; font-weight: 800; text-align: center; padding: 10px; }
         .date-calendar-popover { position: absolute; left: 0; top: calc(100% + 10px); width: 292px; padding: 18px 16px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 18px; box-shadow: 0 18px 45px rgba(15,23,42,0.16); z-index: 20; display: none; }
         .date-calendar-popover.show { display: block; }
         .date-calendar-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -375,6 +406,11 @@
             .hero-task-card .task-row > strong { width: fit-content; justify-content: flex-start; padding-inline: 16px; }
             .share-links { grid-template-columns: 1fr; }
             .video-links { grid-template-columns: 1fr; }
+            .recite-meta-grid { grid-template-columns: 1fr; }
+            .recite-rank-row { grid-template-columns: 30px minmax(0, 1fr); }
+            .recite-rank-score { grid-column: 2; justify-self: start; font-size: 15px; }
+            .recite-body { padding: 16px; }
+            .recite-controls button { flex: 1; min-width: 96px; }
         }
         @media (max-width: 520px) {
             .header h1 { font-size: 34px; }
@@ -391,8 +427,8 @@
             <div class="hero-topline">
                 <div class="hero-copy">
                     <div class="hero-kicker">DISCIPLE TRAINING CHECK-IN</div>
-                    <h1>榛戦棬鐢橀湶</h1>
-                    <p>闂ㄨ鎵撳崱锛堢偣鍑诲ご鍍忓彲浠ユ煡鐪嬩汉鐗╂湀鍘嗭級</p>
+                    <h1>黑门甘露</h1>
+                    <p>门训打卡（点击头像可以查看人物月历）</p>
                 </div>
                 <div class="hero-actions">
                     <button class="hero-settings hero-feedback" onclick="openFeedbackPanel()" title="&#x53CD;&#x9988;&#x4E0E;&#x5EFA;&#x8BAE;">&#9993; <span>&#x53CD;&#x9988;</span></button>
@@ -447,33 +483,33 @@
         </div>
 
         <div id="saturday-reminder" class="saturday-reminder-card" style="display: none;">
-            馃敂 <strong>鍛ㄦ湯鎻愰啋锛?/strong>浠婂ぉ鏄懆鍏暒锛佽妫€鏌ユ偍鐨?strong>銆屽懆璇句换鍔°€?/strong>鏄惁閮藉凡鎵撳崱锛屾槑澶╁氨鏄富鏃ュ挴锛岃繕鏈畬鎴愮殑鑲綋璇锋姄绱ф椂闂村摝锛侌煉?
+            🔔 <strong>周末提醒：</strong>今天是周六啦！请检查您的<strong>「周课任务」</strong>是否都已打卡，明天就是主日咯，还未完成的肢体请抓紧时间哦！💪
         </div>
         
-        <div id="loading-status">馃攧 姝ｅ湪鍒濆鍖栫郴缁?..</div>
+        <div id="loading-status">🔄 正在初始化系统...</div>
 
         <div class="stats-dashboard">
             <div class="stat-card">
-                <div class="stat-icon-wrapper icon-daily">鈽€锔?/div>
-                <div class="stat-title">浠婃棩鐏典慨</div>
+                <div class="stat-icon-wrapper icon-daily">☀️</div>
+                <div class="stat-title">今日灵修</div>
                 <div class="stat-number num-daily"><span id="daily-count">0</span><span id="daily-total">/15</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill daily" id="daily-progress"></div></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon-wrapper icon-book">馃摉</div>
-                <div class="stat-title">鏈懆璇讳功</div>
+                <div class="stat-icon-wrapper icon-book">📖</div>
+                <div class="stat-title">本周读书</div>
                 <div class="stat-number num-book"><span id="book-count">0</span><span id="book-total">/15</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill book" id="book-progress"></div></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon-wrapper icon-video">鈻讹笍</div>
-                <div class="stat-title">鏈懆瑙嗛</div>
+                <div class="stat-icon-wrapper icon-video">▶️</div>
+                <div class="stat-title">本周视频</div>
                 <div class="stat-number num-video"><span id="video-count">0</span><span id="video-total">/15</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill video" id="video-progress"></div></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon-wrapper icon-verse">馃挰</div>
-                <div class="stat-title">鏈懆鑳岀粡</div>
+                <div class="stat-icon-wrapper icon-verse">💬</div>
+                <div class="stat-title">本周背经</div>
                 <div class="stat-number num-verse"><span id="verse-count">0</span><span id="verse-total">/15</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill verse" id="verse-progress"></div></div>
             </div>
@@ -483,12 +519,12 @@
 
         <div class="dash-card">
             <div class="dash-header">
-                <h2 class="dash-title">馃搳 棣欐煆鏈ㄦ暟鎹粺璁′腑蹇?/h2>
+                <h2 class="dash-title">📊 香柏木数据统计中心</h2>
             </div>
             <div class="dash-tabs">
-                <button class="dash-tab-btn active" onclick="switchDashTab('total', this)">馃弳 鍒嗛」鎬绘</button>
-                <button class="dash-tab-btn" onclick="switchDashTab('perfect', this)">馃 瀹岀編鍛ㄦ</button>
-                <button class="dash-tab-btn" onclick="switchDashTab('7days', this)">馃敟 娲昏穬澶╂暟</button>
+                <button class="dash-tab-btn active" onclick="switchDashTab('total', this)">🏆 分项总榜</button>
+                <button class="dash-tab-btn" onclick="switchDashTab('perfect', this)">🥇 完美周榜</button>
+                <button class="dash-tab-btn" onclick="switchDashTab('7days', this)">🔥 活跃天数</button>
                 <button class="dash-tab-btn" onclick="switchDashTab('streak', this)">&#x26A1; &#x8FDE;&#x7EED;&#x6253;&#x5361;</button>
                 <button class="dash-tab-btn" onclick="switchDashTab('weekly-summary', this)">&#x5468;&#x4EFB;&#x52A1;&#x603B;&#x7ED3;</button>
             </div>
@@ -533,55 +569,55 @@
     <input type="file" id="training-task-import-file" accept=".xls,.xml,application/vnd.ms-excel,text/xml,application/xml" style="display: none;" onchange="importTrainingTasksExcel(event)">
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="avatar" style="width:54px; height:54px; margin:0 auto 15px auto; background:var(--success); color:white; font-size:24px; border:none;">鉁?/div>
-            <div style="font-size:22px; font-weight:900;" id="modal-action-title">鎵撳崱鎴愬姛锛?/div>
+            <div class="avatar" style="width:54px; height:54px; margin:0 auto 15px auto; background:var(--success); color:white; font-size:24px; border:none;">✔</div>
+            <div style="font-size:22px; font-weight:900;" id="modal-action-title">打卡成功！</div>
             <p id="modal-verse-content" class="modal-verse"></p>
             <div style="color:var(--primary); font-weight:800; font-size:14px;" id="modal-verse-ref"></div>
-            <button class="btn-close-modal" onclick="closeModal()">濂界殑锛岄樋浠?/button>
+            <button class="btn-close-modal" onclick="closeModal()">好的，阿们</button>
         </div>
     </div>
 
     <div id="cancel-modal-overlay" class="modal-overlay" onclick="closeCancelModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div style="font-size:20px; font-weight:900;">鎾ら攢鎵撳崱</div>
-            <p style="margin:15px 0; font-weight:700; color:var(--text-main);">纭畾瑕佹挙閿€杩欐潯璁板綍鍚楋紵</p>
+            <div style="font-size:20px; font-weight:900;">撤销打卡</div>
+            <p style="margin:15px 0; font-weight:700; color:var(--text-main);">确定要撤销这条记录吗？</p>
             <div style="display:flex; gap:10px;">
-                <button class="btn-close-modal" style="background:#f2f2f7; color:var(--text-sub); box-shadow:none;" onclick="closeCancelModal()">鏆備笉鍙栨秷</button>
-                <button class="btn-close-modal" style="background:var(--warning);" onclick="confirmCancelCheckin()">纭鎾ら攢</button>
+                <button class="btn-close-modal" style="background:#f2f2f7; color:var(--text-sub); box-shadow:none;" onclick="closeCancelModal()">暂不取消</button>
+                <button class="btn-close-modal" style="background:var(--warning);" onclick="confirmCancelCheckin()">确认撤销</button>
             </div>
         </div>
     </div>
 
     <div id="record-note-overlay" class="modal-overlay" onclick="closeRecordNoteModal()">
         <div class="modal-content record-note-content" onclick="event.stopPropagation()">
-            <h2 class="record-note-title">璁板綍涓€鍙ヨ瘽</h2>
-            <p class="record-note-subtitle">缁?<span id="record-note-name"></span> 鐨?<span id="record-note-type" class="record-note-type"></span> 鐣欎竴鐐归棶棰樸€佸垎浜垨璁板繂鐐广€?/p>
-            <textarea id="record-note-text" class="record-note-textarea" placeholder="鍙€夈€傛瘮濡備粖澶╂渶瑙﹀姩鐨勪竴鍙ャ€佷竴涓棶棰橈紝鎴栬€呬竴鍙ュ垎浜€?></textarea>
+            <h2 class="record-note-title">记录一句话</h2>
+            <p class="record-note-subtitle">给 <span id="record-note-name"></span> 的 <span id="record-note-type" class="record-note-type"></span> 留一点问题、分享或记忆点。</p>
+            <textarea id="record-note-text" class="record-note-textarea" placeholder="可选。比如今天最触动的一句、一个问题，或者一句分享。"></textarea>
             <div class="admin-actions" style="margin-top:14px;">
-                <button class="admin-action-btn secondary" onclick="skipRecordNote()">鐩存帴鎵撳崱</button>
-                <button class="admin-action-btn" onclick="confirmRecordNote()">淇濆瓨骞舵墦鍗?/button>
+                <button class="admin-action-btn secondary" onclick="skipRecordNote()">直接打卡</button>
+                <button class="admin-action-btn" onclick="confirmRecordNote()">保存并打卡</button>
             </div>
         </div>
     </div>
 
     <div id="reflection-overlay" class="modal-overlay" onclick="closeReflectionPanel()">
         <div class="modal-content record-note-content" onclick="event.stopPropagation()">
-            <h2 class="record-note-title"><span id="reflection-name">濮撳悕</span>鐨勫緱鐫€</h2>
-            <p class="record-note-subtitle">鍙互琛ュ啓闂銆佸垎浜拰璁板繂鐐癸紝鍜屽綋澶╂墦鍗″垎寮€淇濆瓨銆?/p>
+            <h2 class="record-note-title"><span id="reflection-name">姓名</span>的得着</h2>
+            <p class="record-note-subtitle">可以补写问题、分享和记忆点，和当天打卡分开保存。</p>
             <div class="admin-field" style="margin-bottom:12px;">
-                <label for="reflection-part">瀵瑰簲閮ㄥ垎</label>
+                <label for="reflection-part">对应部分</label>
                 <select id="reflection-part">
-                    <option value="姣忔棩鐏典慨">姣忔棩鐏典慨</option>
-                    <option value="鍛ㄨ鐗?>鍛ㄨ鐗?/option>
-                    <option value="鍛ㄨ棰?>鍛ㄨ棰?/option>
-                    <option value="鍛ㄨ儗缁?>鍛ㄨ儗缁?/option>
-                    <option value="鍏朵粬">鍏朵粬</option>
+                    <option value="每日灵修">每日灵修</option>
+                    <option value="周读物">周读物</option>
+                    <option value="周视频">周视频</option>
+                    <option value="周背经">周背经</option>
+                    <option value="其他">其他</option>
                 </select>
             </div>
-            <textarea id="reflection-text" class="record-note-textarea" placeholder="鍐欎笅浠婂ぉ鐨勫緱鐫€銆侀棶棰樻垨鍒嗕韩銆?></textarea>
+            <textarea id="reflection-text" class="record-note-textarea" placeholder="写下今天的得着、问题或分享。"></textarea>
             <div class="admin-actions" style="margin-top:14px;">
-                <button id="reflection-submit-btn" class="admin-action-btn" onclick="submitReflection()">鎻愪氦寰楃潃</button>
-                <button class="admin-action-btn secondary" onclick="closeReflectionPanel()">鍏抽棴</button>
+                <button id="reflection-submit-btn" class="admin-action-btn" onclick="submitReflection()">提交得着</button>
+                <button class="admin-action-btn secondary" onclick="closeReflectionPanel()">关闭</button>
             </div>
             <div id="reflection-history" class="reflection-history"></div>
         </div>
@@ -615,152 +651,156 @@
         <div class="modal-content profile-content" onclick="event.stopPropagation()">
             <div class="profile-top">
                 <div>
-                    <div class="profile-kicker">浜虹墿鏈堝巻</div>
-                    <h2 class="profile-name" id="profile-name">濮撳悕</h2>
-                    <p class="profile-note">钃濊壊琛ㄧず瀹屾垚姣忔棩鐏典慨锛涚豢鑹茶〃绀哄懆浠诲姟鏈夊崐鏁板畬鎴愪笖瀹屾垚姣忔棩鐏典慨銆?/p>
+                    <div class="profile-kicker">人物月历</div>
+                    <h2 class="profile-name" id="profile-name">姓名</h2>
+                    <p class="profile-note">蓝色表示完成每日灵修；绿色表示周任务有半数完成且完成每日灵修。</p>
                 </div>
-                <button class="profile-close-btn" onclick="closeProfile()">鍏抽棴</button>
+                <button class="profile-close-btn" onclick="closeProfile()">关闭</button>
             </div>
             <div class="profile-calendar-nav">
-                <button class="profile-month-btn" onclick="changeProfileMonth(-1)">鈥?/button>
-                <div class="profile-month-title" id="profile-month-title">2026骞?鏈?/div>
-                <button class="profile-month-btn" onclick="changeProfileMonth(1)">鈥?/button>
+                <button class="profile-month-btn" onclick="changeProfileMonth(-1)">‹</button>
+                <div class="profile-month-title" id="profile-month-title">2026年4月</div>
+                <button class="profile-month-btn" onclick="changeProfileMonth(1)">›</button>
             </div>
             <div class="profile-calendar-shell">
                 <div class="profile-weekdays">
-                    <div class="profile-weekday">鏃?/div>
-                    <div class="profile-weekday">涓€</div>
-                    <div class="profile-weekday">浜?/div>
-                    <div class="profile-weekday">涓?/div>
-                    <div class="profile-weekday">鍥?/div>
-                    <div class="profile-weekday">浜?/div>
-                    <div class="profile-weekday">鍏?/div>
+                    <div class="profile-weekday">日</div>
+                    <div class="profile-weekday">一</div>
+                    <div class="profile-weekday">二</div>
+                    <div class="profile-weekday">三</div>
+                    <div class="profile-weekday">四</div>
+                    <div class="profile-weekday">五</div>
+                    <div class="profile-weekday">六</div>
                 </div>
                 <div class="profile-calendar-grid" id="profile-calendar"></div>
             </div>
         </div>
     </div>
 
-    <div id="admin-overlay" class="modal-overlay">
+    <div id="admin-overlay" class="modal-overlay" onclick="closeAdminPanel()">
         <div class="modal-content admin-content" onclick="event.stopPropagation()">
-            <h2 class="admin-title">绠＄悊鍛樺悗鍙?/h2>
-            <p class="admin-subtitle">鎴愬憳銆佸懆浠诲姟銆佸悓姝ュ拰瀵煎嚭閮藉湪杩欓噷缁存姢銆傚綋鍓嶉潤鎬佺増鏈殑鐧诲綍鐢ㄤ簬闃茶鎿嶄綔锛屼笉鑳芥浛浠ｆ湇鍔″櫒鏉冮檺鎺у埗銆?/p>
+            <h2 class="admin-title">管理员后台</h2>
+            <p class="admin-subtitle">成员、周任务、同步和导出都在这里维护。当前静态版本的登录用于防误操作，不能替代服务器权限控制。</p>
 
             <div id="admin-login-panel" class="admin-login-box">
                 <div class="admin-section">
-                    <h3 id="admin-login-title">绠＄悊鍛樼櫥褰?/h3>
+                    <h3 id="admin-login-title">管理员登录</h3>
                     <div class="admin-field">
-                        <label for="admin-password-input">绠＄悊鍛樺瘑鐮?/label>
-                        <input id="admin-password-input" type="password" placeholder="璇疯緭鍏ュ瘑鐮? onkeydown="if(event.key === 'Enter') adminLogin()">
+                        <label for="admin-password-input">管理员密码</label>
+                        <input id="admin-password-input" type="password" placeholder="请输入密码" onkeydown="if(event.key === 'Enter') adminLogin()">
                     </div>
                     <div class="admin-actions" style="margin-top:12px;">
-                        <button class="admin-action-btn" onclick="adminLogin()">杩涘叆鍚庡彴</button>
-                        <button class="admin-action-btn secondary" onclick="closeAdminPanel()">鍙栨秷</button>
+                        <button class="admin-action-btn" onclick="adminLogin()">进入后台</button>
+                        <button class="admin-action-btn secondary" onclick="closeAdminPanel()">取消</button>
                     </div>
-                    <div class="admin-note" id="admin-login-note">棣栨鎵撳紑鍚庡彴鏃讹紝杩欓噷浼氭妸浣犺緭鍏ョ殑瀵嗙爜淇濆瓨鍒板綋鍓嶆祻瑙堝櫒銆?/div>
+                    <div class="admin-note" id="admin-login-note">首次打开后台时，这里会把你输入的密码保存到当前浏览器。</div>
                 </div>
             </div>
 
             <div id="admin-tools-panel" class="admin-hidden">
                 <div class="admin-actions" style="margin-bottom:18px;">
-                    <button class="admin-action-btn secondary" onclick="changeAdminPassword()">淇敼绠＄悊鍛樺瘑鐮?/button>
-                    <button class="admin-action-btn secondary" onclick="adminLogout()">閫€鍑哄悗鍙?/button>
+                    <button class="admin-action-btn secondary" onclick="changeAdminPassword()">修改管理员密码</button>
+                    <button class="admin-action-btn secondary" onclick="adminLogout()">退出后台</button>
                 </div>
 
                 <div class="admin-section">
-                    <h3>鍙備笌浜哄憳</h3>
+                    <h3>参与人员</h3>
                     <div id="admin-members-list" class="admin-members-list"></div>
                     <div class="admin-input-row">
-                        <input id="admin-new-member" type="text" placeholder="杈撳叆鏂版垚鍛樺鍚?>
-                        <button class="admin-action-btn" onclick="addAdminMember()">娣诲姞</button>
+                        <input id="admin-new-member" type="text" placeholder="输入新成员姓名">
+                        <button class="admin-action-btn" onclick="addAdminMember()">添加</button>
                     </div>
-                    <div class="admin-note">鍒犻櫎鎴愬憳鍙細浠庡綋鍓嶉〉闈㈤殣钘忥紝涓嶄細鍒犻櫎鍘嗗彶鎵撳崱璁板綍銆?/div>
+                    <div class="admin-note">删除成员只会从当前页面隐藏，不会删除历史打卡记录。</div>
                 </div>
 
                 <div class="admin-section">
-                    <h3>鍛ㄤ换鍔″畨鎺?/h3>
+                    <h3>周任务安排</h3>
                     <div class="admin-field full">
-                        <label for="admin-week-select">閫夋嫨鍛ㄦ</label>
+                        <label for="admin-week-select">选择周次</label>
                         <select id="admin-week-select" onchange="loadSelectedWeekForEdit()"></select>
                     </div>
                     <div class="admin-field-grid" style="margin-top:12px;">
                         <div class="admin-field">
-                            <label for="admin-week-start">寮€濮嬫棩鏈?/label>
+                            <label for="admin-week-start">开始日期</label>
                             <input id="admin-week-start" type="date">
                         </div>
                         <div class="admin-field">
-                            <label for="admin-week-end">缁撴潫鏃ユ湡</label>
+                            <label for="admin-week-end">结束日期</label>
                             <input id="admin-week-end" type="date">
                         </div>
                         <div class="admin-field full">
-                            <label for="admin-week-title">璇荤墿鏍囬</label>
-                            <input id="admin-week-title" type="text" placeholder="渚嬪锛氥€婂熀鐫ｆ槸涓€鍒囥€嬮┈澶闊?>
+                            <label for="admin-week-title">读物标题</label>
+                            <input id="admin-week-title" type="text" placeholder="例如：《基督是一切》马太福音">
                         </div>
                         <div class="admin-field">
-                            <label for="admin-week-video">瑙嗛鏍囬</label>
-                            <input id="admin-week-video" type="text" placeholder="瑙嗛鍚嶇О">
+                            <label for="admin-week-video">视频标题</label>
+                            <input id="admin-week-video" type="text" placeholder="视频名称">
                         </div>
                         <div class="admin-field">
-                            <label for="admin-week-verse">鑳岀粡鑼冨洿</label>
-                            <input id="admin-week-verse" type="text" placeholder="渚嬪锛氱綏椹功 8:1-5">
+                            <label for="admin-week-verse">背经范围</label>
+                            <input id="admin-week-verse" type="text" placeholder="例如：罗马书 8:1-5">
                         </div>
                         <div class="admin-field full">
-                            <label for="admin-week-url">瑙嗛鍦板潃</label>
-                            <input id="admin-week-url" type="url" placeholder="https:// 鎴?http://">
+                            <label for="admin-week-recite-text">默写原文</label>
+                            <textarea id="admin-week-recite-text" rows="5" placeholder="粘贴本周要默写的经文原文。留空时，前台仍可临时粘贴。"></textarea>
                         </div>
                         <div class="admin-field full">
-                            <label for="admin-week-videos">澶氫釜瑙嗛锛堟瘡琛岋細鏍囬 | 鍦板潃锛?/label>
-                            <textarea id="admin-week-videos" rows="5" placeholder="鏂扮害鍦ｇ粡-01-鍦ｇ粡寮曡█(涓? | https://.../L1.mp4&#10;鏂扮害鍦ｇ粡-02-鍦ｇ粡寮曡█(涓? | https://.../L2.mp4"></textarea>
+                            <label for="admin-week-url">视频地址</label>
+                            <input id="admin-week-url" type="url" placeholder="https:// 或 http://">
                         </div>
                         <div class="admin-field full">
-                            <label for="admin-week-outline-image">鎻愮翰鑳岃鍥剧墖鍦板潃</label>
-                            <input id="admin-week-outline-image" type="text" placeholder="渚嬪锛歳ecite1.jpg 鎴?https://...">
+                            <label for="admin-week-videos">多个视频（每行：标题 | 地址）</label>
+                            <textarea id="admin-week-videos" rows="5" placeholder="新约圣经-01-圣经引言(上) | https://.../L1.mp4&#10;新约圣经-02-圣经引言(下) | https://.../L2.mp4"></textarea>
+                        </div>
+                        <div class="admin-field full">
+                            <label for="admin-week-outline-image">提纲背诵图片地址</label>
+                            <input id="admin-week-outline-image" type="text" placeholder="例如：recite1.jpg 或 https://...">
                         </div>
                     </div>
                     <div class="admin-actions" style="margin-top:12px;">
-                        <button class="admin-action-btn" onclick="saveWeekPlanFromAdmin()">淇濆瓨褰撳墠鍛?/button>
-                        <button class="admin-action-btn secondary" onclick="addWeekPlanFromAdmin()">鏂板涓€鍛?/button>
-                        <button class="admin-action-btn warning" onclick="deleteWeekPlanFromAdmin()">鍒犻櫎褰撳墠鍛?/button>
-                        <button class="admin-action-btn secondary" onclick="resetWeekPlans()">鎭㈠榛樿鍛ㄤ换鍔?/button>
+                        <button class="admin-action-btn" onclick="saveWeekPlanFromAdmin()">保存当前周</button>
+                        <button class="admin-action-btn secondary" onclick="addWeekPlanFromAdmin()">新增一周</button>
+                        <button class="admin-action-btn warning" onclick="deleteWeekPlanFromAdmin()">删除当前周</button>
+                        <button class="admin-action-btn secondary" onclick="resetWeekPlans()">恢复默认周任务</button>
                     </div>
-                    <div class="admin-note">淇濆瓨鍚庝細绔嬪嵆鏇存柊棣栭〉浠诲姟灞曠ず銆佸懆浠诲姟缁熻鍜屼汉鐗╂湀鍘嗐€?/div>
+                    <div class="admin-note">保存后会立即更新首页任务展示、周任务统计和人物月历。</div>
                 </div>
 
                 <div class="admin-section">
-                    <h3>鏁版嵁瀵煎嚭</h3>
+                    <h3>数据导出</h3>
                     <div class="admin-actions">
-                        <button class="admin-action-btn" onclick="exportRecordsCsv()">瀵煎嚭鎵撳崱鏄庣粏 CSV</button>
-                        <button class="admin-action-btn" onclick="exportDailySummaryCsv()">瀵煎嚭姣忔棩姹囨€?CSV</button>
+                        <button class="admin-action-btn" onclick="exportRecordsCsv()">导出打卡明细 CSV</button>
+                        <button class="admin-action-btn" onclick="exportDailySummaryCsv()">导出每日汇总 CSV</button>
                         <button class="admin-action-btn" onclick="exportTrainingTasksExcel()">&#x5BFC;&#x51FA;&#x95E8;&#x8BAD;&#x4EFB;&#x52A1; Excel</button>
                         <button class="admin-action-btn secondary" onclick="document.getElementById('training-task-import-file').click()">&#x5BFC;&#x5165;&#x95E8;&#x8BAD;&#x4EFB;&#x52A1; Excel</button>
                         <button class="admin-action-btn secondary" onclick="exportFeedbackCsv()">&#x5BFC;&#x51FA;&#x53CD;&#x9988; CSV</button>
-                        <button class="admin-action-btn secondary" onclick="exportBackupJson()">瀵煎嚭鏈湴澶囦唤 JSON</button>
-                        <button class="admin-action-btn secondary" onclick="document.getElementById('admin-import-file').click()">瀵煎叆鏈湴澶囦唤 JSON</button>
+                        <button class="admin-action-btn secondary" onclick="exportBackupJson()">导出本地备份 JSON</button>
+                        <button class="admin-action-btn secondary" onclick="document.getElementById('admin-import-file').click()">导入本地备份 JSON</button>
                     </div>
-                    <div class="admin-note">CSV 鍙洿鎺ョ敤 Excel 鎵撳紑锛汮SON 浼氬寘鍚垚鍛樺悕鍗曘€佸懆浠诲姟瀹夋帓鍜屽綋鍓嶇紦瀛樻暟鎹€?/div>
+                    <div class="admin-note">CSV 可直接用 Excel 打开；JSON 会包含成员名单、周任务安排和当前缓存数据。</div>
                 </div>
 
                 <div class="admin-section">
-                    <h3>鏈嶅姟鍣ㄨ褰?/h3>
+                    <h3>服务器记录</h3>
                     <div class="admin-actions">
-                        <button class="admin-action-btn" onclick="loadRecentServerRecords()">鏌ョ湅鏈€杩戣褰?/button>
-                        <button class="admin-action-btn secondary" onclick="loadStorageStatus()">妫€鏌ュ瓨鍌ㄧ姸鎬?/button>
-                        <button class="admin-action-btn secondary" onclick="createManualRecordsBackup()">鎵嬪姩澶囦唤 records.json</button>
+                        <button class="admin-action-btn" onclick="loadRecentServerRecords()">查看最近记录</button>
+                        <button class="admin-action-btn secondary" onclick="loadStorageStatus()">检查存储状态</button>
+                        <button class="admin-action-btn secondary" onclick="createManualRecordsBackup()">手动备份 records.json</button>
                     </div>
                     <div id="server-records-panel" class="server-records-panel">
-                        <div class="admin-note">杩欓噷璇诲彇 NAS 鍚庣鐨勭湡瀹炶褰曟枃浠讹紝鐢ㄦ潵纭鎵撳崱鏄惁宸茬粡鍐欒繘鏈嶅姟鍣ㄣ€?/div>
+                        <div class="admin-note">这里读取 NAS 后端的真实记录文件，用来确认打卡是否已经写进服务器。</div>
                     </div>
                 </div>
 
                 <div class="admin-section">
-                    <h3>缁存姢</h3>
+                    <h3>维护</h3>
                     <div class="admin-actions">
-                        <button class="admin-action-btn secondary" onclick="fetchStatus()">閲嶆柊鍚屾鏈湴鏁版嵁</button>
-                        <button class="admin-action-btn warning" onclick="resetAdminMembers()">鎭㈠榛樿鎴愬憳</button>
+                        <button class="admin-action-btn secondary" onclick="fetchStatus()">重新同步本地数据</button>
+                        <button class="admin-action-btn warning" onclick="resetAdminMembers()">恢复默认成员</button>
                     </div>
                 </div>
 
-                <button class="btn-close-modal" onclick="closeAdminPanel()">鍏抽棴</button>
+                <button class="btn-close-modal" onclick="closeAdminPanel()">关闭</button>
             </div>
         </div>
     </div>
@@ -768,14 +808,54 @@
     <div id="reading-overlay" class="modal-overlay" onclick="closeReading()">
         <div class="modal-content reading-modal" onclick="event.stopPropagation()">
             <div class="reading-header">
-                <h2 id="reading-title">鍔犺浇涓?..</h2>
-                <button class="btn-close-reading" onclick="closeReading()">鉁?/button>
+                <h2 id="reading-title">加载中...</h2>
+                <button class="btn-close-reading" onclick="closeReading()">✕</button>
             </div>
             <div class="reading-body" id="reading-body">
-                <div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">鈴?/div>姝ｅ湪鍔犺浇鏂囨。...</div>
+                <div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">⏳</div>正在加载文档...</div>
             </div>
             <div class="reading-footer">
-                <button class="btn-reading-done" onclick="closeReading()">鎴戣瀹屼簡</button>
+                <button class="btn-reading-done" onclick="closeReading()">我读完了</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recite-overlay" class="modal-overlay" onclick="closeReciteExam()">
+        <div class="modal-content recite-modal" onclick="event.stopPropagation()">
+            <div class="reading-header">
+                <h2 id="recite-title">背经默写</h2>
+                <button class="btn-close-reading" onclick="closeReciteExam()">✕</button>
+            </div>
+            <div class="recite-body">
+                <p class="recite-tip">先确认默写原文，再生成挖空练习。标点和章节号不会挖空；批改后点击错题可切换查看答案。</p>
+                <div class="recite-meta-grid">
+                    <div class="recite-meta-field">
+                        <label for="recite-member-select">测试人</label>
+                        <select id="recite-member-select"></select>
+                    </div>
+                    <div class="recite-meta-field">
+                        <label for="recite-scope-display">测试范围</label>
+                        <input id="recite-scope-display" type="text" readonly>
+                    </div>
+                </div>
+                <textarea id="recite-origin-text" class="recite-origin" placeholder="粘贴要默写的原文，或在管理员周任务里配置“默写原文”。"></textarea>
+                <div class="recite-controls">
+                    <label>挖空比例 <input type="number" id="recite-blank-percent" value="50" min="10" max="100">%</label>
+                    <button type="button" onclick="createReciteBlank()">生成默写卷</button>
+                    <button type="button" onclick="checkReciteScore()">批改打分</button>
+                    <button type="button" class="danger" onclick="resetReciteExam()">重置</button>
+                </div>
+                <div id="recite-result" class="recite-result"></div>
+                <div id="recite-score" class="recite-score"></div>
+                <div class="recite-leaderboard">
+                    <div class="recite-leaderboard-head">
+                        <h3 class="recite-leaderboard-title">默写排行榜</h3>
+                        <div class="recite-leaderboard-rule">排行分 = 最高表现 82% + 平均表现 10% + 参与奖励（最多 8 分）</div>
+                    </div>
+                    <div id="recite-leaderboard-list" class="recite-leaderboard-list">
+                        <div class="recite-empty">还没有默写记录。</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -783,13 +863,13 @@
     <div id="video-overlay" class="video-modal-overlay" onclick="closeVideo()">
         <div class="video-modal-content" onclick="event.stopPropagation()">
             <div class="video-modal-header">
-                <h2 id="video-modal-title">瑙嗛鎾斁</h2>
-                <button class="btn-close-video" onclick="closeVideo()">鉁?/button>
+                <h2 id="video-modal-title">视频播放</h2>
+                <button class="btn-close-video" onclick="closeVideo()">✕</button>
             </div>
             <div class="video-player-container">
                 <video id="main-video-player" controls playsinline preload="metadata">
                     <source src="" type="video/mp4">
-                    鎮ㄧ殑娴忚鍣ㄤ笉鏀寔瑙嗛鎾斁銆?
+                    您的浏览器不支持视频播放。
                 </video>
             </div>
         </div>
@@ -798,11 +878,11 @@
     <script>
         window.onerror = function(msg, url, line) {
             const errEl = document.getElementById('loading-status');
-            if (errEl) { errEl.innerHTML = `鈿狅笍 浠ｇ爜閿欒: ${msg} (绗?${line} 琛?`; errEl.style.color = "var(--warning)"; }
+            if (errEl) { errEl.innerHTML = `⚠️ 代码错误: ${msg} (第 ${line} 行)`; errEl.style.color = "var(--warning)"; }
             return false;
         };
 
-        // ============================ 绉戝ぇ涓撳睘閰嶇疆鍖?============================
+        // ============================ 科大专属配置区 ============================
         const API_PORT = "778";
         const API_BASES = (() => {
             const saved = localStorage.getItem('keda_api_base');
@@ -815,26 +895,26 @@
             }
             return [...new Set(bases)];
         })();
-        const DEFAULT_MEMBERS = ["椤轰笧", "淇℃嫨", "鏄庢槑", "浜寒", "鏉版稕", "鍢夋澃", "閾跺崕", "闈掗潚", "渚濊惐", "鍠滄偊", "鑳¤湝", "棣ㄩ", "铏逛紛", "鍒樻", "涔夎矾"]; 
+        const DEFAULT_MEMBERS = ["顺丞", "信择", "明明", "亮亮", "杰涛", "嘉杰", "银华", "青青", "依萱", "喜悦", "胡蜜", "馨香", "虹伊", "刘欣", "义路"]; 
         let MEMBERS = loadMembersConfig();
         let TOTAL_MEMBERS = MEMBERS.length;
         const DEFAULT_CLASS_REP_SHARES = [
-            { title: "鍦ｇ粡绾佃鐨勭洰鐨勪笌浠峰€?, url: "/鍦ｇ粡绾佃鐨勭洰鐨勪笌浠峰€?pdf" },
-            { title: "鍦ｇ粡寮曡█锛堜笂锛夊唴瀹规瑕?, url: "/鍦ｇ粡寮曡█锛堜笂锛夊唴瀹规瑕?pdf" },
-            { title: "鍦ｇ粡寮曡█锛堜笅锛夊唴瀹规瑕?, url: "/鍦ｇ粡寮曡█锛堜笅锛夊唴瀹规瑕?pdf" }
+            { title: "圣经纵览的目的与价值", url: "/圣经纵览的目的与价值.pdf" },
+            { title: "圣经引言（上）内容概要", url: "/圣经引言（上）内容概要.pdf" },
+            { title: "圣经引言（下）内容概要", url: "/圣经引言（下）内容概要.pdf" }
         ];
 
         const DEFAULT_WEEKLY_SCHEDULE = [
-            { start: "2026-04-06", end: "2026-04-12", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬮┈澶闊筹細鍩虹潱鏄垜浠殑鐜?, video: "鏂扮害鍦ｇ粡-01-211209-鍦ｇ粡寮曡█(涓?", verse: "缃楅┈涔?7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
-            { start: "2026-04-13", end: "2026-04-19", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬮┈澶闊筹細鍩虹潱鏄垜浠殑鐜?, video: "鏂扮害鍦ｇ粡-02-190307-鍦ｇ粡寮曡█(涓?", verse: "缃楅┈涔?7:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L2.mp4" },
-            { start: "2026-04-20", end: "2026-04-26", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬮┈澶闊筹細鍩虹潱鏄垜浠殑鐜?, video: "鏂扮害鍦ｇ粡-03-220120-椹お绂忛煶(涓?", verse: "缃楅┈涔?7:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L3.mp4" },
-            { start: "2026-04-27", end: "2026-05-03", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬮┈澶闊筹細鍩虹潱鏄垜浠殑鐜?, video: "鏂扮害鍦ｇ粡-04-220120-椹お绂忛煶(涓?", verse: "缃楅┈涔?7:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L4.mp4" },
-            { start: "2026-05-04", end: "2026-05-10", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬪熀鐫ｆ槸绁炵殑浠嗕汉--椹彲绂忛煶", video: "鏂扮害鍦ｇ粡-07-220714-椹彲绂忛煶(涓?", verse: "缃楅┈涔?7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4", outlineImage: "recite1.jpg" },
-            { start: "2026-05-11", end: "2026-05-17", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬪熀鐫ｆ槸绁炵殑浠嗕汉--椹彲绂忛煶", video: "鏂扮害鍦ｇ粡-08-220714-椹彲绂忛煶(涓?", verse: "缃楅┈涔?8:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L6.mp4" },
-            { start: "2026-05-18", end: "2026-05-24", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬪熀鐫ｆ槸浜哄瓙--璺姞绂忛煶", video: "鏂扮害鍦ｇ粡-09-220818-璺姞绂忛煶(涓?", verse: "缃楅┈涔?8:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L7.mp4" },
-            { start: "2026-05-25", end: "2026-05-31", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬪熀鐫ｆ槸浜哄瓙--璺姞绂忛煶", video: "鏂扮害鍦ｇ粡-10-220818-璺姞绂忛煶(涓?", verse: "缃楅┈涔?8:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L8.mp4" },
-            { start: "2026-06-01", end: "2026-06-07", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬪熀鐫ｆ槸绁炵殑鍎垮瓙--绾︾堪绂忛煶", video: "鏂扮害鍦ｇ粡-11-220901-绾︾堪绂忛煶(涓?", verse: "缃楅┈涔?8:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L9.mp4" },
-            { start: "2026-06-08", end: "2026-06-14", title: "銆婂熀鐫ｆ槸涓€鍒囥€嬪熀鐫ｆ槸绁炵殑鍎垮瓙--绾︾堪绂忛煶", video: "鏂扮害鍦ｇ粡-12-220901-绾︾堪绂忛煶(涓?", verse: "缃楅┈涔?8:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L10.mp4" }
+            { start: "2026-04-06", end: "2026-04-12", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-01-211209-圣经引言(上)", verse: "罗马书 7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
+            { start: "2026-04-13", end: "2026-04-19", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-02-190307-圣经引言(下)", verse: "罗马书 7:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L2.mp4" },
+            { start: "2026-04-20", end: "2026-04-26", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-03-220120-马太福音(上)", verse: "罗马书 7:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L3.mp4" },
+            { start: "2026-04-27", end: "2026-05-03", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-04-220120-马太福音(下)", verse: "罗马书 7:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L4.mp4" },
+            { start: "2026-05-04", end: "2026-05-10", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-07-220714-马可福音(上)", verse: "罗马书 7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4", outlineImage: "recite1.jpg" },
+            { start: "2026-05-11", end: "2026-05-17", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-08-220714-马可福音(下)", verse: "罗马书 8:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L6.mp4" },
+            { start: "2026-05-18", end: "2026-05-24", title: "《基督是一切》基督是人子--路加福音", video: "新约圣经-09-220818-路加福音(上)", verse: "罗马书 8:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L7.mp4" },
+            { start: "2026-05-25", end: "2026-05-31", title: "《基督是一切》基督是人子--路加福音", video: "新约圣经-10-220818-路加福音(下)", verse: "罗马书 8:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L8.mp4" },
+            { start: "2026-06-01", end: "2026-06-07", title: "《基督是一切》基督是神的儿子--约翰福音", video: "新约圣经-11-220901-约翰福音(上)", verse: "罗马书 8:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L9.mp4" },
+            { start: "2026-06-08", end: "2026-06-14", title: "《基督是一切》基督是神的儿子--约翰福音", video: "新约圣经-12-220901-约翰福音(下)", verse: "罗马书 8:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L10.mp4" }
         ];
         let WEEKLY_SCHEDULE = loadWeeklySchedule();
 
@@ -927,6 +1007,7 @@
                 title: String(plan.title || '').trim(),
                 video: firstVideo.title,
                 verse: String(plan.verse || '').trim(),
+                reciteText: String(plan.reciteText || plan.recite_text || '').trim(),
                 url: firstVideo.url,
                 videos,
                 outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim(),
@@ -967,18 +1048,18 @@
 
         function cleanMemoryVerseText(value) {
             return String(value || '')
-                .replace(/[锛?]\s*鑳岃\s*[锛?]/g, '')
+                .replace(/[（(]\s*背诵\s*[）)]/g, '')
                 .replace(/\s+/g, ' ')
                 .trim();
         }
 
         function normalizeVerseRef(value) {
-            return cleanMemoryVerseText(value).replace(/锛?g, ':').replace(/[锛嶁€斺€揮/g, '-').trim();
+            return cleanMemoryVerseText(value).replace(/：/g, ':').replace(/[－—–]/g, '-').trim();
         }
 
         function extractScriptureReference(value) {
             const text = normalizeVerseRef(value);
-            const bookPattern = '鍒涗笘璁皘鍑哄焹鍙婅|鍒╂湭璁皘姘戞暟璁皘鐢冲懡璁皘绾︿功浜氳|澹笀璁皘璺緱璁皘鎾掍笂|鎾掓瘝鑰宠涓妡鎾掍笅|鎾掓瘝鑰宠涓媩鐜嬩笂|鍒楃帇绾笂|鐜嬩笅|鍒楃帇绾笅|浠ｄ笂|鍘嗕唬蹇椾笂|浠ｄ笅|鍘嗕唬蹇椾笅|浠ユ柉鎷夎|灏煎笇绫宠|浠ユ柉甯栬|绾︿集璁皘璇楃瘒|绠磋█|浼犻亾涔闆呮瓕|浠ヨ禌浜氫功|鑰跺埄绫充功|鑰跺埄绫冲搥姝寍浠ヨタ缁撲功|浣嗕互鐞嗕功|浣曡タ闃夸功|绾︾彞涔闃挎懇鍙镐功|淇勫反搴曚簹涔绾︽嬁涔寮ヨ喀涔閭ｉ缚涔鍝堝反璋蜂功|瑗跨暘闆呬功|鍝堣涔鎾掕喀鍒╀簹涔鐜涙媺鍩轰功|椹お绂忛煶|椹彲绂忛煶|璺姞绂忛煶|绾︾堪绂忛煶|浣垮緬琛屼紶|缃楅┈涔鏋楀墠|鍝ユ灄澶氬墠涔鏋楀悗|鍝ユ灄澶氬悗涔鍔犳媺澶功|浠ュ紬鎵€涔鑵撶珛姣斾功|姝岀綏瑗夸功|甯栧墠|甯栨拻缃楀凹杩﹀墠涔甯栧悗|甯栨拻缃楀凹杩﹀悗涔鎻愬墠|鎻愭懇澶墠涔鎻愬悗|鎻愭懇澶悗涔鎻愬涔鑵撳埄闂ㄤ功|甯屼集鏉ヤ功|闆呭悇涔褰煎墠|褰煎緱鍓嶄功|褰煎悗|褰煎緱鍚庝功|绾﹀９|绾︾堪涓€涔绾﹁窗|绾︾堪浜屼功|绾﹀弫|绾︾堪涓変功|鐘瑰ぇ涔鍚ず褰?;
+            const bookPattern = '创世记|出埃及记|利未记|民数记|申命记|约书亚记|士师记|路得记|撒上|撒母耳记上|撒下|撒母耳记下|王上|列王纪上|王下|列王纪下|代上|历代志上|代下|历代志下|以斯拉记|尼希米记|以斯帖记|约伯记|诗篇|箴言|传道书|雅歌|以赛亚书|耶利米书|耶利米哀歌|以西结书|但以理书|何西阿书|约珥书|阿摩司书|俄巴底亚书|约拿书|弥迦书|那鸿书|哈巴谷书|西番雅书|哈该书|撒迦利亚书|玛拉基书|马太福音|马可福音|路加福音|约翰福音|使徒行传|罗马书|林前|哥林多前书|林后|哥林多后书|加拉太书|以弗所书|腓立比书|歌罗西书|帖前|帖撒罗尼迦前书|帖后|帖撒罗尼迦后书|提前|提摩太前书|提后|提摩太后书|提多书|腓利门书|希伯来书|雅各书|彼前|彼得前书|彼后|彼得后书|约壹|约翰一书|约贰|约翰二书|约叁|约翰三书|犹大书|启示录';
             const match = text.match(new RegExp(`(${bookPattern})\\s*\\d+\\s*:\\s*\\d+(?:\\s*-\\s*\\d+)?`));
             return match ? normalizeVerseRef(match[0]) : text;
         }
@@ -999,29 +1080,29 @@
                 }
             }
             const sectionText = sectionLines.join('\n');
-            const marked = sectionText.match(/([\u4e00-\u9fa5]{1,12}\s*\d+\s*[:锛歖\s*\d+(?:\s*[-锛嶁€斺€揮\s*\d+)?)\s*[锛?]\s*鑳岃\s*[锛?]/);
+            const marked = sectionText.match(/([\u4e00-\u9fa5]{1,12}\s*\d+\s*[:：]\s*\d+(?:\s*[-－—–]\s*\d+)?)\s*[（(]\s*背诵\s*[）)]/);
             if (marked) return normalizeVerseRef(marked[1]);
             return cleanMemoryVerseText(fallback);
         }
 
         function getRecordNote(record) {
-            const direct = record.note || record['鍒嗕韩璁板綍'] || record['鏂囧瓧璁板綍'];
+            const direct = record.note || record['分享记录'] || record['文字记录'];
             if (direct) return String(direct).trim();
-            const detail = String(record['鎵撳崱璇︽儏'] || '');
-            const match = detail.match(/(?:鍒嗕韩|璁板綍|闂)[:锛歖\s*([\s\S]+)$/);
+            const detail = String(record['打卡详情'] || '');
+            const match = detail.match(/(?:分享|记录|问题)[:：]\s*([\s\S]+)$/);
             return match ? match[1].trim() : '';
         }
 
         function isReflectionRecord(record) {
-            const detail = String(record['鎵撳崱璇︽儏'] || '');
-            return record['绫诲瀷'] === 'reflection' || detail.includes('寰楃潃') || detail.includes('鎰熻█') || detail.includes('鍒嗕韩');
+            const detail = String(record['打卡详情'] || '');
+            return record['类型'] === 'reflection' || detail.includes('得着') || detail.includes('感言') || detail.includes('分享');
         }
 
         function getReflectionPart(record) {
-            if (record['閮ㄥ垎'] || record.part) return String(record['閮ㄥ垎'] || record.part).trim();
-            const detail = String(record['鎵撳崱璇︽儏'] || '');
-            const known = ['姣忔棩鐏典慨', '鍛ㄨ鐗?, '鍛ㄨ棰?, '鍛ㄨ儗缁?, '鍏朵粬'];
-            return known.find(part => detail.includes(part)) || '鍏朵粬';
+            if (record['部分'] || record.part) return String(record['部分'] || record.part).trim();
+            const detail = String(record['打卡详情'] || '');
+            const known = ['每日灵修', '周读物', '周视频', '周背经', '其他'];
+            return known.find(part => detail.includes(part)) || '其他';
         }
 
         function csvCell(value) {
@@ -1070,7 +1151,7 @@
             return `${getSafeDateString(viewingDate)}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}${tzStr}`; 
         }
         
-        // 馃棑锔?鎵惧懆鏃ヤ綔涓烘瘡鍛ㄧ涓€澶?
+        // 🗓️ 找周日作为每周第一天
         function getWeekStart(d) { 
             let tempDate = new Date(d); 
             let day = tempDate.getDay(); 
@@ -1079,38 +1160,38 @@
             return getSafeDateString(tempDate); 
         }
 
-        // ================= 馃洜锔?鏅鸿兘闃查敊涔憋細閫昏緫鏃ユ湡鎶藉彇寮曟搸 =================
+        // ================= 🛠️ 智能防错乱：逻辑日期抽取引擎 =================
         function getLogicalDateStr(r) {
-            const explicitDate = String(r.logical_date || r['閫昏緫鏃ユ湡'] || '').trim();
+            const explicitDate = String(r.logical_date || r['逻辑日期'] || '').trim();
             if (/^\d{4}-\d{2}-\d{2}$/.test(explicitDate)) return explicitDate;
             if (/^\d{4}-\d{2}-\d{2}/.test(explicitDate)) return explicitDate.slice(0, 10);
 
-            if (r['鎵撳崱璇︽儏']) {
-                let match = r['鎵撳崱璇︽儏'].match(/(\d+)鏈?\d+)鏃?);
+            if (r['打卡详情']) {
+                let match = r['打卡详情'].match(/(\d+)月(\d+)日/);
                 if (match) {
                     let y = new Date().getFullYear();
-                    if (r['鎵撳崱鏃堕棿']) {
-                        let d = new Date(r['鎵撳崱鏃堕棿']);
+                    if (r['打卡时间']) {
+                        let d = new Date(r['打卡时间']);
                         if (!isNaN(d)) y = d.getFullYear();
                     }
                     return `${y}-${String(match[1]).padStart(2, '0')}-${String(match[2]).padStart(2, '0')}`;
                 }
             }
-            if (!r['鎵撳崱鏃堕棿']) return "";
+            if (!r['打卡时间']) return "";
             try {
-                if (/^\d{4}-\d{2}-\d{2}$/.test(String(r['鎵撳崱鏃堕棿']).trim())) return String(r['鎵撳崱鏃堕棿']).trim();
-                let d = new Date(r['鎵撳崱鏃堕棿']);
+                if (/^\d{4}-\d{2}-\d{2}$/.test(String(r['打卡时间']).trim())) return String(r['打卡时间']).trim();
+                let d = new Date(r['打卡时间']);
                 if (!isNaN(d)) return getSafeDateString(d); 
             } catch(e) {}
-            return r['鎵撳崱鏃堕棿'].substring(0, 10);
+            return r['打卡时间'].substring(0, 10);
         }
 
-        function toChineseNum(num) { const chars = ['闆?, '涓€', '浜?, '涓?, '鍥?, '浜?, '鍏?, '涓?, '鍏?, '涔?, '鍗?]; if (num <= 10) return chars[num]; if (num < 20) return '鍗? + (num % 10 === 0 ? '' : chars[num % 10]); if (num < 100) return chars[Math.floor(num / 10)] + '鍗? + (num % 10 === 0 ? '' : chars[num % 10]); return num; }
+        function toChineseNum(num) { const chars = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十']; if (num <= 10) return chars[num]; if (num < 20) return '十' + (num % 10 === 0 ? '' : chars[num % 10]); if (num < 100) return chars[Math.floor(num / 10)] + '十' + (num % 10 === 0 ? '' : chars[num % 10]); return num; }
 
         function isTitleMatch(mdTitle, targetTitle) {
             let cleanTarget = targetTitle.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ''); let cleanMd = mdTitle.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
             if (cleanTarget.includes(cleanMd) || cleanMd.includes(cleanTarget)) return true;
-            let parts = mdTitle.split(/[\s銆侊紝銆傦細锛涳紒锛焅-\_銆娿€嬶紙锛?)]/); let matchScore = 0;
+            let parts = mdTitle.split(/[\s、，。：；！？\-\_《》（）()]/); let matchScore = 0;
             for (let part of parts) { let chunk = part.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ''); if (chunk.length >= 2 && cleanTarget.includes(chunk)) matchScore += chunk.length; }
             return matchScore >= 4;
         }
@@ -1126,54 +1207,334 @@
 
         async function openScriptureOnline(refStr) {
             refStr = extractScriptureReference(refStr);
-            document.getElementById('reading-title').innerText = `鑳岀粡 | ${refStr}`;
+            document.getElementById('reading-title').innerText = `背经 | ${refStr}`;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
-            bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">鈴?/div>姝ｅ湪鍔犺浇缁忔枃...</div>`;
-            const wpBookMap = { "鍒涗笘璁?:"01","鍑哄焹鍙婅":"02","鍒╂湭璁?:"03","姘戞暟璁?:"04","鐢冲懡璁?:"05","绾︿功浜氳":"06","澹笀璁?:"07","璺緱璁?:"08","鎾掍笂":"09","鎾掓瘝鑰宠涓?:"09","鎾掍笅":"10","鎾掓瘝鑰宠涓?:"10","鐜嬩笂":"11","鍒楃帇绾笂":"11","鐜嬩笅":"12","鍒楃帇绾笅":"12","浠ｄ笂":"13","鍘嗕唬蹇椾笂":"13","浠ｄ笅":"14","鍘嗕唬蹇椾笅":"14","浠ユ柉鎷夎":"15","灏煎笇绫宠":"16","浠ユ柉甯栬":"17","绾︿集璁?:"18","璇楃瘒":"19","绠磋█":"20","浼犻亾涔?:"21","闆呮瓕":"22","浠ヨ禌浜氫功":"23","鑰跺埄绫充功":"24","鑰跺埄绫冲搥姝?:"25","浠ヨタ缁撲功":"26","浣嗕互鐞嗕功":"27","浣曡タ闃夸功":"28","绾︾彞涔?:"29","闃挎懇鍙镐功":"30","淇勫反搴曚簹涔?:"31","绾︽嬁涔?:"32","寮ヨ喀涔?:"33","閭ｉ缚涔?:"34","鍝堝反璋蜂功":"35","瑗跨暘闆呬功":"36","鍝堣涔?:"37","鎾掕喀鍒╀簹涔?:"38","鐜涙媺鍩轰功":"39","椹お绂忛煶":"40","椹彲绂忛煶":"41","璺姞绂忛煶":"42","绾︾堪绂忛煶":"43","浣垮緬琛屼紶":"44","缃楅┈涔?:"45","鏋楀墠":"46","鍝ユ灄澶氬墠涔?:"46","鏋楀悗":"47","鍝ユ灄澶氬悗涔?:"47","鍔犳媺澶功":"48","浠ュ紬鎵€涔?:"49","鑵撶珛姣斾功":"50","姝岀綏瑗夸功":"51","甯栧墠":"52","甯栨拻缃楀凹杩﹀墠涔?:"52","甯栧悗":"53","甯栨拻缃楀凹杩﹀悗涔?:"53","鎻愬墠":"54","鎻愭懇澶墠涔?:"54","鎻愬悗":"55","鎻愭懇澶悗涔?:"55","鎻愬涔?:"56","鑵撳埄闂ㄤ功":"57","甯屼集鏉ヤ功":"58","闆呭悇涔?:"59","褰煎墠":"60","褰煎緱鍓嶄功":"60","褰煎悗":"61","褰煎緱鍚庝功":"61","绾﹀９":"62","绾︾堪涓€涔?:"62","绾﹁窗":"63","绾︾堪浜屼功":"63","绾﹀弫":"64","绾︾堪涓変功":"64","鐘瑰ぇ涔?:"65","鍚ず褰?:"66" };
+            bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">⏳</div>正在加载经文...</div>`;
+            const wpBookMap = { "创世记":"01","出埃及记":"02","利未记":"03","民数记":"04","申命记":"05","约书亚记":"06","士师记":"07","路得记":"08","撒上":"09","撒母耳记上":"09","撒下":"10","撒母耳记下":"10","王上":"11","列王纪上":"11","王下":"12","列王纪下":"12","代上":"13","历代志上":"13","代下":"14","历代志下":"14","以斯拉记":"15","尼希米记":"16","以斯帖记":"17","约伯记":"18","诗篇":"19","箴言":"20","传道书":"21","雅歌":"22","以赛亚书":"23","耶利米书":"24","耶利米哀歌":"25","以西结书":"26","但以理书":"27","何西阿书":"28","约珥书":"29","阿摩司书":"30","俄巴底亚书":"31","约拿书":"32","弥迦书":"33","那鸿书":"34","哈巴谷书":"35","西番雅书":"36","哈该书":"37","撒迦利亚书":"38","玛拉基书":"39","马太福音":"40","马可福音":"41","路加福音":"42","约翰福音":"43","使徒行传":"44","罗马书":"45","林前":"46","哥林多前书":"46","林后":"47","哥林多后书":"47","加拉太书":"48","以弗所书":"49","腓立比书":"50","歌罗西书":"51","帖前":"52","帖撒罗尼迦前书":"52","帖后":"53","帖撒罗尼迦后书":"53","提前":"54","提摩太前书":"54","提后":"55","提摩太后书":"55","提多书":"56","腓利门书":"57","希伯来书":"58","雅各书":"59","彼前":"60","彼得前书":"60","彼后":"61","彼得后书":"61","约壹":"62","约翰一书":"62","约贰":"63","约翰二书":"63","约叁":"64","约翰三书":"64","犹大书":"65","启示录":"66" };
             try {
                 const match = refStr.replace(/\s/g, '').match(/^([\u4e00-\u9fa5]+)(\d+)(?::(\d+)(?:-(\d+))?)?$/);
                 if (!match || !wpBookMap[match[1]]) throw new Error("Format error");
                 let bookId = wpBookMap[match[1]]; let chapter = match[2]; let startVerse = match[3] ? parseInt(match[3]) : null;
                 bodyEl.innerHTML = `<div style="font-family: ${fontStackQuotes}; padding: 10px;"><h2 style="text-align:center; color:var(--text-main); font-weight:900; margin-bottom: 20px; border:none;">${refStr}</h2></div><iframe src="https://www.wordproject.org/bibles/gb/${bookId}/${chapter}.htm${startVerse ? '#'+startVerse : ''}" style="width:100%; height:70vh; border:none; border-radius:12px; background:#fff;"></iframe>`;
-            } catch (error) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">鈿狅笍</span><br><br><strong>缁忔枃鏍煎紡瑙ｆ瀽澶辫触</strong><br></div>`; }
+            } catch (error) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>经文格式解析失败</strong><br></div>`; }
         }
 
-        function openOutlineImage(imageUrl, title = '鎻愮翰鑳岃') {
+        function openOutlineImage(imageUrl, title = '提纲背诵') {
             const cleanUrl = String(imageUrl || '').trim();
             document.getElementById('reading-title').innerText = title;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
             if (!cleanUrl) {
-                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">馃摥</span><br><br><strong>杩樻病鏈夐厤缃彁绾茶儗璇靛浘鐗囥€?/strong></div>`;
+                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>还没有配置提纲背诵图片。</strong></div>`;
                 return;
             }
-            bodyEl.innerHTML = `<div class="outline-image-wrap"><img class="outline-image" src="${escapeHtml(cleanUrl)}" alt="鎻愮翰鑳岃" onerror="this.closest('.outline-image-wrap').innerHTML='<div style=&quot;text-align:center; color:var(--warning); font-weight:900;&quot;>鍥剧墖鍔犺浇澶辫触锛岃妫€鏌ュ浘鐗囧湴鍧€銆?/div>'"></div>`;
+            bodyEl.innerHTML = `<div class="outline-image-wrap"><img class="outline-image" src="${escapeHtml(cleanUrl)}" alt="提纲背诵" onerror="this.closest('.outline-image-wrap').innerHTML='<div style=&quot;text-align:center; color:var(--warning); font-weight:900;&quot;>图片加载失败，请检查图片地址。</div>'"></div>`;
         }
 
-        function openClassRepShare(pdfUrl, title = '璇句唬琛ㄥ垎浜?) {
+        function openClassRepShare(pdfUrl, title = '课代表分享') {
             const cleanUrl = String(pdfUrl || '').trim();
             document.getElementById('reading-title').innerText = title;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
             if (!cleanUrl) {
-                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">馃搫</span><br><br><strong>杩樻病鏈夐厤缃垎浜枃浠躲€?/strong></div>`;
+                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📄</span><br><br><strong>还没有配置分享文件。</strong></div>`;
                 return;
             }
             const safeUrl = escapeHtml(cleanUrl);
             bodyEl.innerHTML = `
                 <iframe class="pdf-frame" src="${safeUrl}#view=FitH" title="${escapeHtml(title)}"></iframe>
                 <div style="text-align:center; margin-top:12px;">
-                    <a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:900;">鍦ㄦ柊绐楀彛鎵撳紑 PDF</a>
+                    <a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:900;">在新窗口打开 PDF</a>
                 </div>
             `;
         }
 
+        let reciteWordList = [];
+        let reciteBlankIndex = [];
+        let reciteAnswerMap = {};
+        let reciteAttemptSaved = false;
+        let reciteCurrentContext = { ref: '', weekStart: '', weekEnd: '', logicalDate: '' };
+        const reciteSplitReg = /(\d+:\d+|[，。！？；：、,.!?;:\s“”‘’（）()《》])/;
+        const reciteUnblankableReg = /^(\d+:\d+|[，。！？；：、,.!?;:\s“”‘’（）()《》])$/;
+
+        function splitReciteTextToWords(text) {
+            return String(text || '').split(reciteSplitReg).filter(item => item !== '');
+        }
+
+        function isReciteUnblankable(str) {
+            return reciteUnblankableReg.test(str);
+        }
+
+        function getWeekPlanForDate(dateStr) {
+            return WEEKLY_SCHEDULE.find(plan => dateStr >= plan.start && dateStr <= plan.end) || WEEKLY_SCHEDULE[0] || {};
+        }
+
+        function populateReciteMemberSelect() {
+            const select = document.getElementById('recite-member-select');
+            if (!select) return;
+            const lastName = localStorage.getItem('keda_recite_member') || '';
+            select.innerHTML = MEMBERS.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+            select.value = MEMBERS.includes(lastName) ? lastName : (MEMBERS[0] || '');
+            select.onchange = () => localStorage.setItem('keda_recite_member', select.value);
+        }
+
+        function getClientReciteRecords() {
+            return globalRecords.filter(record => record['类型'] === 'recite_exam');
+        }
+
+        function getClientReciteMetrics(record) {
+            const blankPercent = Math.max(10, Math.min(100, Math.round(Number(record['默写挖空率'] || 50))));
+            const score = Math.max(0, Math.min(blankPercent, Number(record['默写分数'] || 0)));
+            const blankCount = Math.max(0, Number(record['默写空数'] || 0));
+            const correctCount = Math.max(0, Number(record['默写正确数'] || 0));
+            const accuracy = blankCount > 0 ? Math.round((correctCount / blankCount) * 100) : Math.round(blankPercent > 0 ? (score / blankPercent) * 100 : 0);
+            const weighted = Math.round((accuracy * 0.7 + blankPercent * 0.3) * 10) / 10;
+            return { blankPercent, score, blankCount, correctCount, accuracy, weighted };
+        }
+
+        function buildClientReciteLeaderboard() {
+            const groups = {};
+            getClientReciteRecords().forEach(record => {
+                if (record['默写经文'] !== reciteCurrentContext.ref) return;
+                if (reciteCurrentContext.weekStart && record['默写周开始'] !== reciteCurrentContext.weekStart) return;
+                const name = record['姓名'];
+                if (!name) return;
+                const item = {
+                    name,
+                    createdAt: record['打卡时间'] || '',
+                    attemptNo: Number(record['默写次数'] || 1),
+                    ...getClientReciteMetrics(record)
+                };
+                if (!groups[name]) groups[name] = [];
+                groups[name].push(item);
+            });
+            return Object.entries(groups).map(([name, attempts]) => {
+                attempts.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+                const best = attempts.reduce((winner, item) => (!winner || item.weighted > winner.weighted || (item.weighted === winner.weighted && item.blankPercent > winner.blankPercent)) ? item : winner, null);
+                const avgWeighted = attempts.reduce((sum, item) => sum + item.weighted, 0) / attempts.length;
+                const avgAccuracy = attempts.reduce((sum, item) => sum + item.accuracy, 0) / attempts.length;
+                const rankScore = Math.round(Math.min(100, best.weighted * 0.82 + avgWeighted * 0.10 + Math.min(8, attempts.length * 2)));
+                return { name, rankScore, attempts: attempts.length, bestScore: best.score, bestBlankPercent: best.blankPercent, bestAccuracy: best.accuracy, averageAccuracy: Math.round(avgAccuracy), latestAt: attempts[0]?.createdAt || '' };
+            }).sort((a, b) => b.rankScore - a.rankScore || b.bestAccuracy - a.bestAccuracy || b.bestBlankPercent - a.bestBlankPercent || a.name.localeCompare(b.name));
+        }
+
+        function renderReciteLeaderboard(items = []) {
+            const box = document.getElementById('recite-leaderboard-list');
+            if (!box) return;
+            if (!items.length) {
+                box.innerHTML = '<div class="recite-empty">还没有默写记录。</div>';
+                return;
+            }
+            box.innerHTML = items.map((item, index) => `
+                <div class="recite-rank-row">
+                    <span class="recite-rank-no">${index + 1}</span>
+                    <div>
+                        <div class="recite-rank-name">${escapeHtml(item.name)}</div>
+                        <div class="recite-rank-meta">最佳 ${Number(item.bestScore || 0)} 分 / 挖空 ${Number(item.bestBlankPercent || 0)}% / 准确率 ${Number(item.bestAccuracy || 0)}% / ${Number(item.attempts || 0)} 次</div>
+                    </div>
+                    <div class="recite-rank-score">${Number(item.rankScore || 0)} 分</div>
+                </div>
+            `).join('');
+        }
+
+        async function refreshReciteLeaderboard() {
+            renderReciteLeaderboard(buildClientReciteLeaderboard());
+            try {
+                const params = new URLSearchParams();
+                if (reciteCurrentContext.weekStart) params.set('weekStart', reciteCurrentContext.weekStart);
+                if (reciteCurrentContext.weekEnd) params.set('weekEnd', reciteCurrentContext.weekEnd);
+                if (reciteCurrentContext.ref) params.set('ref', reciteCurrentContext.ref);
+                const result = await apiRequest(`/recite/leaderboard?${params.toString()}`);
+                renderReciteLeaderboard(Array.isArray(result.leaderboard) ? result.leaderboard : []);
+            } catch (error) {}
+        }
+
+        function openReciteExam(ref, presetText = '') {
+            const logicalDate = getSafeDateString(viewingDate);
+            const weekPlan = getWeekPlanForDate(logicalDate);
+            reciteCurrentContext = {
+                ref: ref || weekPlan.verse || '本周背经',
+                weekStart: weekPlan.start || '',
+                weekEnd: weekPlan.end || '',
+                logicalDate
+            };
+            populateReciteMemberSelect();
+            document.getElementById('recite-title').innerText = `背经默写 | ${reciteCurrentContext.ref}`;
+            document.getElementById('recite-scope-display').value = `${reciteCurrentContext.weekStart || ''} ~ ${reciteCurrentContext.weekEnd || ''}`;
+            document.getElementById('recite-overlay').classList.add('show');
+            document.getElementById('recite-origin-text').value = String(presetText || '').trim();
+            resetReciteExam(false);
+            refreshReciteLeaderboard();
+            setTimeout(() => document.getElementById('recite-origin-text').focus(), 50);
+        }
+
+        function closeReciteExam() {
+            document.getElementById('recite-overlay').classList.remove('show');
+        }
+
+        function createReciteBlank() {
+            const textEl = document.getElementById('recite-origin-text');
+            const text = textEl.value.trim();
+            let percent = parseInt(document.getElementById('recite-blank-percent').value, 10);
+            if (!text) {
+                alert('请先输入或配置要默写的原文。');
+                textEl.focus();
+                return;
+            }
+            if (Number.isNaN(percent)) percent = 50;
+            percent = Math.max(10, Math.min(100, percent));
+            document.getElementById('recite-blank-percent').value = percent;
+
+            reciteWordList = splitReciteTextToWords(text);
+            const canBlankIdx = [];
+            for (let i = 0; i < reciteWordList.length; i++) {
+                if (!isReciteUnblankable(reciteWordList[i])) canBlankIdx.push(i);
+            }
+            if (canBlankIdx.length === 0) {
+                alert('没有可挖空的文字。');
+                return;
+            }
+
+            let blankCount = Math.round(canBlankIdx.length * percent / 100);
+            blankCount = Math.max(1, Math.min(blankCount, canBlankIdx.length));
+            reciteBlankIndex = [];
+            reciteAnswerMap = {};
+            while (reciteBlankIndex.length < blankCount) {
+                const randomPosition = Math.floor(Math.random() * canBlankIdx.length);
+                const index = canBlankIdx[randomPosition];
+                if (!reciteBlankIndex.includes(index)) {
+                    reciteBlankIndex.push(index);
+                    reciteAnswerMap[index] = reciteWordList[index];
+                }
+            }
+            renderReciteResult();
+            document.getElementById('recite-score').style.display = 'none';
+            reciteAttemptSaved = false;
+        }
+
+        function renderReciteResult() {
+            let html = '';
+            for (let i = 0; i < reciteWordList.length; i++) {
+                if (reciteBlankIndex.includes(i)) {
+                    const width = Math.max(50, reciteWordList[i].length * 20 + 10);
+                    html += `<input class="recite-blank-input" style="width:${width}px;" data-key="${i}" data-base="${width}" placeholder="..." oninput="this.style.width = Math.max(this.dataset.base, this.value.length * 20 + 10) + 'px'">`;
+                } else if (reciteWordList[i] === '\n') {
+                    html += '<br>';
+                } else {
+                    html += escapeHtml(reciteWordList[i]);
+                }
+            }
+            document.getElementById('recite-result').innerHTML = html;
+        }
+
+        async function checkReciteScore() {
+            const memberName = document.getElementById('recite-member-select')?.value || '';
+            if (!memberName) {
+                alert('请先选择测试人。');
+                return;
+            }
+            if (reciteAttemptSaved) {
+                alert('这次默写已经保存。要重新测试，请先生成新的默写卷。');
+                return;
+            }
+            const inputs = Array.from(document.querySelectorAll('.recite-blank-input'));
+            const total = reciteBlankIndex.length;
+            const percent = parseInt(document.getElementById('recite-blank-percent').value, 10) || 50;
+            if (total === 0) {
+                alert('请先生成默写卷。');
+                return;
+            }
+            let right = 0;
+            inputs.forEach(input => {
+                const key = input.getAttribute('data-key');
+                const userValue = input.value.trim();
+                const answer = reciteAnswerMap[key];
+                input.readOnly = true;
+                input.onclick = null;
+                input.style.cursor = 'default';
+                if (userValue === answer) {
+                    right++;
+                    input.style.borderBottomColor = '#16b981';
+                    input.style.color = '#16b981';
+                } else {
+                    input.style.borderBottomColor = '#ef4444';
+                    input.style.color = '#ef4444';
+                    input.style.cursor = 'pointer';
+                    input.setAttribute('data-user-value', input.value);
+                    input.onclick = function() {
+                        if (this.value === answer) {
+                            this.value = this.getAttribute('data-user-value');
+                            this.style.color = '#ef4444';
+                        } else {
+                            this.value = answer;
+                            this.style.color = '#d97706';
+                            this.style.width = Math.max(this.dataset.base, this.value.length * 20 + 10) + 'px';
+                        }
+                    };
+                }
+            });
+            const score = Math.round((right / total) * percent);
+            const scoreEl = document.getElementById('recite-score');
+            scoreEl.style.display = 'block';
+            scoreEl.innerHTML = `得分：<span style="color:var(--primary); font-size:28px;">${score}</span> 分
+                <div style="font-size:13px; color:var(--text-sub); margin-top:6px;">当前难度 ${percent}%，全对满分 ${percent} 分；答对 ${right} / ${total} 空</div>
+                <div id="recite-save-status" style="font-size:13px; color:var(--text-sub); margin-top:6px;">正在保存默写记录...</div>`;
+            scoreEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            await saveReciteAttempt({ memberName, score, right, total, percent });
+        }
+
+        async function saveReciteAttempt({ memberName, score, right, total, percent }) {
+            const statusEl = document.getElementById('recite-save-status');
+            try {
+                const result = await apiRequest('/recite-attempts', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: memberName,
+                        ref: reciteCurrentContext.ref,
+                        weekStart: reciteCurrentContext.weekStart,
+                        weekEnd: reciteCurrentContext.weekEnd,
+                        logicalDate: reciteCurrentContext.logicalDate,
+                        createdAt: getIsoWithTimezoneForViewing(),
+                        blankPercent: percent,
+                        score,
+                        correctCount: right,
+                        blankCount: total
+                    })
+                });
+                reciteAttemptSaved = true;
+                localStorage.setItem('keda_recite_member', memberName);
+                if (statusEl) {
+                    const attemptNo = result.record?.['默写次数'] || '';
+                    statusEl.innerHTML = `已保存到 records.json${attemptNo ? `，这是第 ${attemptNo} 次测试` : ''}。`;
+                    statusEl.style.color = 'var(--success)';
+                }
+                if (Array.isArray(result.leaderboard)) renderReciteLeaderboard(result.leaderboard);
+                await fetchStatus();
+            } catch (error) {
+                if (statusEl) {
+                    statusEl.innerText = `保存失败：${error.message || '无法连接后端'}`;
+                    statusEl.style.color = 'var(--warning)';
+                }
+            }
+        }
+
+        function resetReciteExam(clearText = true) {
+            if (clearText) document.getElementById('recite-origin-text').value = '';
+            document.getElementById('recite-blank-percent').value = 50;
+            document.getElementById('recite-result').innerHTML = '';
+            document.getElementById('recite-score').style.display = 'none';
+            reciteWordList = [];
+            reciteBlankIndex = [];
+            reciteAnswerMap = {};
+            reciteAttemptSaved = false;
+        }
+
         function formatMarkdownBlocks(contentLines) {
             function isNewBlockStart(str) {
-                if (/^#/.test(str)) return true; if (/^([0-9]+|[涓€浜屼笁鍥涗簲鍏竷鍏節鍗乚+)[\.銆乚/.test(str)) return true; if (/^[-*+]\s/.test(str)) return true; 
-                if (/^(绁峰憡|绾茶|璇荤粡|鏍稿績|缁撹)[:锛歖/.test(str)) return true; if (/^銆?.test(str)) return true;
-                if (str.length < 25 && !/[銆傦紒锛燂紒\.\?\!銆嶏級]$/.test(str)) return true; return false;
+                if (/^#/.test(str)) return true; if (/^([0-9]+|[一二三四五六七八九十]+)[\.、]/.test(str)) return true; if (/^[-*+]\s/.test(str)) return true; 
+                if (/^(祷告|纲要|读经|核心|结论)[:：]/.test(str)) return true; if (/^「/.test(str)) return true;
+                if (str.length < 25 && !/[。！？！\.\?\!」）]$/.test(str)) return true; return false;
             }
             let processedLines = [];
             for (let i = 0; i < contentLines.length; i++) {
@@ -1188,18 +1549,18 @@
                 }
             }
             let joined = processedLines.join('\n');
-            joined = joined.replace(/銆?[\s\S]*?)銆?g, function(match, p1) { return `銆?{p1.replace(/[\r\n]+/g, '')}銆峘; });
-            joined = joined.replace(/^###\s+(.*)/gim, '<h3>$1</h3>').replace(/^##\s+(.*)/gim, '<h2>$1</h2>').replace(/^#\s+(.*)/gim, '<h1>$1</h1>').replace(/^([涓€浜屼笁鍥涗簲鍏竷鍏節鍗佸豢鍗呯櫨鍗冧竾]+銆乗s*.*)/gim, '<h3 style="color: var(--text-main); font-weight: 900; margin-top: 20px; font-size: 1.15em;">$1</h3>').replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>').replace(/銆?.*?)銆?g, `<strong style="font-family: ${fontStackQuotes}; color: var(--primary); font-weight: 900; font-size: 1.08em; line-height: 1.8;">銆?1銆?/strong>`).replace(/^(绁峰憡|绾茶|璇荤粡|鏍稿績|缁撹)([:锛歖)/gim, '<strong style="color: var(--primary); font-weight: 900; font-size: 1.05em;">$1$2</strong>');
+            joined = joined.replace(/「([\s\S]*?)」/g, function(match, p1) { return `「${p1.replace(/[\r\n]+/g, '')}」`; });
+            joined = joined.replace(/^###\s+(.*)/gim, '<h3>$1</h3>').replace(/^##\s+(.*)/gim, '<h2>$1</h2>').replace(/^#\s+(.*)/gim, '<h1>$1</h1>').replace(/^([一二三四五六七八九十廿卅百千万]+、\s*.*)/gim, '<h3 style="color: var(--text-main); font-weight: 900; margin-top: 20px; font-size: 1.15em;">$1</h3>').replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>').replace(/「(.*?)」/g, `<strong style="font-family: ${fontStackQuotes}; color: var(--primary); font-weight: 900; font-size: 1.08em; line-height: 1.8;">「$1」</strong>`).replace(/^(祷告|纲要|读经|核心|结论)([:：])/gim, '<strong style="color: var(--primary); font-weight: 900; font-size: 1.05em;">$1$2</strong>');
             let html = `<p>${joined.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>')}</p>`; html = html.replace(/<p><h([1-6])>(.*?)<\/h\1><\/p>/g, '<h$1>$2</h$1>'); return html;
         }
 
         async function openDailyReading() {
             const bMonth = viewingDate.getMonth() + 1; const bDay = viewingDate.getDate();
-            const targetChineseDate = `${toChineseNum(bMonth)}鏈?{toChineseNum(bDay)}鏃;
+            const targetChineseDate = `${toChineseNum(bMonth)}月${toChineseNum(bDay)}日`;
             document.getElementById('reading-title').innerText = targetChineseDate;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
-            bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">鈴?/div>姝ｅ湪鍔犺浇姣忔棩鐏典慨...</div>`;
+            bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">⏳</div>正在加载每日灵修...</div>`;
             try {
                 let text = "";
                 if (mdCache.daily) {
@@ -1211,30 +1572,30 @@
                     mdCache.daily = text; 
                 }
 
-                const target1 = `${bMonth}鏈?{bDay}鏃; const target2 = targetChineseDate;
+                const target1 = `${bMonth}月${bDay}日`; const target2 = targetChineseDate;
                 const lines = text.split('\n'); let isCapturing = false; let contentLines = []; let mdRealTitle = "";
                 const dateLineRegex = new RegExp(`^(?:#+\\s*)?(?:${target1}|${target2})(.*)`);
-                const stopRegex = /^(?:#+\s*)?([0-9]{1,2}|[涓€浜屼笁鍥涗簲鍏竷鍏節鍗乚{1,3})\s*鏈圽s*([0-9]{1,2}|[涓€浜屼笁鍥涗簲鍏竷鍏節鍗乚{1,3})\s*鏃?;
+                const stopRegex = /^(?:#+\s*)?([0-9]{1,2}|[一二三四五六七八九十]{1,3})\s*月\s*([0-9]{1,2}|[一二三四五六七八九十]{1,3})\s*日/;
                 for (let i = 0; i < lines.length; i++) {
                     const rawLine = lines[i]; const line = rawLine.trim();
                     if (!isCapturing) {
                         const match = line.match(dateLineRegex);
-                        if (match && line.length < 100) { isCapturing = true; mdRealTitle = match[1].replace(/^[-\s|:锛歖+/, '').trim(); contentLines.push(`# ${targetChineseDate} ${mdRealTitle}`); }
+                        if (match && line.length < 100) { isCapturing = true; mdRealTitle = match[1].replace(/^[-\s|:：]+/, '').trim(); contentLines.push(`# ${targetChineseDate} ${mdRealTitle}`); }
                     } else {
                         if (stopRegex.test(line) && line.length < 40 && !line.includes(target1) && !line.includes(target2)) break;
                         contentLines.push(rawLine); 
                     }
                 }
                 while (contentLines.length > 0 && (contentLines[0].trim() === '' || contentLines[0].trim() === target2 || contentLines[0].trim() === target1)) { contentLines.shift(); }
-                if (contentLines.length > 0) bodyEl.innerHTML = formatMarkdownBlocks(contentLines); else bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">馃摥</span><br><br><strong>娌℃湁鍦ㄦ枃妗ｉ噷鎵惧埌 ${targetChineseDate} 鐨勫唴瀹广€?/strong></div>`;
-            } catch (e) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">鈿狅笍</span><br><br><strong>璇诲彇 Kuangye.md 澶辫触</strong></div>`; }
+                if (contentLines.length > 0) bodyEl.innerHTML = formatMarkdownBlocks(contentLines); else bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>没有在文档里找到 ${targetChineseDate} 的内容。</strong></div>`;
+            } catch (e) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>读取 Kuangye.md 失败</strong></div>`; }
         }
 
         async function openWeeklyReading(targetTitle) {
-            document.getElementById('reading-title').innerText = `鏈懆璇讳功`;
+            document.getElementById('reading-title').innerText = `本周读书`;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
-            bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">鈴?/div>姝ｅ湪鍔犺浇鍛ㄨ鐗?..</div>`;
+            bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">⏳</div>正在加载周读物...</div>`;
             try {
                 let text = "";
                 if (mdCache.weekly) {
@@ -1256,8 +1617,8 @@
                         if (/^##\s/.test(line)) break; contentLines.push(rawLine); 
                     }
                 }
-                if (isCapturing) { bodyEl.innerHTML = formatMarkdownBlocks(contentLines); } else bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">馃摥</span><br><br><strong>鏈壘鍒拌涔﹀唴瀹广€?/strong></div>`;
-            } catch (e) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">鈿狅笍</span><br><br><strong>璇诲彇澶辫触</strong></div>`; }
+                if (isCapturing) { bodyEl.innerHTML = formatMarkdownBlocks(contentLines); } else bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>未找到读书内容。</strong></div>`;
+            } catch (e) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>读取失败</strong></div>`; }
         }
 
         function closeReading() { document.getElementById('reading-overlay').classList.remove('show'); }
@@ -1275,7 +1636,7 @@
         function getTodayPlan() {
             const bMonth = viewingDate.getMonth() + 1;
             const bDay = viewingDate.getDate();
-            const targetChineseDate = `${toChineseNum(bMonth)}鏈?{toChineseNum(bDay)}鏃;
+            const targetChineseDate = `${toChineseNum(bMonth)}月${toChineseNum(bDay)}日`;
             const viewStr = getSafeDateString(viewingDate);
 
             let currentWeekData = WEEKLY_SCHEDULE[0];
@@ -1290,21 +1651,21 @@
             const verseStr = extractMemoryVerseFromWeeklyText(mdCache.weekly, currentWeekData.title, currentWeekData.verse);
             const videoItems = normalizeWeekVideos(currentWeekData);
             const videoLinks = videoItems.map(item => {
-                const title = item.title || item.url || '瑙嗛';
+                const title = item.title || item.url || '视频';
                 const url = item.url || '';
                 return url
-                    ? `<a onclick="openVideo('${escapeJs(url)}', '${escapeJs(title)}')">${escapeHtml(title)} (鎾斁)</a>`
+                    ? `<a onclick="openVideo('${escapeJs(url)}', '${escapeJs(title)}')">${escapeHtml(title)} (播放)</a>`
                     : `<span style="color:var(--text-sub);">${escapeHtml(title)}</span>`;
             }).join('');
-            const videoUI = videoLinks ? `<span class="video-links">${videoLinks}</span>` : '<span style="color:var(--text-sub);">鏆傛棤瑙嗛</span>';
+            const videoUI = videoLinks ? `<span class="video-links">${videoLinks}</span>` : '<span style="color:var(--text-sub);">暂无视频</span>';
             const outlineImage = currentWeekData.outlineImage || '';
             const shareLinks = normalizeClassRepShares(currentWeekData.shares).map(item => `<a onclick="openClassRepShare('${escapeJs(item.url)}', '${escapeJs(item.title)}')">${escapeHtml(item.title)}</a>`).join('');
-            const shareUI = shareLinks ? `<div class="task-extra-line share"><span>馃搫</span><span>璇句唬琛ㄥ垎浜細</span><span class="share-links">${shareLinks}</span></div>` : '';
-            const outlineUI = outlineImage ? `<div class="task-extra-line outline"><span>馃柟</span><span>&#x63D0;&#x7EB2;&#x80CC;&#x8BF5;&#xFF1A;</span><a onclick="openOutlineImage('${escapeJs(outlineImage)}', '&#x63D0;&#x7EB2;&#x80CC;&#x8BF5;')">&#x70B9;&#x51FB;&#x67E5;&#x770B;</a></div>` : '';
+            const shareUI = shareLinks ? `<div class="task-extra-line share"><span>📄</span><span>课代表分享：</span><span class="share-links">${shareLinks}</span></div>` : '';
+            const outlineUI = outlineImage ? `<div class="task-extra-line outline"><span>🖹</span><span>&#x63D0;&#x7EB2;&#x80CC;&#x8BF5;&#xFF1A;</span><a onclick="openOutlineImage('${escapeJs(outlineImage)}', '&#x63D0;&#x7EB2;&#x80CC;&#x8BF5;')">&#x70B9;&#x51FB;&#x67E5;&#x770B;</a></div>` : '';
 
             const tagUI = `<div class="task-extra-list">
-                <div class="task-extra-line"><span>鈻讹笍</span><span>&#x89C6;&#x9891;&#xFF1A;</span>${videoUI}</div>
-                <div class="task-extra-line verse"><span>馃摎</span><span>&#x80CC;&#x7ECF;&#xFF1A;</span><a onclick="openScriptureOnline('${escapeJs(verseStr)}')">${escapeHtml(verseStr)}</a></div>
+                <div class="task-extra-line"><span>▶️</span><span>&#x89C6;&#x9891;&#xFF1A;</span>${videoUI}</div>
+                <div class="task-extra-line verse"><span>📚</span><span>&#x80CC;&#x7ECF;&#xFF1A;</span><span><a onclick="openScriptureOnline('${escapeJs(verseStr)}')">${escapeHtml(verseStr)}</a><a class="recite-practice-btn" onclick="openReciteExam('${escapeJs(verseStr)}', '${escapeJs(currentWeekData.reciteText || '')}')">默写练习</a></span></div>
                 ${outlineUI}
             </div>`;
 
@@ -1318,9 +1679,9 @@
         }
         function updateDateUI() {
             const viewStr = getSafeDateString(viewingDate), todayStr = getSafeDateString(getRealToday()), badge = document.getElementById('display-date');
-            if (viewStr === todayStr) { badge.innerText = `${viewingDate.getMonth()+1}鏈?{viewingDate.getDate()}鏃?(浠婃棩)`; }
-            else if (viewStr > todayStr) { badge.innerText = `棰勫憡: ${viewingDate.getMonth()+1}鏈?{viewingDate.getDate()}鏃; }
-            else { badge.innerText = `琛ョ: ${viewingDate.getMonth()+1}鏈?{viewingDate.getDate()}鏃; }
+            if (viewStr === todayStr) { badge.innerText = `${viewingDate.getMonth()+1}月${viewingDate.getDate()}日 (今日)`; }
+            else if (viewStr > todayStr) { badge.innerText = `预告: ${viewingDate.getMonth()+1}月${viewingDate.getDate()}日`; }
+            else { badge.innerText = `补签: ${viewingDate.getMonth()+1}月${viewingDate.getDate()}日`; }
             
             const plan = getTodayPlan();
             document.getElementById('plan-daily-container').innerHTML = plan.devotion;
@@ -1377,7 +1738,7 @@
                 renderMembers(); 
                 loadLocalCache(); 
                 fetchStatus();    
-            } catch(e) { document.getElementById('loading-status').innerHTML = `鈿狅笍 鍒濆鍖栭敊璇? ${e.message}`; } 
+            } catch(e) { document.getElementById('loading-status').innerHTML = `⚠️ 初始化错误: ${e.message}`; } 
         };
 
         function updateAvatarUI(name) {
@@ -1410,13 +1771,13 @@
                             <div class="avatar" onclick="showProfile('${jsName}')" ${avatarStyle}>${savedAvatar ? '' : escapeHtml(name.charAt(name.length-1))}</div>
                             <div class="member-name">${safeName}</div>
                         </div>
-                        <button type="button" class="member-reflection-btn" id="reflection-btn-${safeName}" onclick="openReflectionPanel('${jsName}')">寰楃潃</button>
+                        <button type="button" class="member-reflection-btn" id="reflection-btn-${safeName}" onclick="openReflectionPanel('${jsName}')">得着</button>
                     </div>
                     <div class="btn-group">
-                        <button class="action-btn btn-daily" id="daily-${safeName}" onclick="submitCheckin('${jsName}', '姣忔棩鐏典慨', this)">鐏典慨</button>
-                        <button class="action-btn btn-book" id="book-${safeName}" onclick="submitCheckin('${jsName}', '鍛ㄨ鐗?, this)">涔?/button>
-                        <button class="action-btn btn-video" id="video-${safeName}" onclick="submitCheckin('${jsName}', '鍛ㄨ棰?, this)">瑙嗛</button>
-                        <button class="action-btn btn-verse" id="verse-${safeName}" onclick="submitCheckin('${jsName}', '鍛ㄨ儗缁?, this)">鑳岀粡</button>
+                        <button class="action-btn btn-daily" id="daily-${safeName}" onclick="submitCheckin('${jsName}', '每日灵修', this)">灵修</button>
+                        <button class="action-btn btn-book" id="book-${safeName}" onclick="submitCheckin('${jsName}', '周读物', this)">书</button>
+                        <button class="action-btn btn-video" id="video-${safeName}" onclick="submitCheckin('${jsName}', '周视频', this)">视频</button>
+                        <button class="action-btn btn-verse" id="verse-${safeName}" onclick="submitCheckin('${jsName}', '周背经', this)">背经</button>
                     </div>
                     <div class="member-notes" id="notes-${safeName}"></div>`;
                 container.appendChild(card);
@@ -1427,14 +1788,14 @@
             const viewStr = getSafeDateString(viewingDate), todayStr = getSafeDateString(getRealToday()), isFuture = viewStr > todayStr, isPast = viewStr < todayStr;
             MEMBERS.forEach(name => {
                 const d = document.getElementById(`daily-${name}`), b = document.getElementById(`book-${name}`), v = document.getElementById(`video-${name}`), verse = document.getElementById(`verse-${name}`);
-                if(d){ d.disabled = isFuture; d.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-daily'); d.innerHTML = isFuture ? '鈴? : (isPast ? '琛ョ伒淇? : '鐏典慨'); }
-                if(b){ b.disabled = isFuture; b.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-book'); b.innerHTML = isFuture ? '鈴? : (isPast ? '琛ヤ功' : '涔?); }
-                if(v){ v.disabled = isFuture; v.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-video'); v.innerHTML = isFuture ? '鈴? : (isPast ? '琛ヨ棰? : '瑙嗛'); }
-                if(verse){ verse.disabled = isFuture; verse.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-verse'); verse.innerHTML = isFuture ? '鈴? : (isPast ? '琛ヨ儗缁? : '鑳岀粡'); }
+                if(d){ d.disabled = isFuture; d.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-daily'); d.innerHTML = isFuture ? '⏳' : (isPast ? '补灵修' : '灵修'); }
+                if(b){ b.disabled = isFuture; b.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-book'); b.innerHTML = isFuture ? '⏳' : (isPast ? '补书' : '书'); }
+                if(v){ v.disabled = isFuture; v.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-video'); v.innerHTML = isFuture ? '⏳' : (isPast ? '补视频' : '视频'); }
+                if(verse){ verse.disabled = isFuture; verse.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-verse'); verse.innerHTML = isFuture ? '⏳' : (isPast ? '补背经' : '背经'); }
             });
         }
 
-        function setSuccess(btn, text = "鉁?) {
+        function setSuccess(btn, text = "✔") {
             if (!btn) return;
             btn.disabled = false;
             btn.className = "action-btn btn-success";
@@ -1447,11 +1808,11 @@
                 const notesEl = document.getElementById(`notes-${name}`);
                 const btn = document.getElementById(`reflection-btn-${name}`);
                 const reflectionCount = globalRecords
-                    .filter(record => record['濮撳悕'] === name && getLogicalDateStr(record) === viewStr)
+                    .filter(record => record['姓名'] === name && getLogicalDateStr(record) === viewStr)
                     .filter(record => isReflectionRecord(record) && getRecordNote(record))
                     .length;
                 if (btn) {
-                    btn.innerText = reflectionCount > 0 ? `寰楃潃 ${reflectionCount}` : '寰楃潃';
+                    btn.innerText = reflectionCount > 0 ? `得着 ${reflectionCount}` : '得着';
                     btn.classList.toggle('has-reflection', reflectionCount > 0);
                 }
                 if (notesEl) {
@@ -1473,14 +1834,14 @@
             }
 
             globalRecords.forEach(record => {
-                const name = record['濮撳悕'];
+                const name = record['姓名'];
                 if (!name || !MEMBERS.includes(name)) return;
                 const recordDate = getLogicalDateStr(record);
-                const isRetro = record['鏄惁琛ョ'] === '鏄?;
+                const isRetro = record['是否补签'] === '是';
 
-                if (recordDate === viewStr && record['姣忔棩鐏典慨'] === '宸插畬鎴?) {
+                if (recordDate === viewStr && record['每日灵修'] === '已完成') {
                     doneD.add(name);
-                    setSuccess(document.getElementById(`daily-${name}`), isRetro ? "宸茶ˉ" : "鉁?);
+                    setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔");
                 }
 
                 if (!currentWeekData) return;
@@ -1493,15 +1854,15 @@
                 }
                 if (!recordWeekData) return;
 
-                if (record['鍛ㄨ鐗?] === '宸插畬鎴? && recordWeekData.title === currentWeekData.title) {
+                if (record['周读物'] === '已完成' && recordWeekData.title === currentWeekData.title) {
                     doneB.add(name);
                     setSuccess(document.getElementById(`book-${name}`));
                 }
-                if (record['鍛ㄨ棰?] === '宸插畬鎴? && recordWeekData.video === currentWeekData.video) {
+                if (record['周视频'] === '已完成' && recordWeekData.video === currentWeekData.video) {
                     doneV.add(name);
                     setSuccess(document.getElementById(`video-${name}`));
                 }
-                if (record['鍛ㄨ儗缁?] === '宸插畬鎴? && recordWeekData.verse === currentWeekData.verse) {
+                if (record['周背经'] === '已完成' && recordWeekData.verse === currentWeekData.verse) {
                     doneVerse.add(name);
                     setSuccess(document.getElementById(`verse-${name}`));
                 }
@@ -1527,7 +1888,7 @@
             const file = event.target.files[0];
             if (!file || !file.type.startsWith('image/')) return;
             const statusEl = document.getElementById('profile-edit-status');
-            if (statusEl) statusEl.innerText = "澶勭悊涓?..";
+            if (statusEl) statusEl.innerText = "处理中...";
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -1540,8 +1901,8 @@
                     localStorage.setItem('avatar_' + currentProfileName, compressedBase64);
                     updateAvatarUI(currentProfileName);
                     if (statusEl) {
-                        statusEl.innerText = "鏇存崲鎴愬姛锛?;
-                        setTimeout(() => { statusEl.innerText = "鏇存崲鏈湴澶村儚"; }, 2000);
+                        statusEl.innerText = "更换成功！";
+                        setTimeout(() => { statusEl.innerText = "更换本地头像"; }, 2000);
                     }
                 }
                 img.src = e.target.result;
@@ -1551,143 +1912,143 @@
         }
 
         const BIBLE_VERSES = [
-            {content: "浣犲綋鍒氬己澹儐锛佷笉瑕佹儳鎬曪紝涔熶笉瑕佹儕鎯躲€傚洜涓轰綘鏃犺寰€鍝噷鍘伙紝鑰跺拰鍗庝綘鐨勭蹇呬笌浣犲悓鍦ㄣ€?, ref: "绾︿功浜氳 1:9"},
-            {content: "鐤蹭箯鐨勶紝浠栬祼鑳藉姏锛涜蒋寮辩殑锛屼粬鍔犲姏閲忋€?, ref: "浠ヨ禌浜氫功 40:29"},
-            {content: "浣嗛偅绛夊€欒€跺拰鍗庣殑蹇呴噸鏂板緱鍔涖€備粬浠繀濡傞拱灞曠繀涓婅吘锛涗粬浠璺戝嵈涓嶅洶鍊︼紝琛岃蛋鍗翠笉鐤蹭箯銆?, ref: "浠ヨ禌浜氫功 40:31"},
-            {content: "浣犱笉瑕佸鎬曪紝鍥犱负鎴戜笌浣犲悓鍦紱涓嶈鎯婃兌锛屽洜涓烘垜鏄綘鐨勭銆傛垜蹇呭潥鍥轰綘锛屾垜蹇呭府鍔╀綘锛涙垜蹇呯敤鎴戝叕涔夌殑鍙虫墜鎵舵寔浣犮€?, ref: "浠ヨ禌浜氫功 41:10"},
-            {content: "鎴戦潬鐫€閭ｅ姞缁欐垜鍔涢噺鐨勶紝鍑′簨閮借兘浣溿€?, ref: "鑵撶珛姣斾功 4:13"},
-            {content: "鑰跺拰鍗庢槸鎴戠殑鍔涢噺锛屾垜鐨勮瘲姝岋紝涔熸垚浜嗘垜鐨勬嫰鏁戙€?, ref: "鍑哄焹鍙婅 15:2"},
-            {content: "浣犱滑褰撳垰寮哄．鑳嗭紝涓嶈瀹虫€曪紝涔熶笉瑕佺晱鎯т粬浠紝鍥犱负鑰跺拰鍗庝綘鐨勭鍜屼綘鍚屽幓銆備粬蹇呬笉鎾囦笅浣狅紝涔熶笉涓㈠純浣犮€?, ref: "鐢冲懡璁?31:6"},
-            {content: "鑰跺拰鍗庢槸鎴戠殑浜厜锛屾槸鎴戠殑鎷晳锛屾垜杩樻€曡皝鍛紵鑰跺拰鍗庢槸鎴戞€у懡鐨勪繚闅滐紝鎴戣繕鎯ц皝鍛紵", ref: "璇楃瘒 27:1"},
-            {content: "绁炴槸鎴戜滑鐨勯伩闅炬墍锛屾槸鎴戜滑鐨勫姏閲忥紝鏄垜浠湪鎮ｉ毦涓殢鏃剁殑甯姪銆?, ref: "璇楃瘒 46:1"},
-            {content: "涓囧啗涔嬭€跺拰鍗庝笌鎴戜滑鍚屽湪锛涢泤鍚勭殑绁炴槸鎴戜滑鐨勯伩闅炬墍锛?, ref: "璇楃瘒 46:7"},
-            {content: "鎵€浠ワ紝鎴戜滑涓嶄抚鑳嗐€傚浣撹櫧鐒舵瘉鍧忥紝鍐呭績鍗翠竴澶╂柊浼间竴澶┿€?, ref: "鍝ユ灄澶氬悗涔?4:16"},
-            {content: "鎴戝浣犱滑璇磋繖浜涗簨锛屾槸瑕佷娇浣犱滑鍦ㄦ垜閲岄潰鏈夊钩瀹夈€傚湪涓栦笂浣犱滑鏈夋偅闅撅紝浣嗕綘浠斁蹇冿紝鎴戝凡缁忚儨浜嗚繖涓栫晫銆?, ref: "绾︾堪绂忛煶 16:33"},
-            {content: "鍥犱负绁炶祼缁欐垜浠紝涓嶆槸鑳嗘€殑蹇冿紝涔冩槸鍒氬己銆佷粊鐖便€佽皑瀹堢殑蹇冦€?, ref: "鎻愭懇澶悗涔?1:7"},
-            {content: "浣犱滑鍔¤璀﹂啋锛屽湪鐪熼亾涓婄珯绔嬪緱绋筹紝瑕佷綔澶т笀澶紝瑕佸垰寮恒€?, ref: "鍝ユ灄澶氬墠涔?16:13"},
-            {content: "鎴戣姹傚憡褰撹禐缇庣殑鑰跺拰鍗庯紝杩欐牱鎴戝繀浠庝粐鏁屾墜涓鏁戝嚭鏉ャ€?, ref: "璇楃瘒 18:3"},
-            {content: "鎴戠殑鑲変綋鍜屾垜鐨勫績鑲犺“閫€锛涗絾绁炴槸鎴戝績閲岀殑鍔涢噺锛屽張鏄垜鐨勭鍒嗭紝鐩村埌姘歌繙銆?, ref: "璇楃瘒 73:26"},
-            {content: "涓昏€跺拰鍗庢槸鎴戠殑鍔涢噺锛涗粬浣挎垜鐨勮剼蹇姣嶉箍鐨勮箘锛屽張浣挎垜绋宠鍦ㄩ珮澶勩€?, ref: "鍝堝反璋蜂功 3:19"},
-            {content: "浠栧鎴戣锛氭垜鐨勬仼鍏稿浣犵敤鐨勶紝鍥犱负鎴戠殑鑳藉姏鏄湪浜虹殑杞急涓婃樉寰楀畬鍏ㄣ€?, ref: "鍝ユ灄澶氬悗涔?12:9"},
-            {content: "搴斿綋涓€鏃犳寕铏戯紝鍙鍑′簨钘夌潃绁峰憡銆佺姹傦紝鍜屾劅璋紝灏嗕綘浠墍瑕佺殑鍛婅瘔绁炪€傜鎵€璧愬嚭浜烘剰澶栫殑骞冲畨蹇呭湪鍩虹潱鑰剁ǎ閲屼繚瀹堜綘浠殑蹇冩€€鎰忓康銆?, ref: "鑵撶珛姣斾功 4:6-7"},
-            {content: "鎴戠暀涓嬪钩瀹夌粰浣犱滑锛涙垜灏嗘垜鐨勫钩瀹夎祼缁欎綘浠€傛垜鎵€璧愮殑锛屼笉鍍忎笘浜烘墍璧愮殑銆備綘浠績閲屼笉瑕佸咖鎰侊紝涔熶笉瑕佽儐鎬€?, ref: "绾︾堪绂忛煶 14:27"},
-            {content: "鍑″姵鑻︽媴閲嶆媴鐨勪汉鍙互鍒版垜杩欓噷鏉ワ紝鎴戝氨浣夸綘浠緱瀹夋伅銆?, ref: "椹お绂忛煶 11:28"},
-            {content: "浣犱滑瑕佸皢涓€鍒囩殑蹇ц檻鍗哥粰绁烇紝鍥犱负浠栭【蹇典綘浠€?, ref: "褰煎緱鍓嶄功 5:7"},
-            {content: "鍧氬績鍊氳禆浣犵殑锛屼綘蹇呬繚瀹堜粬鍗佸垎骞冲畨锛屽洜涓轰粬鍊氶潬浣犮€?, ref: "浠ヨ禌浜氫功 26:3"},
-            {content: "鑰跺拰鍗庢槸鎴戠殑鐗ц€咃紝鎴戝繀涓嶈嚦缂轰箯銆?, ref: "璇楃瘒 23:1"},
-            {content: "鎴戣櫧鐒惰杩囨鑽殑骞借胺锛屼篃涓嶆€曢伃瀹筹紝鍥犱负浣犱笌鎴戝悓鍦紱浣犵殑鏉栵紝浣犵殑绔匡紝閮藉畨鎱版垜銆?, ref: "璇楃瘒 23:4"},
-            {content: "浣犺鎶婁綘鐨勯噸鎷呭嵏缁欒€跺拰鍗庯紝浠栧繀鎶氬吇浣狅紱浠栨案涓嶅彨涔変汉鍔ㄦ憞銆?, ref: "璇楃瘒 55:22"},
-            {content: "鎴戝繀瀹夌劧韬轰笅鐫¤锛屽洜涓虹嫭鏈変綘鑰跺拰鍗庝娇鎴戝畨鐒跺眳浣忋€?, ref: "璇楃瘒 4:8"},
-            {content: "鑰跺拰鍗庡繀璧愬姏閲忕粰浠栫殑鐧惧锛涜€跺拰鍗庡繀璧愬钩瀹夌殑绂忕粰浠栫殑鐧惧銆?, ref: "璇楃瘒 29:11"},
-            {content: "鎰胯祼骞冲畨鐨勪富闅忔椂闅忎簨浜茶嚜璧愮粰浣犱滑骞冲畨锛佹効涓诲父涓庝綘浠紬浜哄悓鍦紒", ref: "甯栨拻缃楀凹杩﹀悗涔?3:16"},
-            {content: "浠栧湪涓€鍒囨偅闅句腑瀹夋叞鎴戜滑锛屽彨鎴戜滑鑳界敤绁炴墍璧愮殑瀹夋叞鍘诲畨鎱伴偅閬悇鏍锋偅闅剧殑浜恒€?, ref: "鍝ユ灄澶氬悗涔?1:4"},
-            {content: "鍥犱负浠栧績閲屾€庢牱鎬濋噺锛屼粬涓轰汉灏辨槸鎬庢牱銆?, ref: "绠磋█ 23:7"},
-            {content: "澶у北鍙互鎸紑锛屽皬灞卞彲浠ヨ縼绉伙紱浣嗘垜鐨勬厛鐖卞繀涓嶇寮€浣狅紝鎴戝钩瀹夌殑绾︿篃涓嶈縼绉汇€?, ref: "浠ヨ禌浜氫功 54:10"},
-            {content: "鑰跺拰鍗庨潬杩戜激蹇冪殑浜猴紝鎷晳鐏垫€х棝鎮旂殑浜恒€?, ref: "璇楃瘒 34:18"},
-            {content: "浠栧尰濂戒激蹇冪殑浜猴紝瑁瑰ソ浠栦滑鐨勪激澶勩€?, ref: "璇楃瘒 147:3"},
-            {content: "鑰跺拰鍗庤锛氭垜鐭ラ亾鎴戝悜浣犱滑鎵€鎬€鐨勬剰蹇垫槸璧愬钩瀹夌殑鎰忓康锛屼笉鏄檷鐏剧ジ鐨勬剰蹇碉紝瑕佸彨浣犱滑鏈悗鏈夋寚鏈涖€?, ref: "鑰跺埄绫充功 29:11"},
-            {content: "浣嗘効浣夸汉鏈夌浖鏈涚殑绁烇紝鍥犱俊灏嗚鑸殑鍠滀箰銆佸钩瀹夊厖婊′綘浠殑蹇冿紝浣夸綘浠棄鐫€鍦ｇ伒鐨勮兘鍔涘ぇ鏈夌浖鏈涳紒", ref: "缃楅┈涔?15:13"},
-            {content: "浣犵殑璇濇槸鎴戣剼鍓嶇殑鐏紝鏄垜璺笂鐨勫厜銆?, ref: "璇楃瘒 119:105"},
-            {content: "浣犺涓撳績浠拌禆鑰跺拰鍗庯紝涓嶅彲鍊氶潬鑷繁鐨勮仾鏄庛€傚湪浣犱竴鍒囨墍琛岀殑浜嬩笂锛岄兘瑕佽瀹氫粬锛屼粬蹇呮寚寮曚綘鐨勮矾銆?, ref: "绠磋█ 3:5-6"},
-            {content: "浜哄績绛圭畻鑷繁鐨勯亾璺紱鎯熻€跺拰鍗庢寚寮曚粬鐨勮剼姝ャ€?, ref: "绠磋█ 16:9"},
-            {content: "鎴戣鏁欏浣狅紝鎸囩ず浣犲綋琛岀殑璺紱鎴戣瀹氱潧鍦ㄤ綘韬笂鍔濇垝浣犮€?, ref: "璇楃瘒 32:8"},
-            {content: "涔変汉鐨勮矾濂藉儚榛庢槑鐨勫厜锛岃秺鐓ц秺鏄庯紝鐩村埌鏃ュ崍銆?, ref: "绠磋█ 4:18"},
-            {content: "鍥犱负缃殑宸ヤ环涔冩槸姝伙紱鎯熸湁绁炵殑鎭╄祼锛屽湪鎴戜滑鐨勪富鍩虹潱鑰剁ǎ閲岋紝涔冩槸姘哥敓銆?, ref: "缃楅┈涔?6:23"},
-            {content: "鎴戜滑鏅撳緱涓囦簨閮戒簰鐩告晥鍔涳紝鍙埍绁炵殑浜哄緱鐩婂锛屽氨鏄寜浠栨棬鎰忚鍙殑浜恒€?, ref: "缃楅┈涔?8:28"},
-            {content: "淇″氨鏄墍鏈涗箣浜嬬殑瀹炲簳锛屾槸鏈涔嬩簨鐨勭‘鎹€?, ref: "甯屼集鏉ヤ功 11:1"},
-            {content: "鍦ㄦ寚鏈涗腑瑕佸枩涔愶紱鍦ㄦ偅闅句腑瑕佸繊鑰愶紱绁峰憡瑕佹亽鍒囥€?, ref: "缃楅┈涔?12:12"},
-            {content: "鎴戜滑寰楁晳鏄湪涔庣浖鏈涳紱鍙槸鎵€瑙佺殑鐩兼湜涓嶆槸鐩兼湜锛岃皝杩樼浖鏈涗粬鎵€瑙佺殑鍛紵", ref: "缃楅┈涔?8:24"},
-            {content: "浠版湜涓烘垜浠俊蹇冨垱濮嬫垚缁堢殑鑰剁ǎ銆?, ref: "甯屼集鏉ヤ功 12:2"},
-            {content: "姹備綘鐢ㄤ綘鐨勮瘽浣挎垜鑴氭绋冲綋锛屼笉璁镐粈涔堢姜瀛借緰鍒舵垜銆?, ref: "璇楃瘒 119:133"},
-            {content: "浣犳眰鍛婃垜锛屾垜灏卞簲鍏佷綘锛屽苟灏嗕綘鎵€涓嶇煡閬撱€佸張澶у張闅剧殑浜嬫寚绀轰綘銆?, ref: "鑰跺埄绫充功 33:3"},
-            {content: "鎴戜滑鏈夎繖鎸囨湜锛屽鍚岀伒榄傜殑閿氾紝鍙堝潥鍥哄張鐗㈤潬锛屼笖閫氬叆骞斿唴銆?, ref: "甯屼集鏉ヤ功 6:19"},
-            {content: "鑰剁ǎ瀵逛粬璇达細浣犺嫢鑳戒俊锛屽湪淇＄殑浜猴紝鍑′簨閮借兘銆?, ref: "椹彲绂忛煶 9:23"},
-            {content: "浜洪潪鏈変俊锛屽氨涓嶈兘寰楃鐨勫枩鎮︼紱鍥犱负鍒扮闈㈠墠鏉ョ殑浜哄繀椤讳俊鏈夌锛屼笖淇′粬璧忚祼閭ｅ姹備粬鐨勪汉銆?, ref: "甯屼集鏉ヤ功 11:6"},
-            {content: "褰撳皢浣犵殑浜嬩氦鎵樿€跺拰鍗庯紝骞跺€氶潬浠栵紝浠栧氨蹇呮垚鍏ㄣ€?, ref: "璇楃瘒 37:5"},
-            {content: "浣犺淇濆畧浣犲績锛岃儨杩囦繚瀹堜竴鍒囷紝鍥犱负涓€鐢熺殑鏋滄晥鏄敱蹇冨彂鍑恒€?, ref: "绠磋█ 4:23"},
-            {content: "鏁晱鑰跺拰鍗庢槸鏅烘収鐨勫紑绔紱璁よ瘑鑷冲湥鑰呬究鏄仾鏄庛€?, ref: "绠磋█ 9:10"},
-            {content: "浣犳墍鍋氱殑锛岃浜ゆ墭鑰跺拰鍗庯紝浣犳墍璋嬬殑锛屽氨蹇呮垚绔嬨€?, ref: "绠磋█ 16:3"},
-            {content: "浣犱滑瑕佸厛姹備粬鐨勫浗鍜屼粬鐨勪箟锛岃繖浜涗笢瑗块兘瑕佸姞缁欎綘浠簡銆?, ref: "椹お绂忛煶 6:33"},
-            {content: "鎵€浠ヤ笉瑕佷负鏄庡ぉ蹇ц檻锛屽洜涓烘槑澶╄嚜鏈夋槑澶╃殑蹇ц檻锛涗竴澶╃殑闅惧涓€澶╁綋灏卞浜嗐€?, ref: "椹お绂忛煶 6:34"},
-            {content: "浣犱滑绁堟眰锛屽氨缁欎綘浠紱瀵绘壘锛屽氨瀵昏锛涘彥闂紝灏辩粰浣犱滑寮€闂ㄣ€?, ref: "椹お绂忛煶 7:7"},
-            {content: "鎵€浠ユ垜鍛婅瘔浣犱滑锛屽嚒浣犱滑绁峰憡绁堟眰鐨勶紝鏃犺鏄粈涔堬紝鍙淇℃槸寰楃潃鐨勶紝灏卞繀寰楃潃銆?, ref: "椹彲绂忛煶 11:24"},
-            {content: "鍥犱负锛屽嚭浜庣鐨勮瘽锛屾病鏈変竴鍙ヤ笉甯﹁兘鍔涚殑銆?, ref: "璺姞绂忛煶 1:37"},
-            {content: "浣犱滑鑻ュ父鍦ㄦ垜閲岄潰锛屾垜鐨勮瘽涔熷父鍦ㄤ綘浠噷闈紝鍑′綘浠墍鎰挎剰鐨勶紝绁堟眰锛屽氨缁欎綘浠垚灏便€?, ref: "绾︾堪绂忛煶 15:7"},
-            {content: "鍙锛屼俊閬撴槸浠庡惉閬撴潵鐨勶紝鍚亾鏄粠鍩虹潱鐨勮瘽鏉ョ殑銆?, ref: "缃楅┈涔?10:17"},
-            {content: "鍥犳垜浠浜嬩负浜烘槸鍑潃淇″績锛屼笉鏄嚟鐫€鐪艰銆?, ref: "鍝ユ灄澶氬悗涔?5:7"},
-            {content: "鍙鍑潃淇″績姹傦紝涓€鐐逛笉鐤戞儜锛涘洜涓洪偅鐤戞儜鐨勪汉锛屽氨鍍忔捣涓殑娉㈡氮锛岃椋庡惞鍔ㄧ炕鑵俱€?, ref: "闆呭悇涔?1:6"},
-            {content: "鎶曢潬鑰跺拰鍗庯紝寮轰技鍊氳禆浜恒€?, ref: "璇楃瘒 118:8"},
-            {content: "绁炵埍涓栦汉锛岀敋鑷冲皢浠栫殑鐙敓瀛愯祼缁欎粬浠紝鍙竴鍒囦俊浠栫殑锛屼笉鑷崇伃浜★紝鍙嶅緱姘哥敓銆?, ref: "绾︾堪绂忛煶 3:16"},
-            {content: "鎯熸湁鍩虹潱鍦ㄦ垜浠繕浣滅姜浜虹殑鏃跺€欎负鎴戜滑姝伙紝绁炵殑鐖卞氨鍦ㄦ鍚戞垜浠樉鏄庝簡銆?, ref: "缃楅┈涔?5:8"},
-            {content: "鐖辨槸鎭掍箙蹇嶈€愶紝鍙堟湁鎭╂厛锛涚埍鏄笉瀚夊锛涚埍鏄笉鑷じ锛屼笉寮犵媯銆?, ref: "鍝ユ灄澶氬墠涔?13:4"},
-            {content: "鍑′簨鍖呭锛屽嚒浜嬬浉淇★紝鍑′簨鐩兼湜锛屽嚒浜嬪繊鑰?鐖辨槸姘镐笉姝㈡伅銆?, ref: "鍝ユ灄澶氬墠涔?13:7-8"},
-            {content: "濡備粖甯稿瓨鐨勬湁淇★紝鏈夋湜锛屾湁鐖辫繖涓夋牱锛屽叾涓渶澶х殑鏄埍銆?, ref: "鍝ユ灄澶氬墠涔?13:13"},
-            {content: "鎴戜滑鐖憋紝鍥犱负绁炲厛鐖辨垜浠€?, ref: "绾︾堪涓€涔?4:19"},
-            {content: "鐖遍噷娌℃湁鎯ф€曪紱鐖辨棦瀹屽叏锛屽氨鎶婃儳鎬曢櫎鍘汇€?, ref: "绾︾堪涓€涔?4:18"},
-            {content: "浣犱滑寰楁晳鏄湰涔庢仼锛屼篃鍥犵潃淇★紱杩欏苟涓嶆槸鍑轰簬鑷繁锛屼箖鏄鎵€璧愮殑銆?, ref: "浠ュ紬鎵€涔?2:8"},
-            {content: "绁炶兘灏嗗悇鏍风殑鎭╂儬澶氬鍦板姞缁欎綘浠紝浣夸綘浠嚒浜嬪父甯稿厖瓒筹紝鑳藉琛屽悇鏍峰杽浜嬨€?, ref: "鍝ユ灄澶氬悗涔?9:8"},
-            {content: "骞惰浠ユ仼鎱堢浉寰咃紝瀛樻€滄偗鐨勫績锛屽郊姝らザ鎭曪紝姝ｅ绁炲湪鍩虹潱閲岄ザ鎭曚簡浣犱滑涓€鏍枫€?, ref: "浠ュ紬鎵€涔?4:32"},
-            {content: "鏈€瑕佺揣鐨勬槸褰兼鍒囧疄鐩哥埍锛屽洜涓虹埍鑳介伄鎺╄澶氱殑缃€?, ref: "褰煎緱鍓嶄功 4:8"},
-            {content: "鎴戜滑涓嶈嚦娑堢伃锛屾槸鍑轰簬鑰跺拰鍗庤鑸殑鎱堢埍锛涙槸鍥犱粬鐨勬€滄偗涓嶈嚦鏂粷銆傛瘡鏃╂櫒锛岃繖閮芥槸鏂扮殑锛涗綘鐨勮瘹瀹炴瀬鍏跺箍澶э紒", ref: "鑰跺埄绫冲搥姝?3:22-23"},
-            {content: "鑰跺拰鍗庝綘鐨勭鏄柦琛屾嫰鏁戙€佸ぇ鏈夎兘鍔涚殑涓?浠栧湪浣犱腑闂村繀鍥犱綘娆㈡鍠滀箰锛岄粯鐒剁埍浣狅紝涓斿洜浣犲枩涔愯€屾鍛笺€?, ref: "瑗跨暘闆呬功 3:17"},
-            {content: "浣犱滑楗舵仌浜虹殑杩囩姱锛屼綘浠殑澶╃埗涔熷繀楗舵仌浣犱滑鐨勮繃鐘€?, ref: "椹お绂忛煶 6:14"},
-            {content: "鍑′綘浠墍鍋氱殑閮借鍑埍蹇冭€屽仛銆?, ref: "鍝ユ灄澶氬墠涔?16:14"},
-            {content: "鎴戜滑琛屽杽锛屼笉鍙抚蹇楋紱鑻ヤ笉鐏板績锛屽埌浜嗘椂鍊欏氨瑕佹敹鎴愩€?, ref: "鍔犳媺澶功 6:9"},
-            {content: "鎴戠殑寮熷厔浠紝浣犱滑钀藉湪鐧捐埇璇曠偧涓紝閮借浠ヤ负澶у枩涔愶紱鍥犱负鐭ラ亾浣犱滑鐨勪俊蹇冪粡杩囪瘯楠岋紝灏辩敓蹇嶈€愩€?, ref: "闆呭悇涔?1:2-3"},
-            {content: "浣犱滑涓棿鑻ユ湁缂哄皯鏅烘収鐨勶紝搴斿綋姹傞偅鍘氳祼涓庝紬浜恒€佷篃涓嶆枼璐ｄ汉鐨勭锛屼富灏卞繀璧愮粰浠栥€?, ref: "闆呭悇涔?1:5"},
-            {content: "蹇嶅彈璇曟帰鐨勪汉鏄湁绂忕殑锛屽洜涓轰粬缁忚繃璇曢獙浠ュ悗锛屽繀寰楃敓鍛界殑鍐犲啎锛岃繖鏄富搴旇缁欓偅浜涚埍浠栦箣浜虹殑銆?, ref: "闆呭悇涔?1:12"},
-            {content: "鎴戞繁淇￠偅鍦ㄤ綘浠績閲屽姩浜嗗杽宸ョ殑锛屽繀鎴愬叏杩欏伐锛岀洿鍒拌€剁ǎ鍩虹潱鐨勬棩瀛愩€?, ref: "鑵撶珛姣斾功 1:6"},
-            {content: "浣犱滑鎵€閬囪鐨勮瘯鎺紝鏃犻潪鏄汉鎵€鑳藉彈鐨?绁炴槸淇″疄鐨勶紝蹇呬笉鍙綘浠彈璇曟帰杩囦簬鎵€鑳藉彈鐨勶紱鍦ㄥ彈璇曟帰鐨勬椂鍊欙紝鎬昏缁欎綘浠紑涓€鏉″嚭璺紝鍙綘浠兘蹇嶅彈寰椾綇銆?, ref: "鍝ユ灄澶氬墠涔?10:13"},
-            {content: "鎴戜滑鏃㈡湁杩欒澶氱殑瑙佽瘉浜猴紝濡傚悓浜戝僵鍥寸潃鎴戜滑锛屽氨褰撴斁涓嬪悇鏍风殑閲嶆媴锛岃劚鍘诲鏄撶紶绱垜浠殑缃紝瀛樺績蹇嶈€愶紝濂旈偅鎽嗗湪鎴戜滑鍓嶅ご鐨勮矾绋嬨€?, ref: "甯屼集鏉ヤ功 12:1"},
-            {content: "浣犱滑瑕侀潬涓诲父甯稿枩涔?鎴戝啀璇达紝浣犱滑瑕佸枩涔愩€?, ref: "鑵撶珛姣斾功 4:4"},
-            {content: "甯稿父鍠滀箰锛屼笉浣忓湴绁峰憡锛屽嚒浜嬭阿鎭╋紱鍥犱负杩欐槸绁炲湪鍩虹潱鑰剁ǎ閲屽悜浣犱滑鎵€瀹氱殑鏃ㄦ剰銆?, ref: "甯栨拻缃楀凹杩﹀墠涔?5:16-18"},
-            {content: "鍦ｇ粡閮芥槸绁炴墍榛樼ず鐨勶紝浜庢暀璁€佺潱璐ｃ€佷娇浜哄綊姝ｃ€佹暀瀵间汉瀛︿箟閮芥槸鏈夌泭鐨勩€?, ref: "鎻愭懇澶悗涔?3:16"},
-            {content: "绁炵殑閬撴槸娲绘臣鐨勶紝鏄湁鍔熸晥鐨勶紝姣斾竴鍒囦袱鍒冪殑鍓戞洿蹇紝鐢氳嚦榄備笌鐏碉紝楠ㄨ妭涓庨楂擄紝閮借兘鍒哄叆銆佸墫寮€锛岃繛蹇冧腑鐨勬€濆康鍜屼富鎰忛兘鑳借鲸鏄庛€?, ref: "甯屼集鏉ヤ功 4:12"},
-            {content: "鎵€浠ワ紝鎴戜滑鍙鍧︾劧鏃犳儳鍦版潵鍒版柦鎭╃殑瀹濆骇鍓嶏紝涓鸿寰楁€滄仱锛岃挋鎭╂儬锛屼綔闅忔椂鐨勫府鍔┿€?, ref: "甯屼集鏉ヤ功 4:16"},
-            {content: "鍔¤浼犻亾锛屾棤璁哄緱鏃朵笉寰楁椂锛屾€昏涓撳績锛屽苟鐢ㄧ櫨鑸殑蹇嶈€愩€佸悇鏍风殑鏁欒璐ｅ浜猴紝璀︽垝浜猴紝鍔濆媺浜恒€?, ref: "鎻愭懇澶悗涔?4:2"},
-            {content: "鍑＄鏁欑殑浜嬶紝褰撴椂涓嶈寰楀揩涔愶紝鍙嶈寰楁剚鑻︼紱鍚庢潵鍗翠负閭ｇ粡缁冭繃鐨勪汉缁撳嚭骞冲畨鐨勬灉瀛愶紝灏辨槸涔夈€?, ref: "甯屼集鏉ヤ功 12:11"},
-            {content: "浣嗕綘浠緱鍦ㄥ熀鐫ｈ€剁ǎ閲屾槸鏈箮绁烇紝绁炲張浣夸粬鎴愪负鎴戜滑鐨勬櫤鎱с€佸叕涔夈€佸湥娲併€佹晳璧庛€?, ref: "鍝ユ灄澶氬墠涔?1:30"},
-            {content: "鎵€浠ュ紵鍏勪滑锛屾垜浠ョ鐨勬厛鎮插姖浣犱滑锛屽皢韬綋鐚笂锛屽綋浣滄椿绁紝鏄湥娲佺殑锛屾槸绁炴墍鍠滄偊鐨勶紱浣犱滑濡傛浜嬪涔冩槸鐞嗘墍褰撶劧鐨勩€?, ref: "缃楅┈涔?12:1"},
-            {content: "涓嶈鏁堟硶杩欎釜涓栫晫锛屽彧瑕佸績鎰忔洿鏂拌€屽彉鍖栵紝鍙綘浠療楠屼綍涓虹鐨勫杽鑹€佺函鍏ㄣ€佸彲鍠滄偊鐨勬棬鎰忋€?, ref: "缃楅┈涔?12:2"},
-            {content: "鑻ユ湁浜哄湪鍩虹潱閲岋紝浠栧氨鏄柊閫犵殑浜猴紝鏃т簨宸茶繃锛岄兘鍙樻垚鏂扮殑浜嗐€?, ref: "鍝ユ灄澶氬悗涔?5:17"},
-            {content: "鎴戝凡缁忎笌鍩虹潱鍚岄拤鍗佸瓧鏋讹紝鐜板湪娲荤潃鐨勪笉鍐嶆槸鎴戯紝涔冩槸鍩虹潱鍦ㄦ垜閲岄潰娲荤潃銆?, ref: "鍔犳媺澶功 2:20"},
-            {content: "鍦ｇ伒鎵€缁撶殑鏋滃瓙锛屽氨鏄粊鐖便€佸枩涔愩€佸拰骞炽€佸繊鑰愩€佹仼鎱堛€佽壇鍠勩€佷俊瀹炪€佹俯鏌斻€佽妭鍒躲€?, ref: "鍔犳媺澶功 5:22-23"},
-            {content: "鎴戜滑鍘熸槸浠栫殑宸ヤ綔锛屽湪鍩虹潱鑰剁ǎ閲岄€犳垚鐨勶紝涓鸿鍙垜浠鍠勶紝灏辨槸绁炴墍棰勫鍙垜浠鐨勩€?, ref: "浠ュ紬鎵€涔?2:10"},
-            {content: "绁炶兘鐓х潃杩愯鍦ㄦ垜浠績閲岀殑澶у姏鍏呭厖瓒宠冻鍦版垚灏变竴鍒囷紝瓒呰繃鎴戜滑鎵€姹傛墍鎯崇殑銆?, ref: "浠ュ紬鎵€涔?3:20"},
-            {content: "鎴戣繕鏈夋湯浜嗙殑璇濓細浣犱滑瑕侀潬鐫€涓伙紝鍊氳禆浠栫殑澶ц兘澶у姏浣滃垰寮虹殑浜恒€?, ref: "浠ュ紬鎵€涔?6:10"},
-            {content: "瑕佺┛鎴寸鎵€璧愮殑鍏ㄥ壇鍐涜锛屽氨鑳芥姷鎸￠瓟楝肩殑璇¤銆?, ref: "浠ュ紬鎵€涔?6:11"},
-            {content: "鍑′簨涓嶅彲缁撳厷锛屼笉鍙椽鍥捐櫄娴殑鑽ｈ€€锛涘彧瑕佸瓨蹇冭唉鍗戯紝鍚勪汉鐪嬪埆浜烘瘮鑷繁寮恒€?, ref: "鑵撶珛姣斾功 2:3"},
-            {content: "浣犱滑瑕佹€濆康涓婇潰鐨勪簨锛屼笉瑕佹€濆康鍦颁笂鐨勪簨銆?, ref: "姝岀綏瑗夸功 3:2"},
-            {content: "鏃犺鍋氫粈涔堬紝閮借浠庡績閲屽仛锛屽儚鏄粰涓诲仛鐨勶紝涓嶆槸缁欎汉鍋氱殑銆?, ref: "姝岀綏瑗夸功 3:23"},
-            {content: "鏁呮锛屼綘浠椤烘湇绁?鍔¤鎶垫尅榄旈锛岄瓟楝煎氨蹇呯寮€浣犱滑閫冭窇浜嗐€?, ref: "闆呭悇涔?4:7"},
-            {content: "浣犱滑鏄笘涓婄殑鍏?鍩庨€犲湪灞变笂鏄笉鑳介殣钘忕殑銆?, ref: "椹お绂忛煶 5:14"},
-            {content: "鎵€浠ワ紝浣犱滑瑕佸幓锛屼娇涓囨皯浣滄垜鐨勯棬寰掞紝濂夌埗銆佸瓙銆佸湥鐏电殑鍚嶇粰浠栦滑鏂芥礂銆?, ref: "椹お绂忛煶 28:19"},
-            {content: "鎴戜滑鑻ヨ鑷繁鐨勭姜锛岀鏄俊瀹炵殑锛屾槸鍏箟鐨勶紝蹇呰璧﹀厤鎴戜滑鐨勭姜锛屾礂鍑€鎴戜滑涓€鍒囩殑涓嶄箟銆?, ref: "绾︾堪涓€涔?1:9"},
-            {content: "鐪嬪摢锛屾垜绔欏湪闂ㄥ鍙╅棬锛岃嫢鏈夊惉瑙佹垜澹伴煶灏卞紑闂ㄧ殑锛屾垜瑕佽繘鍒颁粬閭ｉ噷鍘伙紝鎴戜笌浠栵紝浠栦笌鎴戜竴鍚屽潗甯€?, ref: "鍚ず褰?3:20"},
-            {content: "绁炲晩锛屾眰浣犱负鎴戦€犳竻娲佺殑蹇冿紝浣挎垜閲岄潰閲嶆柊鏈夋鐩寸殑鐏点€?, ref: "璇楃瘒 51:10"},
-            {content: "涓嶈涓鸿嚜宸辩Н鏀掕储瀹濆湪鍦颁笂锛涘湴涓婃湁铏瓙鍜紝鑳介攬鍧忥紝涔熸湁璐兼寲绐熺鏉ュ伔銆?, ref: "椹お绂忛煶 6:19"},
-            {content: "鍥犱负浣犵殑璐㈠疂鍦ㄥ摢閲岋紝浣犵殑蹇冧篃鍦ㄩ偅閲屻€?, ref: "椹お绂忛煶 6:21"},
-            {content: "鎴戠殑蹇冨摢锛屼綘瑕佺О棰傝€跺拰鍗庯紒鍑″湪鎴戦噷闈㈢殑锛屼篃瑕佺О棰備粬鐨勫湥鍚嶏紒", ref: "璇楃瘒 103:1"},
-            {content: "浠栬郸鍏嶄綘鐨勪竴鍒囩姜瀛斤紝鍖绘不浣犵殑涓€鍒囩柧鐥呫€?, ref: "璇楃瘒 103:3"},
-            {content: "澶╃鍦颁綍绛夌殑楂橈紝浠栫殑鎱堢埍鍚戞暚鐣忎粬鐨勪汉涔熸槸浣曠瓑鐨勫ぇ锛?, ref: "璇楃瘒 103:11"},
-            {content: "鎴戣鍚戝北涓剧洰锛涙垜鐨勫府鍔╀粠浣曡€屾潵锛熸垜鐨勫府鍔╀粠閫犲ぉ鍦扮殑鑰跺拰鍗庤€屾潵銆?, ref: "璇楃瘒 121:1-2"},
-            {content: "鑰跺拰鍗庤淇濇姢浣狅紝鍏嶅彈涓€鍒囩殑鐏惧锛涗粬瑕佷繚鎶や綘鐨勬€у懡銆?, ref: "璇楃瘒 121:7"},
-            {content: "绁炲晩锛屾眰浣犻壌瀵熸垜锛岀煡閬撴垜鐨勫績鎬濓紝璇曠偧鎴戯紝鐭ラ亾鎴戠殑鎰忓康銆?, ref: "璇楃瘒 139:23"},
-            {content: "鍥犳湁涓€濠村涓烘垜浠€岀敓锛屾湁涓€瀛愯祼缁欐垜浠?鏀挎潈蹇呮媴鍦ㄤ粬鐨勮偐澶翠笂銆?, ref: "浠ヨ禌浜氫功 9:6"},
-            {content: "鐪嬪摢锛佺鏄垜鐨勬嫰鏁戯紱鎴戣鍊氶潬浠栵紝骞朵笉鎯ф€曘€?, ref: "浠ヨ禌浜氫功 12:2"},
-            {content: "鍝煡浠栦负鎴戜滑鐨勮繃鐘彈瀹筹紝涓烘垜浠殑缃鍘嬩激.鍥犱粬鍙楃殑鍒戠綒锛屾垜浠緱骞冲畨锛涘洜浠栧彈鐨勯灜浼わ紝鎴戜滑寰楀尰娌汇€?, ref: "浠ヨ禌浜氫功 53:5"},
-            {content: "浠栬娆哄帇锛屽湪鍙楄嫤鐨勬椂鍊欏嵈涓嶅紑鍙ｏ紱浠栧儚缇婄緮琚壍鍒板鏉€涔嬪湴锛屽張鍍忕緤鍦ㄥ壀姣涚殑浜烘墜涓嬫棤澹帮紝浠栦篃鏄繖鏍蜂笉寮€鍙ｃ€?, ref: "浠ヨ禌浜氫功 53:7"},
-            {content: "鍑℃帴寰呬粬鐨勶紝灏辨槸淇′粬鍚嶇殑浜猴紝浠栧氨璧愪粬浠潈鏌勪綔绁炵殑鍎垮コ銆?, ref: "绾︾堪绂忛煶 1:12"},
-            {content: "閬撴垚浜嗚倝韬紝浣忓湪鎴戜滑涓棿锛屽厖鍏呮弧婊″湴鏈夋仼鍏告湁鐪熺悊銆?, ref: "绾︾堪绂忛煶 1:14"},
-            {content: "鐩楄醇鏉ワ紝鏃犻潪瑕佸伔绐冿紝鏉€瀹筹紝姣佸潖锛涙垜鏉ヤ簡锛屾槸瑕佸彨缇婂緱鐢熷懡锛屽苟涓斿緱鐨勬洿涓扮洓銆?, ref: "绾︾堪绂忛煶 10:10"},
-            {content: "鑰剁ǎ瀵瑰ス璇达細澶嶆椿鍦ㄦ垜锛岀敓鍛戒篃鍦ㄦ垜.淇℃垜鐨勪汉铏界劧姝讳簡锛屼篃蹇呭娲汇€?, ref: "绾︾堪绂忛煶 11:25"},
-            {content: "鑰剁ǎ璇达細鎴戝氨鏄亾璺€佺湡鐞嗐€佺敓鍛斤紱鑻ヤ笉钘夌潃鎴戯紝娌℃湁浜鸿兘鍒扮埗閭ｉ噷鍘汇€?, ref: "绾︾堪绂忛煶 14:6"},
-            {content: "鎴戞槸钁¤悇鏍戯紝浣犱滑鏄灊瀛?甯稿湪鎴戦噷闈㈢殑锛屾垜涔熷父鍦ㄤ粬閲岄潰锛岃繖浜哄氨澶氱粨鏋滃瓙锛涘洜涓虹浜嗘垜锛屼綘浠氨涓嶈兘鍋氫粈涔堛€?, ref: "绾︾堪绂忛煶 15:5"},
-            {content: "鎴戜笉浠ョ闊充负鑰伙紱杩欑闊虫湰鏄鐨勫ぇ鑳斤紝瑕佹晳涓€鍒囩浉淇＄殑锛屽厛鏄姽澶汉锛屽悗鏄笇鑵婁汉銆?, ref: "缃楅┈涔?1:16"},
-            {content: "鍥犱负涓栦汉閮界姱浜嗙姜锛屼簭缂轰簡绁炵殑鑽ｈ€€锛涘浠婂嵈钂欑鐨勬仼鍏革紝鍥犲熀鐫ｈ€剁ǎ鐨勬晳璧庯紝灏辩櫧鐧藉湴绉颁箟銆?, ref: "缃楅┈涔?3:23-24"},
-            {content: "濡備粖锛岄偅浜涘湪鍩虹潱鑰剁ǎ閲岀殑灏变笉瀹氱姜浜嗐€?, ref: "缃楅┈涔?8:1"},
-            {content: "鍥犱负鎴戞繁淇℃棤璁烘槸姝伙紝鏄敓锛屾槸澶╀娇锛屾槸鎺屾潈鐨勶紝鏄湁鑳界殑锛屾槸鐜板湪鐨勪簨锛屾槸灏嗘潵鐨勪簨锛岄兘涓嶈兘鍙垜浠笌绁炵殑鐖遍殧缁濄€?, ref: "缃楅┈涔?8:38-39"},
-            {content: "浣犺嫢鍙ｉ噷璁よ€剁ǎ涓轰富锛屽績閲屼俊绁炲彨浠栦粠姝婚噷澶嶆椿锛屽氨蹇呭緱鏁戙€?, ref: "缃楅┈涔?10:9"}
+            {content: "你当刚强壮胆！不要惧怕，也不要惊惶。因为你无论往哪里去，耶和华你的神必与你同在。", ref: "约书亚记 1:9"},
+            {content: "疲乏的，他赐能力；软弱的，他加力量。", ref: "以赛亚书 40:29"},
+            {content: "但那等候耶和华的必重新得力。他们必如鹰展翅上腾；他们奔跑却不困倦，行走却不疲乏。", ref: "以赛亚书 40:31"},
+            {content: "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。我必坚固你，我必帮助你；我必用我公义的右手扶持你。", ref: "以赛亚书 41:10"},
+            {content: "我靠着那加给我力量的，凡事都能作。", ref: "腓立比书 4:13"},
+            {content: "耶和华是我的力量，我的诗歌，也成了我的拯救。", ref: "出埃及记 15:2"},
+            {content: "你们当刚强壮胆，不要害怕，也不要畏惧他们，因为耶和华你的神和你同去。他必不撇下你，也不丢弃你。", ref: "申命记 31:6"},
+            {content: "耶和华是我的亮光，是我的拯救，我还怕谁呢？耶和华是我性命的保障，我还惧谁呢？", ref: "诗篇 27:1"},
+            {content: "神是我们的避难所，是我们的力量，是我们在患难中随时的帮助。", ref: "诗篇 46:1"},
+            {content: "万军之耶和华与我们同在；雅各的神是我们的避难所！", ref: "诗篇 46:7"},
+            {content: "所以，我们不丧胆。外体虽然毁坏，内心却一天新似一天。", ref: "哥林多后书 4:16"},
+            {content: "我对你们说这些事，是要使你们在我里面有平安。在世上你们有患难，但你们放心，我已经胜了这世界。", ref: "约翰福音 16:33"},
+            {content: "因为神赐给我们，不是胆怯的心，乃是刚强、仁爱、谨守的心。", ref: "提摩太后书 1:7"},
+            {content: "你们务要警醒，在真道上站立得稳，要作大丈夫，要刚强。", ref: "哥林多前书 16:13"},
+            {content: "我要求告当赞美的耶和华，这样我必从仇敌手中被救出来。", ref: "诗篇 18:3"},
+            {content: "我的肉体和我的心肠衰退；但神是我心里的力量，又是我的福分，直到永远。", ref: "诗篇 73:26"},
+            {content: "主耶和华是我的力量；他使我的脚快如母鹿的蹄，又使我稳行在高处。", ref: "哈巴谷书 3:19"},
+            {content: "他对我说：我的恩典够你用的，因为我的能力是在人的软弱上显得完全。", ref: "哥林多后书 12:9"},
+            {content: "应当一无挂虑，只要凡事藉着祷告、祈求，和感谢，将你们所要的告诉神。神所赐出人意外的平安必在基督耶稣里保守你们的心怀意念。", ref: "腓立比书 4:6-7"},
+            {content: "我留下平安给你们；我将我的平安赐给你们。我所赐的，不像世人所赐的。你们心里不要忧愁，也不要胆怯。", ref: "约翰福音 14:27"},
+            {content: "凡劳苦担重担的人可以到我这里来，我就使你们得安息。", ref: "马太福音 11:28"},
+            {content: "你们要将一切的忧虑卸给神，因为他顾念你们。", ref: "彼得前书 5:7"},
+            {content: "坚心倚赖你的，你必保守他十分平安，因为他倚靠你。", ref: "以赛亚书 26:3"},
+            {content: "耶和华是我的牧者，我必不至缺乏。", ref: "诗篇 23:1"},
+            {content: "我虽然行过死荫的幽谷，也不怕遭害，因为你与我同在；你的杖，你的竿，都安慰我。", ref: "诗篇 23:4"},
+            {content: "你要把你的重担卸给耶和华，他必抚养你；他永不叫义人动摇。", ref: "诗篇 55:22"},
+            {content: "我必安然躺下睡觉，因为独有你耶和华使我安然居住。", ref: "诗篇 4:8"},
+            {content: "耶和华必赐力量给他的百姓；耶和华必赐平安的福给他的百姓。", ref: "诗篇 29:11"},
+            {content: "愿赐平安的主随时随事亲自赐给你们平安！愿主常与你们众人同在！", ref: "帖撒罗尼迦后书 3:16"},
+            {content: "他在一切患难中安慰我们，叫我们能用神所赐的安慰去安慰那遭各样患难的人。", ref: "哥林多后书 1:4"},
+            {content: "因为他心里怎样思量，他为人就是怎样。", ref: "箴言 23:7"},
+            {content: "大山可以挪开，小山可以迁移；但我的慈爱必不离开你，我平安的约也不迁移。", ref: "以赛亚书 54:10"},
+            {content: "耶和华靠近伤心的人，拯救灵性痛悔的人。", ref: "诗篇 34:18"},
+            {content: "他医好伤心的人，裹好他们的伤处。", ref: "诗篇 147:3"},
+            {content: "耶和华说：我知道我向你们所怀的意念是赐平安的意念，不是降灾祸的意念，要叫你们末后有指望。", ref: "耶利米书 29:11"},
+            {content: "但愿使人有盼望的神，因信将诸般的喜乐、平安充满你们的心，使你们藉着圣灵的能力大有盼望！", ref: "罗马书 15:13"},
+            {content: "你的话是我脚前的灯，是我路上的光。", ref: "诗篇 119:105"},
+            {content: "你要专心仰赖耶和华，不可倚靠自己的聪明。在你一切所行的事上，都要认定他，他必指引你的路。", ref: "箴言 3:5-6"},
+            {content: "人心筹算自己的道路；惟耶和华指引他的脚步。", ref: "箴言 16:9"},
+            {content: "我要教导你，指示你当行的路；我要定睛在你身上劝戒你。", ref: "诗篇 32:8"},
+            {content: "义人的路好像黎明的光，越照越明，直到日午。", ref: "箴言 4:18"},
+            {content: "因为罪的工价乃是死；惟有神的恩赐，在我们的主基督耶稣里，乃是永生。", ref: "罗马书 6:23"},
+            {content: "我们晓得万事都互相效力，叫爱神的人得益处，就是按他旨意被召的人。", ref: "罗马书 8:28"},
+            {content: "信就是所望之事的实底，是未见之事的确据。", ref: "希伯来书 11:1"},
+            {content: "在指望中要喜乐；在患难中要忍耐；祷告要恒切。", ref: "罗马书 12:12"},
+            {content: "我们得救是在乎盼望；只是所见的盼望不是盼望，谁还盼望他所见的呢？", ref: "罗马书 8:24"},
+            {content: "仰望为我们信心创始成终的耶稣。", ref: "希伯来书 12:2"},
+            {content: "求你用你的话使我脚步稳当，不许什么罪孽辖制我。", ref: "诗篇 119:133"},
+            {content: "你求告我，我就应允你，并将你所不知道、又大又难的事指示你。", ref: "耶利米书 33:3"},
+            {content: "我们有这指望，如同灵魂的锚，又坚固又牢靠，且通入幔内。", ref: "希伯来书 6:19"},
+            {content: "耶稣对他说：你若能信，在信的人，凡事都能。", ref: "马可福音 9:23"},
+            {content: "人非有信，就不能得神的喜悦；因为到神面前来的人必须信有神，且信他赏赐那寻求他的人。", ref: "希伯来书 11:6"},
+            {content: "当将你的事交托耶和华，并倚靠他，他就必成全。", ref: "诗篇 37:5"},
+            {content: "你要保守你心，胜过保守一切，因为一生的果效是由心发出。", ref: "箴言 4:23"},
+            {content: "敬畏耶和华是智慧的开端；认识至圣者便是聪明。", ref: "箴言 9:10"},
+            {content: "你所做的，要交托耶和华，你所谋的，就必成立。", ref: "箴言 16:3"},
+            {content: "你们要先求他的国和他的义，这些东西都要加给你们了。", ref: "马太福音 6:33"},
+            {content: "所以不要为明天忧虑，因为明天自有明天的忧虑；一天的难处一天当就够了。", ref: "马太福音 6:34"},
+            {content: "你们祈求，就给你们；寻找，就寻见；叩门，就给你们开门。", ref: "马太福音 7:7"},
+            {content: "所以我告诉你们，凡你们祷告祈求的，无论是什么，只要信是得着的，就必得着。", ref: "马可福音 11:24"},
+            {content: "因为，出于神的话，没有一句不带能力的。", ref: "路加福音 1:37"},
+            {content: "你们若常在我里面，我的话也常在你们里面，凡你们所愿意的，祈求，就给你们成就。", ref: "约翰福音 15:7"},
+            {content: "可见，信道是从听道来的，听道是从基督的话来的。", ref: "罗马书 10:17"},
+            {content: "因我们行事为人是凭着信心，不是凭着眼见。", ref: "哥林多后书 5:7"},
+            {content: "只要凭着信心求，一点不疑惑；因为那疑惑的人，就像海中的波浪，被风吹动翻腾。", ref: "雅各书 1:6"},
+            {content: "投靠耶和华，强似倚赖人。", ref: "诗篇 118:8"},
+            {content: "神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。", ref: "约翰福音 3:16"},
+            {content: "惟有基督在我们还作罪人的时候为我们死，神的爱就在此向我们显明了。", ref: "罗马书 5:8"},
+            {content: "爱是恒久忍耐，又有恩慈；爱是不嫉妒；爱是不自夸，不张狂。", ref: "哥林多前书 13:4"},
+            {content: "凡事包容，凡事相信，凡事盼望，凡事忍耐.爱是永不止息。", ref: "哥林多前书 13:7-8"},
+            {content: "如今常存的有信，有望，有爱这三样，其中最大的是爱。", ref: "哥林多前书 13:13"},
+            {content: "我们爱，因为神先爱我们。", ref: "约翰一书 4:19"},
+            {content: "爱里没有惧怕；爱既完全，就把惧怕除去。", ref: "约翰一书 4:18"},
+            {content: "你们得救是本乎恩，也因着信；这并不是出于自己，乃是神所赐的。", ref: "以弗所书 2:8"},
+            {content: "神能将各样的恩惠多多地加给你们，使你们凡事常常充足，能多行各样善事。", ref: "哥林多后书 9:8"},
+            {content: "并要以恩慈相待，存怜悯的心，彼此饶恕，正如神在基督里饶恕了你们一样。", ref: "以弗所书 4:32"},
+            {content: "最要紧的是彼此切实相爱，因为爱能遮掩许多的罪。", ref: "彼得前书 4:8"},
+            {content: "我们不至消灭，是出于耶和华诸般的慈爱；是因他的怜悯不至断绝。每早晨，这都是新的；你的诚实极其广大！", ref: "耶利米哀歌 3:22-23"},
+            {content: "耶和华你的神是施行拯救、大有能力的主.他在你中间必因你欢欣喜乐，默然爱你，且因你喜乐而欢呼。", ref: "西番雅书 3:17"},
+            {content: "你们饶恕人的过犯，你们的天父也必饶恕你们的过犯。", ref: "马太福音 6:14"},
+            {content: "凡你们所做的都要凭爱心而做。", ref: "哥林多前书 16:14"},
+            {content: "我们行善，不可丧志；若不灰心，到了时候就要收成。", ref: "加拉太书 6:9"},
+            {content: "我的弟兄们，你们落在百般试炼中，都要以为大喜乐；因为知道你们的信心经过试验，就生忍耐。", ref: "雅各书 1:2-3"},
+            {content: "你们中间若有缺少智慧的，应当求那厚赐与众人、也不斥责人的神，主就必赐给他。", ref: "雅各书 1:5"},
+            {content: "忍受试探的人是有福的，因为他经过试验以后，必得生命的冠冕，这是主应许给那些爱他之人的。", ref: "雅各书 1:12"},
+            {content: "我深信那在你们心里动了善工的，必成全这工，直到耶稣基督的日子。", ref: "腓立比书 1:6"},
+            {content: "你们所遇见的试探，无非是人所能受的.神是信实的，必不叫你们受试探过于所能受的；在受试探的时候，总要给你们开一条出路，叫你们能忍受得住。", ref: "哥林多前书 10:13"},
+            {content: "我们既有这许多的见证人，如同云彩围着我们，就当放下各样的重担，脱去容易缠累我们的罪，存心忍耐，奔那摆在我们前头的路程。", ref: "希伯来书 12:1"},
+            {content: "你们要靠主常常喜乐.我再说，你们要喜乐。", ref: "腓立比书 4:4"},
+            {content: "常常喜乐，不住地祷告，凡事谢恩；因为这是神在基督耶稣里向你们所定的旨意。", ref: "帖撒罗尼迦前书 5:16-18"},
+            {content: "圣经都是神所默示的，于教训、督责、使人归正、教导人学义都是有益的。", ref: "提摩太后书 3:16"},
+            {content: "神的道是活泼的，是有功效的，比一切两刃的剑更快，甚至魂与灵，骨节与骨髓，都能刺入、剖开，连心中的思念和主意都能辨明。", ref: "希伯来书 4:12"},
+            {content: "所以，我们只管坦然无惧地来到施恩的宝座前，为要得怜恤，蒙恩惠，作随时的帮助。", ref: "希伯来书 4:16"},
+            {content: "务要传道，无论得时不得时，总要专心，并用百般的忍耐、各样的教训责备人，警戒人，劝勉人。", ref: "提摩太后书 4:2"},
+            {content: "凡管教的事，当时不觉得快乐，反觉得愁苦；后来却为那经练过的人结出平安的果子，就是义。", ref: "希伯来书 12:11"},
+            {content: "但你们得在基督耶稣里是本乎神，神又使他成为我们的智慧、公义、圣洁、救赎。", ref: "哥林多前书 1:30"},
+            {content: "所以弟兄们，我以神的慈悲劝你们，将身体献上，当作活祭，是圣洁的，是神所喜悦的；你们如此事奉乃是理所当然的。", ref: "罗马书 12:1"},
+            {content: "不要效法这个世界，只要心意更新而变化，叫你们察验何为神的善良、纯全、可喜悦的旨意。", ref: "罗马书 12:2"},
+            {content: "若有人在基督里，他就是新造的人，旧事已过，都变成新的了。", ref: "哥林多后书 5:17"},
+            {content: "我已经与基督同钉十字架，现在活着的不再是我，乃是基督在我里面活着。", ref: "加拉太书 2:20"},
+            {content: "圣灵所结的果子，就是仁爱、喜乐、和平、忍耐、恩慈、良善、信实、温柔、节制。", ref: "加拉太书 5:22-23"},
+            {content: "我们原是他的工作，在基督耶稣里造成的，为要叫我们行善，就是神所预备叫我们行的。", ref: "以弗所书 2:10"},
+            {content: "神能照着运行在我们心里的大力充充足足地成就一切，超过我们所求所想的。", ref: "以弗所书 3:20"},
+            {content: "我还有末了的话：你们要靠着主，倚赖他的大能大力作刚强的人。", ref: "以弗所书 6:10"},
+            {content: "要穿戴神所赐的全副军装，就能抵挡魔鬼的诡计。", ref: "以弗所书 6:11"},
+            {content: "凡事不可结党，不可贪图虚浮的荣耀；只要存心谦卑，各人看别人比自己强。", ref: "腓立比书 2:3"},
+            {content: "你们要思念上面的事，不要思念地上的事。", ref: "歌罗西书 3:2"},
+            {content: "无论做什么，都要从心里做，像是给主做的，不是给人做的。", ref: "歌罗西书 3:23"},
+            {content: "故此，你们要顺服神.务要抵挡魔鬼，魔鬼就必离开你们逃跑了。", ref: "雅各书 4:7"},
+            {content: "你们是世上的光.城造在山上是不能隐藏的。", ref: "马太福音 5:14"},
+            {content: "所以，你们要去，使万民作我的门徒，奉父、子、圣灵的名给他们施洗。", ref: "马太福音 28:19"},
+            {content: "我们若认自己的罪，神是信实的，是公义的，必要赦免我们的罪，洗净我们一切的不义。", ref: "约翰一书 1:9"},
+            {content: "看哪，我站在门外叩门，若有听见我声音就开门的，我要进到他那里去，我与他，他与我一同坐席。", ref: "启示录 3:20"},
+            {content: "神啊，求你为我造清洁的心，使我里面重新有正直的灵。", ref: "诗篇 51:10"},
+            {content: "不要为自己积攒财宝在地上；地上有虫子咬，能锈坏，也有贼挖窟窿来偷。", ref: "马太福音 6:19"},
+            {content: "因为你的财宝在哪里，你的心也在那里。", ref: "马太福音 6:21"},
+            {content: "我的心哪，你要称颂耶和华！凡在我里面的，也要称颂他的圣名！", ref: "诗篇 103:1"},
+            {content: "他赦免你的一切罪孽，医治你的一切疾病。", ref: "诗篇 103:3"},
+            {content: "天离地何等的高，他的慈爱向敬畏他的人也是何等的大！", ref: "诗篇 103:11"},
+            {content: "我要向山举目；我的帮助从何而来？我的帮助从造天地的耶和华而来。", ref: "诗篇 121:1-2"},
+            {content: "耶和华要保护你，免受一切的灾害；他要保护你的性命。", ref: "诗篇 121:7"},
+            {content: "神啊，求你鉴察我，知道我的心思，试炼我，知道我的意念。", ref: "诗篇 139:23"},
+            {content: "因有一婴孩为我们而生，有一子赐给我们.政权必担在他的肩头上。", ref: "以赛亚书 9:6"},
+            {content: "看哪！神是我的拯救；我要倚靠他，并不惧怕。", ref: "以赛亚书 12:2"},
+            {content: "哪知他为我们的过犯受害，为我们的罪孽压伤.因他受的刑罚，我们得平安；因他受的鞭伤，我们得医治。", ref: "以赛亚书 53:5"},
+            {content: "他被欺压，在受苦的时候却不开口；他像羊羔被牵到宰杀之地，又像羊在剪毛的人手下无声，他也是这样不开口。", ref: "以赛亚书 53:7"},
+            {content: "凡接待他的，就是信他名的人，他就赐他们权柄作神的儿女。", ref: "约翰福音 1:12"},
+            {content: "道成了肉身，住在我们中间，充充满满地有恩典有真理。", ref: "约翰福音 1:14"},
+            {content: "盗贼来，无非要偷窃，杀害，毁坏；我来了，是要叫羊得生命，并且得的更丰盛。", ref: "约翰福音 10:10"},
+            {content: "耶稣对她说：复活在我，生命也在我.信我的人虽然死了，也必复活。", ref: "约翰福音 11:25"},
+            {content: "耶稣说：我就是道路、真理、生命；若不藉着我，没有人能到父那里去。", ref: "约翰福音 14:6"},
+            {content: "我是葡萄树，你们是枝子.常在我里面的，我也常在他里面，这人就多结果子；因为离了我，你们就不能做什么。", ref: "约翰福音 15:5"},
+            {content: "我不以福音为耻；这福音本是神的大能，要救一切相信的，先是犹太人，后是希腊人。", ref: "罗马书 1:16"},
+            {content: "因为世人都犯了罪，亏缺了神的荣耀；如今却蒙神的恩典，因基督耶稣的救赎，就白白地称义。", ref: "罗马书 3:23-24"},
+            {content: "如今，那些在基督耶稣里的就不定罪了。", ref: "罗马书 8:1"},
+            {content: "因为我深信无论是死，是生，是天使，是掌权的，是有能的，是现在的事，是将来的事，都不能叫我们与神的爱隔绝。", ref: "罗马书 8:38-39"},
+            {content: "你若口里认耶稣为主，心里信神叫他从死里复活，就必得救。", ref: "罗马书 10:9"}
         ];
 
         function showSuccess() {
@@ -1714,16 +2075,16 @@
             const historyEl = document.getElementById('reflection-history');
             if (!historyEl) return;
             const items = globalRecords
-                .filter(record => record['濮撳悕'] === name && getRecordNote(record))
+                .filter(record => record['姓名'] === name && getRecordNote(record))
                 .filter(isReflectionRecord)
-                .sort((a, b) => String(getLogicalDateStr(b)).localeCompare(String(getLogicalDateStr(a))) || String(b['鎵撳崱鏃堕棿'] || '').localeCompare(String(a['鎵撳崱鏃堕棿'] || '')));
+                .sort((a, b) => String(getLogicalDateStr(b)).localeCompare(String(getLogicalDateStr(a))) || String(b['打卡时间'] || '').localeCompare(String(a['打卡时间'] || '')));
             if (items.length === 0) {
-                historyEl.innerHTML = '<div class="reflection-empty">杩樻病鏈夊緱鐫€銆?/div>';
+                historyEl.innerHTML = '<div class="reflection-empty">还没有得着。</div>';
                 return;
             }
             historyEl.innerHTML = items.slice(0, 20).map(record => `
                 <div class="reflection-item">
-                    <div class="reflection-date">${escapeHtml(getLogicalDateStr(record) || formatLocalDateTime(record['鎵撳崱鏃堕棿']))}锝?{escapeHtml(getReflectionPart(record))}</div>
+                    <div class="reflection-date">${escapeHtml(getLogicalDateStr(record) || formatLocalDateTime(record['打卡时间']))}｜${escapeHtml(getReflectionPart(record))}</div>
                     <div>${escapeHtml(getRecordNote(record))}</div>
                 </div>
             `).join('');
@@ -1733,7 +2094,7 @@
             currentReflectionName = name;
             document.getElementById('reflection-name').innerText = name;
             document.getElementById('reflection-text').value = '';
-            document.getElementById('reflection-part').value = '姣忔棩鐏典慨';
+            document.getElementById('reflection-part').value = '每日灵修';
             renderReflectionHistory(name);
             document.getElementById('reflection-overlay').classList.add('show');
             setTimeout(() => document.getElementById('reflection-text')?.focus(), 60);
@@ -1764,7 +2125,7 @@
                 await fetchStatus();
                 renderReflectionHistory(currentReflectionName);
             } catch (error) {
-                alert("寰楃潃鎻愪氦澶辫触锛岃妫€鏌?NAS 鍚庣鏈嶅姟銆?);
+                alert("得着提交失败，请检查 NAS 后端服务。");
             } finally {
                 btn.disabled = false;
             }
@@ -1822,7 +2183,7 @@
             const btn = document.getElementById('feedback-submit-btn');
             const message = messageEl.value.trim();
             if (!message) {
-                statusEl.innerText = '璇峰厛濉啓鍙嶉鍐呭銆?;
+                statusEl.innerText = '请先填写反馈内容。';
                 messageEl.focus();
                 return;
             }
@@ -1836,17 +2197,17 @@
             };
 
             btn.disabled = true;
-            statusEl.innerText = '姝ｅ湪鎻愪氦...';
+            statusEl.innerText = '正在提交...';
             try {
                 await apiRequest('/feedback', {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-                statusEl.innerText = '宸叉彁浜わ紝璋㈣阿浣犵殑鍙嶉銆?;
+                statusEl.innerText = '已提交，谢谢你的反馈。';
                 messageEl.value = '';
             } catch (error) {
                 saveFeedbackLocally(payload);
-                statusEl.innerText = '鍚庣鏆傛椂涓嶅彲鐢紝鍙嶉宸插厛淇濆瓨鍦ㄦ湰鏈烘祻瑙堝櫒銆?;
+                statusEl.innerText = '后端暂时不可用，反馈已先保存在本机浏览器。';
             } finally {
                 btn.disabled = false;
             }
@@ -1875,8 +2236,8 @@
             const note = document.getElementById('admin-login-note');
             if (loginPanel) loginPanel.classList.toggle('admin-hidden', adminAuthenticated);
             if (toolsPanel) toolsPanel.classList.toggle('admin-hidden', !adminAuthenticated);
-            if (title) title.innerText = hasPassword ? '绠＄悊鍛樼櫥褰? : '棣栨璁剧疆绠＄悊鍛樺瘑鐮?;
-            if (note) note.innerText = hasPassword ? '杈撳叆鏈満淇濆瓨鐨勭鐞嗗憳瀵嗙爜鍚庤繘鍏ュ悗鍙般€? : '棣栨浣跨敤鏃朵細鎶婁綘杈撳叆鐨勫瘑鐮佷繚瀛樺埌褰撳墠娴忚鍣紝璇疯浣忓畠銆?;
+            if (title) title.innerText = hasPassword ? '管理员登录' : '首次设置管理员密码';
+            if (note) note.innerText = hasPassword ? '输入本机保存的管理员密码后进入后台。' : '首次使用时会把你输入的密码保存到当前浏览器，请记住它。';
             if (adminAuthenticated) {
                 renderAdminMembers();
                 renderWeekPlanOptions();
@@ -1887,7 +2248,7 @@
             const input = document.getElementById('admin-password-input');
             const value = input.value.trim();
             if (!value) {
-                alert("璇疯緭鍏ョ鐞嗗憳瀵嗙爜銆?);
+                alert("请输入管理员密码。");
                 return;
             }
             const savedPassword = getAdminPassword();
@@ -1897,7 +2258,7 @@
             } else if (value === savedPassword) {
                 adminAuthenticated = true;
             } else {
-                alert("绠＄悊鍛樺瘑鐮佷笉姝ｇ‘銆?);
+                alert("管理员密码不正确。");
                 return;
             }
             input.value = '';
@@ -1910,10 +2271,10 @@
         }
 
         function changeAdminPassword() {
-            const next = prompt("璇疯緭鍏ユ柊鐨勭鐞嗗憳瀵嗙爜锛?);
+            const next = prompt("请输入新的管理员密码：");
             if (!next || !next.trim()) return;
             localStorage.setItem('keda_admin_password', next.trim());
-            alert("绠＄悊鍛樺瘑鐮佸凡鏇存柊銆?);
+            alert("管理员密码已更新。");
         }
 
         function renderAdminMembers() {
@@ -1922,7 +2283,7 @@
             list.innerHTML = MEMBERS.map(name => `
                 <span class="admin-member-chip">
                     ${escapeHtml(name)}
-                    <button title="鍒犻櫎鎴愬憳" onclick="removeAdminMember('${escapeJs(name)}')">脳</button>
+                    <button title="删除成员" onclick="removeAdminMember('${escapeJs(name)}')">×</button>
                 </span>
             `).join('');
         }
@@ -1932,7 +2293,7 @@
             const name = input.value.trim();
             if (!name) return;
             if (MEMBERS.includes(name)) {
-                alert("杩欎釜鎴愬憳宸茬粡鍦ㄥ悕鍗曢噷浜嗐€?);
+                alert("这个成员已经在名单里了。");
                 return;
             }
             MEMBERS.push(name);
@@ -1942,16 +2303,16 @@
 
         function removeAdminMember(name) {
             if (MEMBERS.length <= 1) {
-                alert("鑷冲皯淇濈暀涓€鍚嶆垚鍛樸€?);
+                alert("至少保留一名成员。");
                 return;
             }
-            if (!confirm(`纭畾浠庨〉闈㈠悕鍗曚腑绉婚櫎銆?{name}銆嶅悧锛熷巻鍙茶褰曚笉浼氳鍒犻櫎銆俙)) return;
+            if (!confirm(`确定从页面名单中移除「${name}」吗？历史记录不会被删除。`)) return;
             MEMBERS = MEMBERS.filter(member => member !== name);
             persistMembersConfig();
         }
 
         function resetAdminMembers() {
-            if (!confirm("纭畾鎭㈠榛樿鎴愬憳鍚嶅崟鍚楋紵鏈湴鏂板鎴愬憳浼氳闅愯棌锛屽巻鍙茶褰曚笉浼氬垹闄ゃ€?)) return;
+            if (!confirm("确定恢复默认成员名单吗？本地新增成员会被隐藏，历史记录不会删除。")) return;
             MEMBERS = [...DEFAULT_MEMBERS];
             persistMembersConfig();
         }
@@ -1960,11 +2321,11 @@
             const select = document.getElementById('admin-week-select');
             if (!select) return;
             select.innerHTML = WEEKLY_SCHEDULE.map((plan, index) => {
-                const label = `${plan.start} - ${plan.end}锝?{plan.title}`;
+                const label = `${plan.start} - ${plan.end}｜${plan.title}`;
                 return `<option value="${index}">${escapeHtml(label)}</option>`;
             }).join('');
             if (WEEKLY_SCHEDULE.length === 0) {
-                select.innerHTML = '<option value="">鏆傛棤鍛ㄤ换鍔?/option>';
+                select.innerHTML = '<option value="">暂无周任务</option>';
             }
             const viewStr = getSafeDateString(viewingDate);
             const currentIndex = WEEKLY_SCHEDULE.findIndex(plan => viewStr >= plan.start && viewStr <= plan.end);
@@ -1981,6 +2342,7 @@
             document.getElementById('admin-week-title').value = plan.title || '';
             document.getElementById('admin-week-video').value = plan.video || '';
             document.getElementById('admin-week-verse').value = plan.verse || '';
+            document.getElementById('admin-week-recite-text').value = plan.reciteText || '';
             document.getElementById('admin-week-url').value = plan.url || '';
             const videosEl = document.getElementById('admin-week-videos');
             if (videosEl) videosEl.value = normalizeWeekVideos(plan).map(item => `${item.title} | ${item.url}`).join('\n');
@@ -1994,6 +2356,7 @@
                 title: document.getElementById('admin-week-title').value,
                 video: document.getElementById('admin-week-video').value,
                 verse: document.getElementById('admin-week-verse').value,
+                reciteText: document.getElementById('admin-week-recite-text').value,
                 url: document.getElementById('admin-week-url').value,
                 videos: document.getElementById('admin-week-videos')?.value || '',
                 outlineImage: document.getElementById('admin-week-outline-image').value
@@ -2002,11 +2365,11 @@
 
         function validateWeekPlan(plan) {
             if (!plan.start || !plan.end || !plan.title) {
-                alert("璇疯嚦灏戝～鍐欏紑濮嬫棩鏈熴€佺粨鏉熸棩鏈熷拰璇荤墿鏍囬銆?);
+                alert("请至少填写开始日期、结束日期和读物标题。");
                 return false;
             }
             if (plan.start > plan.end) {
-                alert("寮€濮嬫棩鏈熶笉鑳芥櫄浜庣粨鏉熸棩鏈熴€?);
+                alert("开始日期不能晚于结束日期。");
                 return false;
             }
             return true;
@@ -2020,7 +2383,7 @@
             if (index >= 0 && index < WEEKLY_SCHEDULE.length) WEEKLY_SCHEDULE[index] = plan;
             else WEEKLY_SCHEDULE.push(plan);
             await persistWeeklySchedule();
-            alert("鍛ㄤ换鍔″凡淇濆瓨銆?);
+            alert("周任务已保存。");
         }
 
         async function addWeekPlanFromAdmin() {
@@ -2034,59 +2397,59 @@
                 select.value = String(Math.max(newIndex, 0));
                 loadSelectedWeekForEdit();
             }
-            alert("鏂板懆浠诲姟宸叉坊鍔犮€?);
+            alert("新周任务已添加。");
         }
 
         async function deleteWeekPlanFromAdmin() {
             const select = document.getElementById('admin-week-select');
             const index = Number(select.value);
             if (WEEKLY_SCHEDULE.length <= 1) {
-                alert("鑷冲皯淇濈暀涓€鏉″懆浠诲姟銆?);
+                alert("至少保留一条周任务。");
                 return;
             }
             if (index < 0 || index >= WEEKLY_SCHEDULE.length) return;
-            if (!confirm("纭畾鍒犻櫎褰撳墠鍛ㄤ换鍔″悧锛熷巻鍙叉墦鍗¤褰曚笉浼氬垹闄ゃ€?)) return;
+            if (!confirm("确定删除当前周任务吗？历史打卡记录不会删除。")) return;
             WEEKLY_SCHEDULE.splice(index, 1);
             await persistWeeklySchedule();
         }
 
         async function resetWeekPlans() {
-            if (!confirm("纭畾鎭㈠榛樿鍛ㄤ换鍔″畨鎺掑悧锛熸湰鍦扮紪杈戜細琚鐩栥€?)) return;
+            if (!confirm("确定恢复默认周任务安排吗？本地编辑会被覆盖。")) return;
             WEEKLY_SCHEDULE = DEFAULT_WEEKLY_SCHEDULE.map(normalizeWeekPlan);
             await persistWeeklySchedule();
         }
 
         function exportRecordsCsv() {
-            const headers = ["濮撳悕", "鎵撳崱鏃堕棿", "閫昏緫鏃ユ湡", "鏄惁琛ョ", "姣忔棩鐏典慨", "鍛ㄨ鐗?, "鍛ㄨ棰?, "鍛ㄨ儗缁?, "鍒嗕韩璁板綍", "閮ㄥ垎", "鎵撳崱璇︽儏"];
+            const headers = ["姓名", "打卡时间", "逻辑日期", "是否补签", "每日灵修", "周读物", "周视频", "周背经", "分享记录", "部分", "打卡详情", "类型", "默写经文", "默写周开始", "默写周结束", "默写挖空率", "默写分数", "默写正确数", "默写空数", "默写次数", "默写准确率", "默写排行分"];
             const rows = globalRecords.map(record => headers.map(header => {
-                if (header === "閫昏緫鏃ユ湡") return csvCell(getLogicalDateStr(record));
-                if (header === "鎵撳崱鏃堕棿") return csvCell(formatLocalDateTime(record[header]));
-                if (header === "鍒嗕韩璁板綍") return csvCell(getRecordNote(record));
+                if (header === "逻辑日期") return csvCell(getLogicalDateStr(record));
+                if (header === "打卡时间") return csvCell(formatLocalDateTime(record[header]));
+                if (header === "分享记录") return csvCell(getRecordNote(record));
                 return csvCell(record[header]);
             }).join(','));
-            downloadTextFile(`绉戝ぇ闂ㄨ鎵撳崱鏄庣粏_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
+            downloadTextFile(`科大门训打卡明细_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
         }
 
         function exportDailySummaryCsv() {
             const dates = [...new Set(globalRecords.map(getLogicalDateStr).filter(Boolean))].sort();
-            const headers = ["鏃ユ湡", "濮撳悕", "姣忔棩鐏典慨", "鍛ㄨ鐗?, "鍛ㄨ棰?, "鍛ㄨ儗缁?, "瀹屾垚椤规暟"];
+            const headers = ["日期", "姓名", "每日灵修", "周读物", "周视频", "周背经", "完成项数"];
             const rows = [];
             dates.forEach(dateStr => {
                 MEMBERS.forEach(name => {
-                    const records = globalRecords.filter(record => record['濮撳悕'] === name && getLogicalDateStr(record) === dateStr);
-                    const daily = records.some(record => record['姣忔棩鐏典慨'] === '宸插畬鎴?) ? '宸插畬鎴? : '';
-                    const book = records.some(record => record['鍛ㄨ鐗?] === '宸插畬鎴?) ? '宸插畬鎴? : '';
-                    const video = records.some(record => record['鍛ㄨ棰?] === '宸插畬鎴?) ? '宸插畬鎴? : '';
-                    const verse = records.some(record => record['鍛ㄨ儗缁?] === '宸插畬鎴?) ? '宸插畬鎴? : '';
+                    const records = globalRecords.filter(record => record['姓名'] === name && getLogicalDateStr(record) === dateStr);
+                    const daily = records.some(record => record['每日灵修'] === '已完成') ? '已完成' : '';
+                    const book = records.some(record => record['周读物'] === '已完成') ? '已完成' : '';
+                    const video = records.some(record => record['周视频'] === '已完成') ? '已完成' : '';
+                    const verse = records.some(record => record['周背经'] === '已完成') ? '已完成' : '';
                     const count = [daily, book, video, verse].filter(Boolean).length;
                     rows.push([dateStr, name, daily, book, video, verse, count].map(csvCell).join(','));
                 });
             });
-            downloadTextFile(`绉戝ぇ闂ㄨ姣忔棩姹囨€籣${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
+            downloadTextFile(`科大门训每日汇总_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
         }
 
         async function exportFeedbackCsv() {
-            const headers = ['鎻愪氦鏃堕棿', '濮撳悕', '鑱旂郴鏂瑰紡', '鍙嶉鍐呭', '椤甸潰'];
+            const headers = ['提交时间', '姓名', '联系方式', '反馈内容', '页面'];
             let feedbacks = [];
             try {
                 const result = await apiRequest('/admin/feedback');
@@ -2101,7 +2464,7 @@
                 item.message || '',
                 item.page || ''
             ].map(csvCell).join(','));
-            downloadTextFile(`鍙嶉涓庡缓璁甠${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
+            downloadTextFile(`反馈与建议_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
         }
 
         function excelWorksheetXml(name, rows) {
@@ -2120,7 +2483,7 @@
             const weeklySheetName = '\u5468\u4efb\u52a1';
             const devotionTitle = '\u65f7\u91ce\u7075\u4fee';
             const dailyRows = [['\u65e5\u671f', '\u6bcf\u65e5\u7075\u4fee', '\u7075\u4fee\u6807\u8bb0']];
-            const weeklyRows = [['\u5f00\u59cb\u65e5\u671f', '\u7ed3\u675f\u65e5\u671f', '\u8bfb\u7269', '\u89c6\u9891', '\u80cc\u7ecf', '\u63d0\u7eb2\u80cc\u8bf5\u56fe\u7247']];
+            const weeklyRows = [['\u5f00\u59cb\u65e5\u671f', '\u7ed3\u675f\u65e5\u671f', '\u8bfb\u7269', '\u89c6\u9891', '\u80cc\u7ecf', '\u9ed8\u5199\u539f\u6587', '\u63d0\u7eb2\u80cc\u8bf5\u56fe\u7247']];
 
             const plans = WEEKLY_SCHEDULE.map(normalizeWeekPlan)
                 .filter(plan => plan.start && plan.end)
@@ -2149,6 +2512,7 @@
                     plan.title || '',
                     normalizeWeekVideos(plan).map(item => `${item.title} | ${item.url}`).join('\n'),
                     plan.verse || '',
+                    plan.reciteText || '',
                     plan.outlineImage || ''
                 ]);
             });
@@ -2196,8 +2560,9 @@
                         title: row[2],
                         videos: row[3],
                         verse: row[4],
-                        outlineImage: row[5] || '',
-                        url: row[6] || ''
+                        reciteText: row[5] || '',
+                        outlineImage: row[6] || '',
+                        url: row[7] || ''
                     })).filter(plan => plan.start && plan.end && plan.title);
 
                     if (imported.length === 0) throw new Error('\u6ca1\u6709\u8bfb\u5230\u53ef\u7528\u7684\u5468\u4efb\u52a1');
@@ -2222,7 +2587,7 @@
                 weeklySchedule: WEEKLY_SCHEDULE,
                 records: globalRecords
             };
-            downloadTextFile(`绉戝ぇ闂ㄨ鏈湴澶囦唤_${getSafeDateString(getRealToday())}.json`, JSON.stringify(backup, null, 2), 'application/json');
+            downloadTextFile(`科大门训本地备份_${getSafeDateString(getRealToday())}.json`, JSON.stringify(backup, null, 2), 'application/json');
         }
 
         function importBackupJson(event) {
@@ -2232,7 +2597,7 @@
             reader.onload = function(e) {
                 try {
                     const backup = JSON.parse(e.target.result);
-                    if (!Array.isArray(backup.members) || !Array.isArray(backup.records)) throw new Error("鏍煎紡涓嶆纭?);
+                    if (!Array.isArray(backup.members) || !Array.isArray(backup.records)) throw new Error("格式不正确");
                     MEMBERS = [...new Set(backup.members.map(name => String(name).trim()).filter(Boolean))];
                     if (Array.isArray(backup.weeklySchedule)) {
                         WEEKLY_SCHEDULE = backup.weeklySchedule.map(normalizeWeekPlan).filter(plan => plan.start && plan.end && plan.title);
@@ -2250,9 +2615,9 @@
                     renderDashboard();
                     renderAdminMembers();
                     renderWeekPlanOptions();
-                    alert("鏈湴澶囦唤宸插鍏ャ€?);
+                    alert("本地备份已导入。");
                 } catch (error) {
-                    alert("瀵煎叆澶辫触锛氳閫夋嫨鐢辨湰椤甸潰瀵煎嚭鐨?JSON 澶囦唤銆?);
+                    alert("导入失败：请选择由本页面导出的 JSON 备份。");
                 }
             };
             reader.readAsText(file, 'utf-8');
@@ -2273,11 +2638,17 @@
         }
 
         function getMemberDayCompletion(name, dateStr) {
-            const records = globalRecords.filter(record => record['濮撳悕'] === name && getLogicalDateStr(record) === dateStr);
-            const daily = records.some(record => record['姣忔棩鐏典慨'] === '宸插畬鎴?);
-            const book = records.some(record => record['鍛ㄨ鐗?] === '宸插畬鎴?);
-            const video = records.some(record => record['鍛ㄨ棰?] === '宸插畬鎴?);
-            const verse = records.some(record => record['鍛ㄨ儗缁?] === '宸插畬鎴?);
+            const dayRecords = globalRecords.filter(record => record['姓名'] === name && getLogicalDateStr(record) === dateStr);
+            const daily = dayRecords.some(record => record['每日灵修'] === '已完成');
+            const weekPlan = getWeekPlanForDate(dateStr);
+            const weekRecords = globalRecords.filter(record => {
+                if (record['姓名'] !== name || !weekPlan?.start || !weekPlan?.end) return false;
+                const recordDate = getLogicalDateStr(record);
+                return recordDate >= weekPlan.start && recordDate <= weekPlan.end;
+            });
+            const book = weekRecords.some(record => record['周读物'] === '已完成');
+            const video = weekRecords.some(record => record['周视频'] === '已完成');
+            const verse = weekRecords.some(record => record['周背经'] === '已完成');
             const weeklyCount = [book, video, verse].filter(Boolean).length;
             return {
                 daily,
@@ -2294,7 +2665,7 @@
 
             const year = profileMonthDate.getFullYear();
             const month = profileMonthDate.getMonth();
-            title.innerText = `${year}骞?{month + 1}鏈坄;
+            title.innerText = `${year}年${month + 1}月`;
 
             const firstDay = new Date(year, month, 1);
             const gridStart = new Date(year, month, 1 - firstDay.getDay());
@@ -2535,13 +2906,13 @@
         async function fetchStatus() {
             const loadingEl = document.getElementById('loading-status');
             loadingEl.style.display = 'block';
-            loadingEl.innerHTML = "馃攧 姝ｅ湪鍚屾 NAS 鍚庣鏁版嵁...";
+            loadingEl.innerHTML = "🔄 正在同步 NAS 后端数据...";
             try {
                 const state = await apiRequest('/state');
                 applyBackendState(state);
                 loadingEl.style.display = 'none';
             } catch (error) {
-                loadingEl.innerHTML = `鈿狅笍 鏃犳硶杩炴帴 NAS 鍚庣<br><span style='font-size:12px; font-weight:normal;'>璇风‘璁ら〉闈㈠拰 Node 鏈嶅姟宸叉洿鏂般€傞敊璇細${escapeHtml(error.message || String(error))}</span>`;
+                loadingEl.innerHTML = `⚠️ 无法连接 NAS 后端<br><span style='font-size:12px; font-weight:normal;'>请确认页面和 Node 服务已更新。错误：${escapeHtml(error.message || String(error))}</span>`;
             }
         }
 
@@ -2558,12 +2929,12 @@
             const isPast = getSafeDateString(viewingDate) < getSafeDateString(getRealToday());
             const oldHtml = btn.innerHTML;
             const oldClass = btn.className;
-            btn.innerHTML = isPast ? "宸茶ˉ" : "鉁?;
+            btn.innerHTML = isPast ? "已补" : "✔";
             btn.className = "action-btn btn-success";
             btn.disabled = false;
             const vMonth = viewingDate.getMonth() + 1;
             const vDay = viewingDate.getDate();
-            const detailStr = (isPast ? "銆愯ˉ绛俱€? : "銆愭寜鏃躲€?) + `${vMonth}鏈?{vDay}鏃?` + type + (note ? `\n鍒嗕韩锛?{note}` : "");
+            const detailStr = (isPast ? "【补签】" : "【按时】") + `${vMonth}月${vDay}日 ` + type + (note ? `\n分享：${note}` : "");
 
             try {
                 await apiRequest('/checkins', {
@@ -2579,12 +2950,12 @@
                     })
                 });
                 await fetchStatus();
-                document.getElementById('modal-action-title').innerText = isPast ? "琛ョ鎴愬姛锛? : "鎵撳崱鎴愬姛锛?;
+                document.getElementById('modal-action-title').innerText = isPast ? "补签成功！" : "打卡成功！";
                 showSuccess();
             } catch (error) {
                 btn.innerHTML = oldHtml;
                 btn.className = oldClass;
-                alert("鎵撳崱鏈繚瀛橈紝璇锋鏌?NAS 鍚庣鏈嶅姟銆?);
+                alert("打卡未保存，请检查 NAS 后端服务。");
             }
         }
 
@@ -2593,7 +2964,7 @@
             const { name, type, btn } = pendingCancel;
             const originalText = btn.innerHTML;
             const oldClass = btn.className;
-            btn.innerHTML = "鎾ら攢涓?;
+            btn.innerHTML = "撤销中";
             btn.disabled = true;
             closeCancelModal();
 
@@ -2608,7 +2979,7 @@
 
             const recordToCancel = globalRecords.find(r => {
                 const rLogicalDate = getLogicalDateStr(r);
-                if (type !== '姣忔棩鐏典慨') {
+                if (type !== '每日灵修') {
                     let rWeekData = null;
                     for (let weekPlan of WEEKLY_SCHEDULE) {
                         if (rLogicalDate >= weekPlan.start && rLogicalDate <= weekPlan.end) {
@@ -2617,12 +2988,12 @@
                         }
                     }
                     if (rWeekData && currentWeekData) {
-                        if (type === '鍛ㄨ鐗? && r['鍛ㄨ鐗?] === '宸插畬鎴? && rWeekData.title === currentWeekData.title) return r['濮撳悕'] === name;
-                        if (type === '鍛ㄨ棰? && r['鍛ㄨ棰?] === '宸插畬鎴? && rWeekData.video === currentWeekData.video) return r['濮撳悕'] === name;
-                        if (type === '鍛ㄨ儗缁? && r['鍛ㄨ儗缁?] === '宸插畬鎴? && rWeekData.verse === currentWeekData.verse) return r['濮撳悕'] === name;
+                        if (type === '周读物' && r['周读物'] === '已完成' && rWeekData.title === currentWeekData.title) return r['姓名'] === name;
+                        if (type === '周视频' && r['周视频'] === '已完成' && rWeekData.video === currentWeekData.video) return r['姓名'] === name;
+                        if (type === '周背经' && r['周背经'] === '已完成' && rWeekData.verse === currentWeekData.verse) return r['姓名'] === name;
                     }
                 }
-                return r['濮撳悕'] === name && rLogicalDate === viewDateStr && r[type] === '宸插畬鎴?;
+                return r['姓名'] === name && rLogicalDate === viewDateStr && r[type] === '已完成';
             });
 
             try {
@@ -2634,7 +3005,7 @@
                 btn.innerHTML = originalText;
                 btn.className = oldClass;
                 btn.disabled = false;
-                alert("鎾ら攢澶辫触锛岃妫€鏌?NAS 鍚庣鏈嶅姟銆?);
+                alert("撤销失败，请检查 NAS 后端服务。");
             }
         }
 
@@ -2656,8 +3027,8 @@
             const note = document.getElementById('admin-login-note');
             if (loginPanel) loginPanel.classList.toggle('admin-hidden', adminAuthenticated);
             if (toolsPanel) toolsPanel.classList.toggle('admin-hidden', !adminAuthenticated);
-            if (title) title.innerText = hasPassword ? '绠＄悊鍛樼櫥褰? : '棣栨璁剧疆绠＄悊鍛樺瘑鐮?;
-            if (note) note.innerText = hasPassword ? '杈撳叆绠＄悊鍛樺瘑鐮佸悗杩涘叆鍚庡彴銆? : '棣栨浣跨敤浼氬湪 NAS 鍚庣淇濆瓨绠＄悊鍛樺瘑鐮併€?;
+            if (title) title.innerText = hasPassword ? '管理员登录' : '首次设置管理员密码';
+            if (note) note.innerText = hasPassword ? '输入管理员密码后进入后台。' : '首次使用会在 NAS 后端保存管理员密码。';
             if (adminAuthenticated) {
                 renderAdminMembers();
                 renderWeekPlanOptions();
@@ -2668,7 +3039,7 @@
             const input = document.getElementById('admin-password-input');
             const value = input.value.trim();
             if (!value) {
-                alert("璇疯緭鍏ョ鐞嗗憳瀵嗙爜銆?);
+                alert("请输入管理员密码。");
                 return;
             }
             try {
@@ -2681,7 +3052,7 @@
                 input.value = '';
                 await renderAdminAuthState();
             } catch (error) {
-                alert("绠＄悊鍛樺瘑鐮佷笉姝ｇ‘锛屾垨 NAS 鍚庣涓嶅彲鐢ㄣ€?);
+                alert("管理员密码不正确，或 NAS 后端不可用。");
             }
         }
 
@@ -2692,23 +3063,23 @@
         }
 
         async function changeAdminPassword() {
-            const next = prompt("璇疯緭鍏ユ柊鐨勭鐞嗗憳瀵嗙爜锛?);
+            const next = prompt("请输入新的管理员密码：");
             if (!next || !next.trim()) return;
             try {
                 await apiRequest('/admin/password', {
                     method: 'POST',
                     body: JSON.stringify({ password: next.trim() })
                 });
-                alert("绠＄悊鍛樺瘑鐮佸凡鏇存柊銆?);
+                alert("管理员密码已更新。");
             } catch (error) {
-                alert("淇敼澶辫触锛岃閲嶆柊鐧诲綍鍚庡彴銆?);
+                alert("修改失败，请重新登录后台。");
             }
         }
 
         function recordDoneLabel(record) {
-            return ['姣忔棩鐏典慨', '鍛ㄨ鐗?, '鍛ㄨ棰?, '鍛ㄨ儗缁?]
-                .filter(key => record[key] === '宸插畬鎴?)
-                .join(' / ') || '鎵撳崱';
+            return ['每日灵修', '周读物', '周视频', '周背经']
+                .filter(key => record[key] === '已完成')
+                .join(' / ') || '打卡';
         }
 
         function renderServerPanel(html) {
@@ -2717,12 +3088,12 @@
         }
 
         async function loadRecentServerRecords() {
-            renderServerPanel('<div class="admin-note">姝ｅ湪璇诲彇鏈嶅姟鍣?records.json...</div>');
+            renderServerPanel('<div class="admin-note">正在读取服务器 records.json...</div>');
             try {
                 const result = await apiRequest('/admin/recent-records?limit=20');
                 const records = Array.isArray(result.records) ? result.records : [];
                 if (records.length === 0) {
-                    renderServerPanel('<div class="admin-note">鏈嶅姟鍣ㄧ洰鍓嶆病鏈夋墦鍗¤褰曘€?/div>');
+                    renderServerPanel('<div class="admin-note">服务器目前没有打卡记录。</div>');
                     return;
                 }
                 renderServerPanel(records.map(record => {
@@ -2730,40 +3101,40 @@
                     return `
                         <div class="server-record-card">
                             <div class="server-record-title">
-                                <span>${escapeHtml(record['濮撳悕'] || '')}</span>
+                                <span>${escapeHtml(record['姓名'] || '')}</span>
                                 <span>${escapeHtml(recordDoneLabel(record))}</span>
                             </div>
                             <div class="server-record-meta">
-                                鏃ユ湡锛?{escapeHtml(getLogicalDateStr(record))} 锝?鏃堕棿锛?{escapeHtml(formatLocalDateTime(record['鎵撳崱鏃堕棿']))}
+                                日期：${escapeHtml(getLogicalDateStr(record))} ｜ 时间：${escapeHtml(formatLocalDateTime(record['打卡时间']))}
                             </div>
-                            ${note ? `<div class="server-record-note">璁板綍锛?{escapeHtml(note)}</div>` : ''}
+                            ${note ? `<div class="server-record-note">记录：${escapeHtml(note)}</div>` : ''}
                         </div>
                     `;
                 }).join(''));
             } catch (error) {
-                renderServerPanel(`<div class="admin-note">璇诲彇澶辫触锛?{escapeHtml(error.message || String(error))}</div>`);
+                renderServerPanel(`<div class="admin-note">读取失败：${escapeHtml(error.message || String(error))}</div>`);
             }
         }
 
         async function loadStorageStatus() {
-            renderServerPanel('<div class="admin-note">姝ｅ湪妫€鏌ユ湇鍔″櫒瀛樺偍...</div>');
+            renderServerPanel('<div class="admin-note">正在检查服务器存储...</div>');
             try {
                 const status = await apiRequest('/admin/storage/status');
                 const backups = Array.isArray(status.latestBackups) ? status.latestBackups : [];
                 renderServerPanel(`
                     <div class="server-record-card">
                         <div class="server-record-title">
-                            <span>${status.writable ? '瀛樺偍鍙啓' : '瀛樺偍涓嶅彲鍐?}</span>
-                            <span>${Number(status.recordsCount || 0)} 鏉¤褰?/span>
+                            <span>${status.writable ? '存储可写' : '存储不可写'}</span>
+                            <span>${Number(status.recordsCount || 0)} 条记录</span>
                         </div>
-                        ${status.error ? `<div class="server-record-note">閿欒锛?{escapeHtml(status.error)}</div>` : ''}
+                        ${status.error ? `<div class="server-record-note">错误：${escapeHtml(status.error)}</div>` : ''}
                         <div class="storage-status-grid">
-                            <div class="storage-status-item"><span class="storage-status-label">鎴愬憳鍚嶅崟</span>${escapeHtml(status.membersPath || '')}<br>${Number(status.membersCount || 0)} 浜?/div>
-                            <div class="storage-status-item"><span class="storage-status-label">鍛ㄤ换鍔?/span>${escapeHtml(status.weeklySchedulePath || '')}<br>${Number(status.weeklyScheduleCount || 0)} 鏉?/div>
-                            <div class="storage-status-item"><span class="storage-status-label">璁板綍鏂囦欢</span>${escapeHtml(status.recordsPath || '')}</div>
-                            <div class="storage-status-item"><span class="storage-status-label">鏂囦欢澶у皬</span>${Number(status.recordsFileSize || 0)} bytes</div>
-                            <div class="storage-status-item"><span class="storage-status-label">澶囦唤鐩綍</span>${escapeHtml(status.backupDir || '')}</div>
-                            <div class="storage-status-item"><span class="storage-status-label">澶囦唤绛栫暐</span>${status.backupEnabled ? `寮€鍚紝淇濈暀 ${Number(status.backupLimit || 0)} 浠絗 : '鍏抽棴'}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">成员名单</span>${escapeHtml(status.membersPath || '')}<br>${Number(status.membersCount || 0)} 人</div>
+                            <div class="storage-status-item"><span class="storage-status-label">周任务</span>${escapeHtml(status.weeklySchedulePath || '')}<br>${Number(status.weeklyScheduleCount || 0)} 条</div>
+                            <div class="storage-status-item"><span class="storage-status-label">记录文件</span>${escapeHtml(status.recordsPath || '')}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">文件大小</span>${Number(status.recordsFileSize || 0)} bytes</div>
+                            <div class="storage-status-item"><span class="storage-status-label">备份目录</span>${escapeHtml(status.backupDir || '')}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">备份策略</span>${status.backupEnabled ? `开启，保留 ${Number(status.backupLimit || 0)} 份` : '关闭'}</div>
                         </div>
                     </div>
                     ${backups.length ? backups.map(backup => `
@@ -2774,22 +3145,22 @@
                             </div>
                             <div class="server-record-meta">${escapeHtml(formatLocalDateTime(backup.modifiedAt))}</div>
                         </div>
-                    `).join('') : '<div class="admin-note">杩樻病鏈夌敓鎴愬浠姐€傛柊鎵撳崱銆佸垹闄ゃ€佸鍏ユ垨鎵嬪姩澶囦唤鍚庝細鍑虹幇銆?/div>'}
+                    `).join('') : '<div class="admin-note">还没有生成备份。新打卡、删除、导入或手动备份后会出现。</div>'}
                 `);
             } catch (error) {
-                renderServerPanel(`<div class="admin-note">妫€鏌ュけ璐ワ細${escapeHtml(error.message || String(error))}</div>`);
+                renderServerPanel(`<div class="admin-note">检查失败：${escapeHtml(error.message || String(error))}</div>`);
             }
         }
 
         async function createManualRecordsBackup() {
-            renderServerPanel('<div class="admin-note">姝ｅ湪鍒涘缓 records.json 澶囦唤...</div>');
+            renderServerPanel('<div class="admin-note">正在创建 records.json 备份...</div>');
             try {
                 const result = await apiRequest('/admin/records/backup', { method: 'POST' });
-                const pathText = result.backupPath ? `宸插浠藉埌锛?{escapeHtml(result.backupPath)}` : '褰撳墠杩樻病鏈?records.json 鍙浠姐€?;
+                const pathText = result.backupPath ? `已备份到：${escapeHtml(result.backupPath)}` : '当前还没有 records.json 可备份。';
                 renderServerPanel(`<div class="server-record-card">${pathText}</div>`);
                 await loadStorageStatus();
             } catch (error) {
-                renderServerPanel(`<div class="admin-note">澶囦唤澶辫触锛?{escapeHtml(error.message || String(error))}</div>`);
+                renderServerPanel(`<div class="admin-note">备份失败：${escapeHtml(error.message || String(error))}</div>`);
             }
         }
 
@@ -2809,7 +3180,7 @@
                 renderDashboard();
                 renderAdminMembers();
             } catch (error) {
-                alert("鎴愬憳淇濆瓨澶辫触锛岃纭宸茬櫥褰曞悗鍙般€?);
+                alert("成员保存失败，请确认已登录后台。");
             }
         }
 
@@ -2829,7 +3200,7 @@
                 renderDashboard();
                 renderWeekPlanOptions();
             } catch (error) {
-                alert("鍛ㄤ换鍔′繚瀛樺け璐ワ紝璇风‘璁ゅ凡鐧诲綍鍚庡彴銆?);
+                alert("周任务保存失败，请确认已登录后台。");
             }
         }
 
@@ -2840,7 +3211,7 @@
             reader.onload = async function(e) {
                 try {
                     const backup = JSON.parse(e.target.result);
-                    if (!Array.isArray(backup.members) || !Array.isArray(backup.records)) throw new Error("鏍煎紡涓嶆纭?);
+                    if (!Array.isArray(backup.members) || !Array.isArray(backup.records)) throw new Error("格式不正确");
                     await apiRequest('/admin/members', {
                         method: 'PUT',
                         body: JSON.stringify({ members: backup.members })
@@ -2856,9 +3227,9 @@
                         body: JSON.stringify({ records: backup.records })
                     });
                     await fetchStatus();
-                    alert("澶囦唤宸插鍏?NAS 鏁版嵁搴撱€?);
+                    alert("备份已导入 NAS 数据库。");
                 } catch (error) {
-                    alert("瀵煎叆澶辫触锛氳纭 JSON 鏍煎紡姝ｇ‘锛屽苟涓斿凡鐧诲綍鍚庡彴銆?);
+                    alert("导入失败：请确认 JSON 格式正确，并且已登录后台。");
                 }
             };
             reader.readAsText(file, 'utf-8');
@@ -2880,10 +3251,10 @@
             const sevenDaysAgoStr = getSafeDateString(sevenDaysAgo);
 
             globalRecords.forEach(r => {
-                const name = r['濮撳悕']; if (!stats[name]) return;
+                const name = r['姓名']; if (!stats[name]) return;
                 const rLogicalDate = getLogicalDateStr(r);
                 
-                if (r['姣忔棩鐏典慨'] === '宸插畬鎴?) userDailyDates[name].add(rLogicalDate);
+                if (r['每日灵修'] === '已完成') userDailyDates[name].add(rLogicalDate);
                 
                 let rWeekData = null;
                 for (let weekPlan of WEEKLY_SCHEDULE) {
@@ -2891,9 +3262,9 @@
                 }
 
                 if (rWeekData) {
-                    if (r['鍛ㄨ鐗?] === '宸插畬鎴?) userBookContents[name].add(rWeekData.title);
-                    if (r['鍛ㄨ棰?] === '宸插畬鎴?) userVideoContents[name].add(rWeekData.video);
-                    if (r['鍛ㄨ儗缁?] === '宸插畬鎴?) userVerseContents[name].add(rWeekData.verse);
+                    if (r['周读物'] === '已完成') userBookContents[name].add(rWeekData.title);
+                    if (r['周视频'] === '已完成') userVideoContents[name].add(rWeekData.video);
+                    if (r['周背经'] === '已完成') userVerseContents[name].add(rWeekData.verse);
                 }
             });
 
@@ -2939,10 +3310,10 @@
                 data: {
                     labels: sortedByTotal,
                     datasets: [
-                        { label: '鐏典慨', data: sortedByTotal.map(m => stats[m].totalD), backgroundColor: '#10b981', borderRadius: 4 },
-                        { label: '涔?, data: sortedByTotal.map(m => stats[m].totalB), backgroundColor: '#ec4899', borderRadius: 4 },
-                        { label: '瑙嗛', data: sortedByTotal.map(m => stats[m].totalV), backgroundColor: '#1189eb', borderRadius: 4 },
-                        { label: '鑳岀粡', data: sortedByTotal.map(m => stats[m].totalVerse), backgroundColor: '#8b5cf6', borderRadius: 4 }
+                        { label: '灵修', data: sortedByTotal.map(m => stats[m].totalD), backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: '书', data: sortedByTotal.map(m => stats[m].totalB), backgroundColor: '#ec4899', borderRadius: 4 },
+                        { label: '视频', data: sortedByTotal.map(m => stats[m].totalV), backgroundColor: '#1189eb', borderRadius: 4 },
+                        { label: '背经', data: sortedByTotal.map(m => stats[m].totalVerse), backgroundColor: '#8b5cf6', borderRadius: 4 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } } }, scales: { x: { stacked: true, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { stacked: true, beginAtZero: true } } }
@@ -2951,21 +3322,21 @@
             let sortedByPerfect = MEMBERS.slice().sort((a, b) => stats[b].perfectWeeks - stats[a].perfectWeeks);
             chartInstances['perfect'] = new Chart(document.getElementById('chart-perfect'), {
                 type: 'bar',
-                data: { labels: sortedByPerfect, datasets: [{ label: '涓夐」鍏ㄩ€氬叧鍛ㄦ暟', data: sortedByPerfect.map(m => stats[m].perfectWeeks), backgroundColor: '#f59e0b', borderRadius: 6 }] },
+                data: { labels: sortedByPerfect, datasets: [{ label: '三项全通关周数', data: sortedByPerfect.map(m => stats[m].perfectWeeks), backgroundColor: '#f59e0b', borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 
             let sortedByLast7 = MEMBERS.slice().sort((a, b) => stats[b].last7 - stats[a].last7);
             chartInstances['7days'] = new Chart(document.getElementById('chart-7days'), {
                 type: 'bar',
-                data: { labels: sortedByLast7, datasets: [{ label: '杩戜竷鏃ョ伒淇ぉ鏁?, data: sortedByLast7.map(m => stats[m].last7), backgroundColor: 'rgba(56, 178, 172, 0.8)', borderRadius: 6 }] },
+                data: { labels: sortedByLast7, datasets: [{ label: '近七日灵修天数', data: sortedByLast7.map(m => stats[m].last7), backgroundColor: 'rgba(56, 178, 172, 0.8)', borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, max: 7, ticks: { stepSize: 1 } } } }
             });
 
             let sortedByStreak = MEMBERS.slice().sort((a, b) => stats[b].streak - stats[a].streak);
             chartInstances['streak'] = new Chart(document.getElementById('chart-streak'), {
                 type: 'bar',
-                data: { labels: sortedByStreak, datasets: [{ label: '褰撳墠杩炵画澶╂暟', data: sortedByStreak.map(m => stats[m].streak), backgroundColor: 'rgba(90, 103, 216, 0.8)', borderRadius: 4 }] },
+                data: { labels: sortedByStreak, datasets: [{ label: '当前连续天数', data: sortedByStreak.map(m => stats[m].streak), backgroundColor: 'rgba(90, 103, 216, 0.8)', borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { ticks: { autoSkip: false } } } }
             });
 
@@ -2974,4 +3345,3 @@
     </script>
 </body>
 </html>
-
