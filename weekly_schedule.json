@@ -1,96 +1,12 @@
 [
-  {
-    "start": "2026-04-06",
-    "end": "2026-04-12",
-    "title": "《基督是一切》马太福音：基督是我们的王",
-    "video": "新约圣经-01-211209-圣经引言(上)",
-    "verse": "罗马书 7:1-5",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L1.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-04-13",
-    "end": "2026-04-19",
-    "title": "《基督是一切》马太福音：基督是我们的王",
-    "video": "新约圣经-02-190307-圣经引言(下)",
-    "verse": "罗马书 7:6-10",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L2.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-04-20",
-    "end": "2026-04-26",
-    "title": "《基督是一切》马太福音：基督是我们的王",
-    "video": "新约圣经-03-220120-马太福音(上)",
-    "verse": "罗马书 7:11-15",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L3.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-04-27",
-    "end": "2026-05-03",
-    "title": "《基督是一切》马太福音：基督是我们的王",
-    "video": "新约圣经-04-220120-马太福音(下)",
-    "verse": "罗马书 7:16-20",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L4.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-05-04",
-    "end": "2026-05-10",
-    "title": "《基督是一切》基督是神的仆人--马可福音",
-    "video": "新约圣经-07-220714-马可福音(上)",
-    "verse": "罗马书 7:21-25",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L5.mp4",
-<<<<<<< HEAD
-    "outlineImage": "recite1.jpg"
-=======
-    "outlineImage": ""
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
-  },
-  {
-    "start": "2026-05-11",
-    "end": "2026-05-17",
-    "title": "《基督是一切》基督是神的仆人--马可福音",
-    "video": "新约圣经-08-220714-马可福音(下)",
-    "verse": "罗马书 8:1-5",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L6.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-05-18",
-    "end": "2026-05-24",
-    "title": "《基督是一切》基督是人子--路加福音",
-    "video": "新约圣经-09-220818-路加福音(上)",
-    "verse": "罗马书 8:6-10",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L7.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-05-25",
-    "end": "2026-05-31",
-    "title": "《基督是一切》基督是人子--路加福音",
-    "video": "新约圣经-10-220818-路加福音(下)",
-    "verse": "罗马书 8:11-15",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L8.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-06-01",
-    "end": "2026-06-07",
-    "title": "《基督是一切》基督是神的儿子--约翰福音",
-    "video": "新约圣经-11-220901-约翰福音(上)",
-    "verse": "罗马书 8:16-20",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L9.mp4",
-    "outlineImage": ""
-  },
-  {
-    "start": "2026-06-08",
-    "end": "2026-06-14",
-    "title": "《基督是一切》基督是神的儿子--约翰福音",
-    "video": "新约圣经-12-220901-约翰福音(下)",
-    "verse": "罗马书 8:21-25",
-    "url": "http://nas.restinhim.online:5777/Newtestament/L10.mp4",
-    "outlineImage": ""
-  }
+  { "start": "2026-04-06", "end": "2026-04-12", "title": "Week 1", "video": "Video 1", "verse": "Rom 7:1-5", "url": "http://nas.restinhim.online:5777/Newtestament/L1.mp4", "outlineImage": "" },
+  { "start": "2026-04-13", "end": "2026-04-19", "title": "Week 2", "video": "Video 2", "verse": "Rom 7:6-10", "url": "http://nas.restinhim.online:5777/Newtestament/L2.mp4", "outlineImage": "" },
+  { "start": "2026-04-20", "end": "2026-04-26", "title": "Week 3", "video": "Video 3", "verse": "Rom 7:11-15", "url": "http://nas.restinhim.online:5777/Newtestament/L3.mp4", "outlineImage": "" },
+  { "start": "2026-04-27", "end": "2026-05-03", "title": "Week 4", "video": "Video 4", "verse": "Rom 7:16-20", "url": "http://nas.restinhim.online:5777/Newtestament/L4.mp4", "outlineImage": "" },
+  { "start": "2026-05-04", "end": "2026-05-10", "title": "Week 5", "video": "Video 5", "verse": "Rom 7:21-25", "url": "http://nas.restinhim.online:5777/Newtestament/L5.mp4", "outlineImage": "recite1.jpg" },
+  { "start": "2026-05-11", "end": "2026-05-17", "title": "Week 6", "video": "Video 6", "verse": "Rom 8:1-5", "url": "http://nas.restinhim.online:5777/Newtestament/L6.mp4", "outlineImage": "" },
+  { "start": "2026-05-18", "end": "2026-05-24", "title": "Week 7", "video": "Video 7", "verse": "Rom 8:6-10", "url": "http://nas.restinhim.online:5777/Newtestament/L7.mp4", "outlineImage": "" },
+  { "start": "2026-05-25", "end": "2026-05-31", "title": "Week 8", "video": "Video 8", "verse": "Rom 8:11-15", "url": "http://nas.restinhim.online:5777/Newtestament/L8.mp4", "outlineImage": "" },
+  { "start": "2026-06-01", "end": "2026-06-07", "title": "Week 9", "video": "Video 9", "verse": "Rom 8:16-20", "url": "http://nas.restinhim.online:5777/Newtestament/L9.mp4", "outlineImage": "" },
+  { "start": "2026-06-08", "end": "2026-06-14", "title": "Week 10", "video": "Video 10", "verse": "Rom 8:21-25", "url": "http://nas.restinhim.online:5777/Newtestament/L10.mp4", "outlineImage": "" }
 ]

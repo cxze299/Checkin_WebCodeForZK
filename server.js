@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+﻿const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
@@ -9,11 +9,8 @@ const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || '0.0.0.0';
 const dataPath = path.resolve(process.env.DATABASE_PATH || path.join(__dirname, 'data', 'app.json'));
 const recordsPath = path.resolve(process.env.RECORDS_PATH || path.join(path.dirname(dataPath), 'records.json'));
-<<<<<<< HEAD
 const membersPath = path.resolve(process.env.MEMBERS_PATH || path.join(path.dirname(dataPath), 'members.json'));
 const bundledMembersPath = path.join(__dirname, 'members.json');
-=======
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 const weeklySchedulePath = path.resolve(process.env.WEEKLY_SCHEDULE_PATH || path.join(path.dirname(dataPath), 'weekly_schedule.json'));
 const bundledWeeklySchedulePath = path.join(__dirname, 'weekly_schedule.json');
 const recordsBackupEnabled = String(process.env.RECORDS_BACKUP_ENABLED || 'true').toLowerCase() !== 'false';
@@ -26,38 +23,28 @@ const absenceAlertDays = Math.max(1, Number(process.env.ABSENCE_ALERT_DAYS || 3)
 const absenceAlertHour = Math.min(23, Math.max(0, Number(process.env.ABSENCE_ALERT_HOUR || 21)));
 const absenceAlertTimezone = process.env.ABSENCE_ALERT_TIMEZONE || 'Asia/Shanghai';
 
-const defaultMembers = ["顺丞", "信择", "明明", "亮亮", "杰涛", "嘉杰", "银华", "青青", "依萱", "喜悦", "胡蜜", "馨香", "虹伊", "刘欣", "义路"];
-<<<<<<< HEAD
+const defaultMembers = ["Member A", "Member B", "Member C", "Member D", "Member E"];
 const defaultClassRepShares = [
-  { title: "圣经纵览的目的与价值", url: "/圣经纵览的目的与价值.pdf" },
-  { title: "圣经引言（上）内容概要", url: "/圣经引言（上）内容概要.pdf" },
-  { title: "圣经引言（下）内容概要", url: "/圣经引言（下）内容概要.pdf" }
+  { title: "Share 1", url: "/share-1.pdf" },
+  { title: "Share 2", url: "/share-2.pdf" },
+  { title: "Share 3", url: "/share-3.pdf" }
 ];
-=======
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 const defaultWeeklySchedule = [
-  { start: "2026-04-06", end: "2026-04-12", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-01-211209-圣经引言(上)", verse: "罗马书 7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
-  { start: "2026-04-13", end: "2026-04-19", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-02-190307-圣经引言(下)", verse: "罗马书 7:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L2.mp4" },
-  { start: "2026-04-20", end: "2026-04-26", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-03-220120-马太福音(上)", verse: "罗马书 7:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L3.mp4" },
-  { start: "2026-04-27", end: "2026-05-03", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-04-220120-马太福音(下)", verse: "罗马书 7:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L4.mp4" },
-<<<<<<< HEAD
-  { start: "2026-05-04", end: "2026-05-10", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-07-220714-马可福音(上)", verse: "罗马书 7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4", outlineImage: "recite1.jpg" },
-=======
-  { start: "2026-05-04", end: "2026-05-10", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-07-220714-马可福音(上)", verse: "罗马书 7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4" },
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
-  { start: "2026-05-11", end: "2026-05-17", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-08-220714-马可福音(下)", verse: "罗马书 8:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L6.mp4" },
-  { start: "2026-05-18", end: "2026-05-24", title: "《基督是一切》基督是人子--路加福音", video: "新约圣经-09-220818-路加福音(上)", verse: "罗马书 8:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L7.mp4" },
-  { start: "2026-05-25", end: "2026-05-31", title: "《基督是一切》基督是人子--路加福音", video: "新约圣经-10-220818-路加福音(下)", verse: "罗马书 8:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L8.mp4" },
-  { start: "2026-06-01", end: "2026-06-07", title: "《基督是一切》基督是神的儿子--约翰福音", video: "新约圣经-11-220901-约翰福音(上)", verse: "罗马书 8:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L9.mp4" },
-  { start: "2026-06-08", end: "2026-06-14", title: "《基督是一切》基督是神的儿子--约翰福音", video: "新约圣经-12-220901-约翰福音(下)", verse: "罗马书 8:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L10.mp4" }
+  { start: "2026-04-06", end: "2026-04-12", title: "Week 1", video: "Video 1", verse: "Rom 7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
+  { start: "2026-04-13", end: "2026-04-19", title: "Week 2", video: "Video 2", verse: "Rom 7:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L2.mp4" },
+  { start: "2026-04-20", end: "2026-04-26", title: "Week 3", video: "Video 3", verse: "Rom 7:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L3.mp4" },
+  { start: "2026-04-27", end: "2026-05-03", title: "Week 4", video: "Video 4", verse: "Rom 7:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L4.mp4" },
+  { start: "2026-05-04", end: "2026-05-10", title: "Week 5", video: "Video 5", verse: "Rom 7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4", outlineImage: "recite1.jpg" },
+  { start: "2026-05-11", end: "2026-05-17", title: "Week 6", video: "Video 6", verse: "Rom 8:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L6.mp4" },
+  { start: "2026-05-18", end: "2026-05-24", title: "Week 7", video: "Video 7", verse: "Rom 8:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L7.mp4" },
+  { start: "2026-05-25", end: "2026-05-31", title: "Week 8", video: "Video 8", verse: "Rom 8:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L8.mp4" },
+  { start: "2026-06-01", end: "2026-06-07", title: "Week 9", video: "Video 9", verse: "Rom 8:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L9.mp4" },
+  { start: "2026-06-08", end: "2026-06-14", title: "Week 10", video: "Video 10", verse: "Rom 8:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L10.mp4" }
 ];
 
 fs.mkdirSync(path.dirname(dataPath), { recursive: true });
 fs.mkdirSync(path.dirname(recordsPath), { recursive: true });
-<<<<<<< HEAD
 fs.mkdirSync(path.dirname(membersPath), { recursive: true });
-=======
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 fs.mkdirSync(path.dirname(weeklySchedulePath), { recursive: true });
 if (recordsBackupEnabled) fs.mkdirSync(recordsBackupDir, { recursive: true });
 
@@ -120,17 +107,12 @@ function loadStore() {
   if (saved && typeof saved === 'object' && !Array.isArray(saved)) return saved;
   return {
     settings: {},
-<<<<<<< HEAD
-=======
-    members: defaultMembers.map((name, index) => ({ name, sort_order: index, active: 1 })),
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
     feedbacks: []
   };
 }
 
 let store = loadStore();
 let recordsStore = loadRecords(store);
-<<<<<<< HEAD
 let membersStore = loadMembers(store);
 let weeklyScheduleStore = loadWeeklySchedule(store);
 const hadEmbeddedRecords = Array.isArray(store.records);
@@ -140,22 +122,12 @@ store.settings = store.settings && typeof store.settings === 'object' ? store.se
 store.feedbacks = Array.isArray(store.feedbacks) ? store.feedbacks : [];
 delete store.records;
 delete store.members;
-=======
-let weeklyScheduleStore = loadWeeklySchedule(store);
-const hadEmbeddedRecords = Array.isArray(store.records);
-const hadEmbeddedWeeklySchedule = Array.isArray(store.weeklySchedule);
-store.feedbacks = Array.isArray(store.feedbacks) ? store.feedbacks : [];
-delete store.records;
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 delete store.weeklySchedule;
 
 function saveStore() {
   const payload = { ...store };
   delete payload.records;
-<<<<<<< HEAD
   delete payload.members;
-=======
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
   delete payload.weeklySchedule;
   atomicWriteJson(dataPath, payload);
 }
@@ -177,7 +149,6 @@ function saveRecords(options = {}) {
   atomicWriteJson(recordsPath, recordsStore);
 }
 
-<<<<<<< HEAD
 function normalizeMembers(source) {
   if (!Array.isArray(source)) return [];
   const names = source.map(item => {
@@ -257,34 +228,23 @@ function normalizeWeekVideos(plan) {
 function normalizeWeeklyPlan(plan, index = 0) {
   const videos = normalizeWeekVideos(plan);
   const firstVideo = videos[0] || { title: '', url: '' };
-=======
-function normalizeWeeklyPlan(plan, index = 0) {
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
   return {
     id: index + 1,
     start: String(plan.start || '').trim(),
     end: String(plan.end || '').trim(),
     title: String(plan.title || '').trim(),
-<<<<<<< HEAD
     video: firstVideo.title,
     verse: String(plan.verse || '').trim(),
     url: firstVideo.url,
     videos,
     outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim(),
     shares: normalizeClassRepShares(plan.shares || plan.classRepShares || plan.class_rep_shares),
-=======
-    video: String(plan.video || '').trim(),
-    verse: String(plan.verse || '').trim(),
-    url: String(plan.url || '').trim(),
-    outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim(),
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
     sort_order: index
   };
 }
 
 function loadWeeklySchedule(configStore) {
   const saved = readJsonFile(weeklySchedulePath, null);
-<<<<<<< HEAD
   const bundled = readJsonFile(bundledWeeklySchedulePath, null);
   const bundledSource = Array.isArray(bundled) && bundled.length > 0 ? bundled : defaultWeeklySchedule;
   if (Array.isArray(saved)) {
@@ -300,12 +260,6 @@ function loadWeeklySchedule(configStore) {
   }
   const legacy = Array.isArray(configStore.weeklySchedule) ? configStore.weeklySchedule : [];
   const source = legacy.length > 0 ? legacy : bundledSource;
-=======
-  if (Array.isArray(saved)) return saved.map(normalizeWeeklyPlan).filter(plan => plan.start && plan.end && plan.title);
-  const bundled = readJsonFile(bundledWeeklySchedulePath, null);
-  const legacy = Array.isArray(configStore.weeklySchedule) ? configStore.weeklySchedule : [];
-  const source = legacy.length > 0 ? legacy : (Array.isArray(bundled) && bundled.length > 0 ? bundled : defaultWeeklySchedule);
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
   const cleaned = source.map(normalizeWeeklyPlan).filter(plan => plan.start && plan.end && plan.title);
   atomicWriteJson(weeklySchedulePath, cleaned);
   return cleaned;
@@ -320,11 +274,7 @@ function saveWeeklySchedule() {
   atomicWriteJson(weeklySchedulePath, weeklyScheduleStore);
 }
 
-<<<<<<< HEAD
 if (hadEmbeddedRecords || hadEmbeddedMembers || hadEmbeddedWeeklySchedule) saveStore();
-=======
-if (hadEmbeddedRecords || hadEmbeddedWeeklySchedule) saveStore();
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 if (!fs.existsSync(recordsPath)) saveRecords({ backup: false, reason: 'init' });
 
 function getSetting(key) {
@@ -372,11 +322,7 @@ function requireAdmin(req, res, next) {
 }
 
 function listMembers() {
-<<<<<<< HEAD
   return [...membersStore];
-=======
-  return store.members.filter(m => m.active !== 0).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map(m => m.name);
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
 }
 
 function listWeeklySchedule() {
@@ -386,18 +332,18 @@ function listWeeklySchedule() {
 function recordToClient(row) {
   return {
     Id: row.id,
-    姓名: row.name,
-    打卡时间: row.checkin_time,
-    逻辑日期: row.logical_date,
-    是否补签: row.is_retro,
-    每日灵修: row.daily,
-    周读物: row.book,
-    周视频: row.video,
-    周背经: row.verse,
-    打卡详情: row.detail,
-    分享记录: row.note || '',
-    类型: row.kind || '',
-    部分: row.part || ''
+    name: row.name,
+    checkin_time: row.checkin_time,
+    logical_date: row.logical_date,
+    is_retro: row.is_retro,
+    daily: row.daily,
+    book: row.book,
+    video: row.video,
+    verse: row.verse,
+    detail: row.detail,
+    note: row.note || '',
+    kind: row.kind || '',
+    part: row.part || ''
   };
 }
 
@@ -490,14 +436,14 @@ async function sendAbsenceAlert({ force = false } = {}) {
   await mailer.sendMail({
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to: absenceAlertTo,
-    subject: `门训打卡提醒：${absentMembers.length} 人连续 ${absenceAlertDays} 天未打卡`,
+    subject: `Check-in alert: ${absentMembers.length} members missing for ${absenceAlertDays} days`,
     text: [
-      `以下成员连续 ${absenceAlertDays} 天没有每日灵修打卡：`,
+      `Members missing daily check-ins for ${absenceAlertDays} consecutive days:`,
       '',
       ...lines,
       '',
-      `检查日期：${today}`,
-      '此邮件由门训打卡系统自动发送。'
+      `Date: ${today}`,
+      'This email is sent automatically by the check-in system.'
     ].join('\n')
   });
   setSetting('last_absence_alert_date', today);
@@ -543,15 +489,11 @@ app.get('/api/admin/storage/status', requireAdmin, (req, res) => {
   let error = '';
   try {
     fs.mkdirSync(path.dirname(recordsPath), { recursive: true });
-<<<<<<< HEAD
     fs.mkdirSync(path.dirname(membersPath), { recursive: true });
     fs.mkdirSync(path.dirname(weeklySchedulePath), { recursive: true });
     fs.accessSync(path.dirname(recordsPath), fs.constants.W_OK);
     fs.accessSync(path.dirname(membersPath), fs.constants.W_OK);
     fs.accessSync(path.dirname(weeklySchedulePath), fs.constants.W_OK);
-=======
-    fs.accessSync(path.dirname(recordsPath), fs.constants.W_OK);
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
     if (recordsBackupEnabled) fs.accessSync(recordsBackupDir, fs.constants.W_OK);
   } catch (err) {
     writable = false;
@@ -559,13 +501,10 @@ app.get('/api/admin/storage/status', requireAdmin, (req, res) => {
   }
 
   res.json({
-<<<<<<< HEAD
     membersPath,
     membersCount: membersStore.length,
     weeklySchedulePath,
     weeklyScheduleCount: weeklyScheduleStore.length,
-=======
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
     recordsPath,
     recordsCount: recordsStore.length,
     recordsFileExists: fs.existsSync(recordsPath),
@@ -620,13 +559,8 @@ app.post('/api/admin/password', requireAdmin, (req, res) => {
 app.put('/api/admin/members', requireAdmin, (req, res) => {
   const members = Array.isArray(req.body.members) ? [...new Set(req.body.members.map(name => String(name).trim()).filter(Boolean))] : [];
   if (members.length === 0) return res.status(400).json({ error: 'members_required' });
-<<<<<<< HEAD
   membersStore = members;
   saveMembers();
-=======
-  store.members = members.map((name, index) => ({ name, sort_order: index, active: 1 }));
-  saveStore();
->>>>>>> b11a7c0e8c3570a2af81d308a93db364fcd51009
   res.json({ members: listMembers() });
 });
 
@@ -641,16 +575,16 @@ app.put('/api/admin/weekly-schedule', requireAdmin, (req, res) => {
 
 app.post('/api/checkins', (req, res) => {
   const body = req.body || {};
-  const name = String(body.name || body['姓名'] || '').trim();
+  const name = String(body.name || body['濮撳悕'] || '').trim();
   const type = String(body.type || '').trim();
   const logicalDate = String(body.logicalDate || '').trim();
   if (!name || !type || !logicalDate) return res.status(400).json({ error: 'name_type_logicalDate_required' });
-  const columns = { 每日灵修: 'daily', 周读物: 'book', 周视频: 'video', 周背经: 'verse' };
+  const columns = { '每日灵修': 'daily', '周读物': 'book', '周视频': 'video', '周背经': 'verse' };
   const column = columns[type];
   if (!column) return res.status(400).json({ error: 'invalid_type' });
   const id = nextId(recordsStore);
-  const record = { id, name, checkin_time: String(body.checkinTime || new Date().toISOString()), logical_date: logicalDate, is_retro: body.isRetro ? '是' : '否', daily: null, book: null, video: null, verse: null, detail: String(body.detail || ''), note: String(body.note || '').trim() };
-  record[column] = '已完成';
+  const record = { id, name, checkin_time: String(body.checkinTime || new Date().toISOString()), logical_date: logicalDate, is_retro: body.isRetro ? 'yes' : 'no', daily: null, book: null, video: null, verse: null, detail: String(body.detail || ''), note: String(body.note || '').trim() };
+  record[column] = 'done';
   recordsStore.push(record);
   saveRecords({ reason: 'checkin' });
   res.status(201).json(recordToClient(record));
@@ -672,18 +606,18 @@ app.post('/api/reflections', (req, res) => {
   if (!name || !note || !logicalDate) return res.status(400).json({ error: 'name_note_logicalDate_required' });
   const id = nextId(recordsStore);
   const date = new Date(`${logicalDate}T12:00:00`);
-  const month = Number.isNaN(date.getTime()) ? '' : `${date.getMonth() + 1}月${date.getDate()}日 `;
+  const month = Number.isNaN(date.getTime()) ? '' : `${date.getMonth() + 1}月${date.getDate()}日`;
   const record = {
     id,
     name,
     checkin_time: String(body.createdAt || new Date().toISOString()),
     logical_date: logicalDate,
-    is_retro: '否',
+    is_retro: 'no',
     daily: null,
     book: null,
     video: null,
     verse: null,
-    detail: `【得着】${month}${part}`,
+    detail: `[得着]${month}${part}`,
     note,
     kind: 'reflection',
     part
@@ -716,18 +650,18 @@ app.post('/api/import', requireAdmin, (req, res) => {
   const records = Array.isArray(req.body.records) ? req.body.records : [];
   recordsStore = records.map((record, index) => ({
     id: index + 1,
-    name: record['姓名'] || record.name || '',
-    checkin_time: record['打卡时间'] || record.checkin_time || new Date().toISOString(),
-    logical_date: record['逻辑日期'] || record.logical_date || '',
-    is_retro: record['是否补签'] || record.is_retro || '否',
-    daily: record['每日灵修'] || record.daily || null,
-    book: record['周读物'] || record.book || null,
-    video: record['周视频'] || record.video || null,
-    verse: record['周背经'] || record.verse || null,
-    detail: record['打卡详情'] || record.detail || '',
-    note: record['分享记录'] || record.note || '',
-    kind: record['类型'] || record.kind || '',
-    part: record['部分'] || record.part || ''
+    name: record['濮撳悕'] || record.name || '',
+    checkin_time: record['鎵撳崱鏃堕棿'] || record.checkin_time || new Date().toISOString(),
+    logical_date: record['閫昏緫鏃ユ湡'] || record.logical_date || '',
+    is_retro: record.is_retro || 'no',
+    daily: record.daily || null,
+    book: record.book || null,
+    video: record.video || null,
+    verse: record.verse || null,
+    detail: record.detail || '',
+    note: record.note || '',
+    kind: record.kind || '',
+    part: record.part || ''
   }));
   saveRecords({ reason: 'import' });
   res.json({ records: listRecords() });
