@@ -4,7 +4,7 @@ Newtestament/
 Passage/
 PPT/
 Mentor/
+.git/
 .env
-.env.local
-.env.production
+*.log
 npm-debug.log*

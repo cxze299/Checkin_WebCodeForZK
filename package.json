@@ -1,12 +1,13 @@
 {
-  "name": "checkin-webcode-for-zk",
+  "name": "zheke-checkin-site",
   "version": "1.0.0",
   "private": true,
-  "description": "科大门训打卡系统，适合群晖 NAS 部署的 Node.js 后端版本。",
+  "description": "浙科门训打卡网站，提供成员管理、周任务资料、打卡记录、默写练习和邮件提醒。",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "check": "node --check server.js"
   },
   "engines": {
     "node": ">=20"

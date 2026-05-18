@@ -8,9 +8,11 @@
     environment:
       PORT: "3012"
       HOST: "0.0.0.0"
+      CONFIG_PATH: "/app/config.json"
       DATABASE_PATH: "/app/data/app.json"
       RECORDS_PATH: "/app/data/records.json"
-      WEEKLY_SCHEDULE_PATH: "/app/data/weekly_schedule.json"
+      CONFIG_BACKUP_DIR: "/app/data/config-backups"
+      CONFIG_BACKUP_LIMIT: "${CONFIG_BACKUP_LIMIT:-60}"
       RECORDS_BACKUP_ENABLED: "${RECORDS_BACKUP_ENABLED:-true}"
       RECORDS_BACKUP_DIR: "/app/data/record-backups"
       RECORDS_BACKUP_LIMIT: "${RECORDS_BACKUP_LIMIT:-120}"
@@ -27,4 +29,9 @@
       SMTP_PASS: "${SMTP_PASS:-}"
       SMTP_FROM: "${SMTP_FROM:-}"
     volumes:
+      - ./config.json:/app/config.json
       - ./data:/app/data
+      - ./Newtestament:/app/Newtestament:ro
+      - ./Passage:/app/Passage:ro
+      - ./PPT:/app/PPT:ro
+      - ./Mentor:/app/Mentor:ro

@@ -7,15 +7,23 @@ const nodemailer = require('nodemailer');
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || '0.0.0.0';
+const configPath = path.resolve(process.env.CONFIG_PATH || path.join(__dirname, 'config.json'));
+const emptyConfig = {
+  site_info: {},
+  members: [],
+  class_rep_shares: [],
+  weekly_schedule: [],
+  task_sections: {},
+  mounted_files: {}
+};
+
 const dataPath = path.resolve(process.env.DATABASE_PATH || path.join(__dirname, 'data', 'app.json'));
 const recordsPath = path.resolve(process.env.RECORDS_PATH || path.join(path.dirname(dataPath), 'records.json'));
-const membersPath = path.resolve(process.env.MEMBERS_PATH || path.join(path.dirname(dataPath), 'members.json'));
-const bundledMembersPath = path.join(__dirname, 'members.json');
-const weeklySchedulePath = path.resolve(process.env.WEEKLY_SCHEDULE_PATH || path.join(path.dirname(dataPath), 'weekly_schedule.json'));
-const bundledWeeklySchedulePath = path.join(__dirname, 'weekly_schedule.json');
 const recordsBackupEnabled = String(process.env.RECORDS_BACKUP_ENABLED || 'true').toLowerCase() !== 'false';
 const recordsBackupDir = path.resolve(process.env.RECORDS_BACKUP_DIR || path.join(path.dirname(recordsPath), 'record-backups'));
 const recordsBackupLimit = Math.max(1, Number(process.env.RECORDS_BACKUP_LIMIT || 120));
+const configBackupDir = path.resolve(process.env.CONFIG_BACKUP_DIR || path.join(path.dirname(recordsPath), 'config-backups'));
+const configBackupLimit = Math.max(1, Number(process.env.CONFIG_BACKUP_LIMIT || 60));
 const sessionSecret = process.env.SESSION_SECRET || 'dev-secret-change-me';
 const absenceAlertEnabled = String(process.env.ABSENCE_ALERT_ENABLED || '').toLowerCase() === 'true';
 const absenceAlertTo = process.env.ABSENCE_ALERT_TO || '';
@@ -23,30 +31,29 @@ const absenceAlertDays = Math.max(1, Number(process.env.ABSENCE_ALERT_DAYS || 3)
 const absenceAlertHour = Math.min(23, Math.max(0, Number(process.env.ABSENCE_ALERT_HOUR || 21)));
 const absenceAlertTimezone = process.env.ABSENCE_ALERT_TIMEZONE || 'Asia/Shanghai';
 
-const defaultMembers = ["Member A", "Member B", "Member C", "Member D", "Member E"];
-const defaultClassRepShares = [
-  { title: "Share 1", url: "/share-1.pdf" },
-  { title: "Share 2", url: "/share-2.pdf" },
-  { title: "Share 3", url: "/share-3.pdf" }
-];
-const defaultWeeklySchedule = [
-  { start: "2026-04-06", end: "2026-04-12", title: "Week 1", video: "Video 1", verse: "Rom 7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
-  { start: "2026-04-13", end: "2026-04-19", title: "Week 2", video: "Video 2", verse: "Rom 7:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L2.mp4" },
-  { start: "2026-04-20", end: "2026-04-26", title: "Week 3", video: "Video 3", verse: "Rom 7:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L3.mp4" },
-  { start: "2026-04-27", end: "2026-05-03", title: "Week 4", video: "Video 4", verse: "Rom 7:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L4.mp4" },
-  { start: "2026-05-04", end: "2026-05-10", title: "Week 5", video: "Video 5", verse: "Rom 7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4", outlineImage: "recite1.jpg" },
-  { start: "2026-05-11", end: "2026-05-17", title: "Week 6", video: "Video 6", verse: "Rom 8:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L6.mp4" },
-  { start: "2026-05-18", end: "2026-05-24", title: "Week 7", video: "Video 7", verse: "Rom 8:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L7.mp4" },
-  { start: "2026-05-25", end: "2026-05-31", title: "Week 8", video: "Video 8", verse: "Rom 8:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L8.mp4" },
-  { start: "2026-06-01", end: "2026-06-07", title: "Week 9", video: "Video 9", verse: "Rom 8:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L9.mp4" },
-  { start: "2026-06-08", end: "2026-06-14", title: "Week 10", video: "Video 10", verse: "Rom 8:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L10.mp4" }
-];
+const defaultTaskSections = {
+  daily: { label: '每日灵修', path: './Kuangye.md' },
+  weekly: { label: '周课任务', reading_path: './weekly_task.md' },
+  share: { label: '课代表分享' }
+};
+const defaultMountedFiles = {
+  videos: { label: 'Newtestament 视频', dir: 'Newtestament', publicPath: '/Newtestament', extensions: ['.mp4', '.webm', '.mov', '.m4v'] },
+  passages: { label: 'Passage PDF', dir: 'Passage', publicPath: '/Passage', extensions: ['.pdf'] },
+  handouts: { label: '讲义 PDF', dir: 'PPT', publicPath: '/PPT', extensions: ['.pdf'] },
+  shares: { label: '资料分享 PDF', dir: 'Mentor', publicPath: '/Mentor', extensions: ['.pdf'] },
+  outlines: { label: '提纲图片', dir: '.', publicPath: '', extensions: ['.jpg', '.jpeg', '.png', '.webp'] },
+  documents: { label: 'Markdown 文件', dir: '.', publicPath: '', extensions: ['.md'] }
+};
+
+// Load configuration
+fs.mkdirSync(path.dirname(configPath), { recursive: true });
+let config = loadConfig();
+
 
 fs.mkdirSync(path.dirname(dataPath), { recursive: true });
 fs.mkdirSync(path.dirname(recordsPath), { recursive: true });
-fs.mkdirSync(path.dirname(membersPath), { recursive: true });
-fs.mkdirSync(path.dirname(weeklySchedulePath), { recursive: true });
 if (recordsBackupEnabled) fs.mkdirSync(recordsBackupDir, { recursive: true });
+fs.mkdirSync(configBackupDir, { recursive: true });
 
 function readJsonFile(filePath, fallback) {
   try {
@@ -55,14 +62,179 @@ function readJsonFile(filePath, fallback) {
   return fallback;
 }
 
+function normalizeConfig(source) {
+  const value = source && typeof source === 'object' && !Array.isArray(source) ? source : {};
+  return {
+    ...emptyConfig,
+    ...value,
+    site_info: value.site_info && typeof value.site_info === 'object' ? value.site_info : {},
+    members: normalizeMembers(value.members),
+    class_rep_shares: Array.isArray(value.class_rep_shares) ? value.class_rep_shares : [],
+    weekly_schedule: Array.isArray(value.weekly_schedule) ? value.weekly_schedule : [],
+    task_sections: normalizeTaskSections(value.task_sections),
+    mounted_files: normalizeMountedFiles(value.mounted_files)
+  };
+}
+
+function loadConfig() {
+  try {
+    if (fs.existsSync(configPath)) return normalizeConfig(JSON.parse(fs.readFileSync(configPath, 'utf8')));
+    console.warn('config.json not found, using empty defaults');
+  } catch (err) {
+    console.error('Error loading config.json:', err.message);
+  }
+  return normalizeConfig(emptyConfig);
+}
+
+function reloadConfig() {
+  config = loadConfig();
+  membersStore = loadMembers();
+  weeklyScheduleStore = loadWeeklySchedule();
+  return config;
+}
+
+function cleanAssetTitle(filename) {
+  return String(filename || '')
+    .replace(/\.[^.]+$/i, '')
+    .replace(/^\[[^\]]+\]\s*/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function listAssetFiles(dirPath, publicPrefix, extensions) {
+  try {
+    if (!fs.existsSync(dirPath)) return [];
+    const cleanPrefix = String(publicPrefix || '').replace(/\/+$/, '');
+    return fs.readdirSync(dirPath, { withFileTypes: true })
+      .filter(entry => entry.isFile())
+      .filter(entry => extensions.includes(path.extname(entry.name).toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN', { numeric: true }))
+      .map(entry => ({
+        filename: entry.name,
+        title: cleanAssetTitle(entry.name),
+        url: `${cleanPrefix}/${encodeURIComponent(entry.name)}`
+      }));
+  } catch (error) {
+    console.warn(`Unable to list weekly assets from ${dirPath}:`, error.message);
+    return [];
+  }
+}
+
+function normalizeStringObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function normalizeTaskSections(value = {}) {
+  const source = normalizeStringObject(value);
+  return {
+    daily: { ...defaultTaskSections.daily, ...normalizeStringObject(source.daily) },
+    weekly: { ...defaultTaskSections.weekly, ...normalizeStringObject(source.weekly) },
+    share: { ...defaultTaskSections.share, ...normalizeStringObject(source.share) }
+  };
+}
+
+function normalizeExtensions(value, fallback) {
+  const source = Array.isArray(value) ? value : String(value || '').split(',');
+  const cleaned = source
+    .map(item => String(item || '').trim().toLowerCase())
+    .filter(Boolean)
+    .map(item => item.startsWith('.') ? item : `.${item}`);
+  return cleaned.length > 0 ? [...new Set(cleaned)] : fallback;
+}
+
+function normalizeMountedFiles(value = {}) {
+  const source = normalizeStringObject(value);
+  return Object.fromEntries(Object.entries(defaultMountedFiles).map(([key, defaults]) => {
+    const item = normalizeStringObject(source[key]);
+    return [key, {
+      ...defaults,
+      ...item,
+      label: String(item.label || defaults.label || key).trim(),
+      dir: String(item.dir || defaults.dir || '').trim(),
+      publicPath: String(item.publicPath || item.public_path || defaults.publicPath || '').trim(),
+      extensions: normalizeExtensions(item.extensions, defaults.extensions)
+    }];
+  }));
+}
+
+function resolveMountedDir(dir) {
+  const target = path.resolve(__dirname, String(dir || '').replace(/^[/\\]+/, ''));
+  const root = path.resolve(__dirname);
+  return target === root || target.startsWith(`${root}${path.sep}`) ? target : root;
+}
+
+function listMountedAssets(kind) {
+  const mounted = normalizeMountedFiles(config.mounted_files)[kind] || defaultMountedFiles[kind];
+  return listAssetFiles(resolveMountedDir(mounted.dir), mounted.publicPath, mounted.extensions);
+}
+
 function safeTimestamp(date = new Date()) {
   return date.toISOString().replace(/[:.]/g, '-');
 }
 
+function writeFileSynced(filePath, content) {
+  const fd = fs.openSync(filePath, 'w');
+  try {
+    fs.writeFileSync(fd, content, 'utf8');
+    fs.fsyncSync(fd);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
 function atomicWriteJson(filePath, value) {
   const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
-  fs.writeFileSync(tmpPath, JSON.stringify(value, null, 2));
-  fs.renameSync(tmpPath, filePath);
+  const content = `${JSON.stringify(value, null, 2)}\n`;
+  writeFileSynced(tmpPath, content);
+  try {
+    fs.renameSync(tmpPath, filePath);
+  } catch (error) {
+    const directWriteFallbackCodes = new Set(['EBUSY', 'EXDEV', 'EPERM']);
+    if (!directWriteFallbackCodes.has(error.code)) {
+      fs.rmSync(tmpPath, { force: true });
+      throw error;
+    }
+
+    try {
+      writeFileSynced(filePath, content);
+      fs.rmSync(tmpPath, { force: true });
+    } catch (directError) {
+      fs.rmSync(tmpPath, { force: true });
+      directError.message = `Atomic write failed (${error.code}: ${error.message}); direct write failed (${directError.code || 'ERR'}: ${directError.message})`;
+      throw directError;
+    }
+  }
+}
+
+function listConfigBackups(limit = 10) {
+  if (!fs.existsSync(configBackupDir)) return [];
+  return fs.readdirSync(configBackupDir)
+    .filter(name => /^config-.*\.json$/.test(name))
+    .map(name => {
+      const filePath = path.join(configBackupDir, name);
+      const stat = fs.statSync(filePath);
+      return { name, path: filePath, size: stat.size, modifiedAt: stat.mtime.toISOString() };
+    })
+    .sort((a, b) => String(b.modifiedAt).localeCompare(String(a.modifiedAt)))
+    .slice(0, limit);
+}
+
+function rotateConfigBackups() {
+  const backups = listConfigBackups(configBackupLimit + 20)
+    .map(item => ({ ...item, mtime: fs.statSync(item.path).mtimeMs }))
+    .sort((a, b) => b.mtime - a.mtime);
+  for (const backup of backups.slice(configBackupLimit)) {
+    fs.unlinkSync(backup.path);
+  }
+}
+
+function backupConfigFile(reason = 'write') {
+  if (!fs.existsSync(configPath)) return null;
+  fs.mkdirSync(configBackupDir, { recursive: true });
+  const backupPath = path.join(configBackupDir, `config-${safeTimestamp()}-${reason}.json`);
+  fs.copyFileSync(configPath, backupPath);
+  rotateConfigBackups();
+  return backupPath;
 }
 
 function rotateRecordBackups() {
@@ -113,8 +285,8 @@ function loadStore() {
 
 let store = loadStore();
 let recordsStore = loadRecords(store);
-let membersStore = loadMembers(store);
-let weeklyScheduleStore = loadWeeklySchedule(store);
+let membersStore = loadMembers();
+let weeklyScheduleStore = loadWeeklySchedule();
 const hadEmbeddedRecords = Array.isArray(store.records);
 const hadEmbeddedMembers = Array.isArray(store.members);
 const hadEmbeddedWeeklySchedule = Array.isArray(store.weeklySchedule);
@@ -159,20 +331,35 @@ function normalizeMembers(source) {
   return [...new Set(names)];
 }
 
-function loadMembers(configStore) {
-  const saved = readJsonFile(membersPath, null);
-  const savedMembers = normalizeMembers(saved);
-  if (savedMembers.length > 0) return savedMembers;
-  const bundledMembers = normalizeMembers(readJsonFile(bundledMembersPath, null));
-  const legacyMembers = normalizeMembers(configStore.members);
-  const source = legacyMembers.length > 0 ? legacyMembers : (bundledMembers.length > 0 ? bundledMembers : defaultMembers);
-  atomicWriteJson(membersPath, source);
-  return source;
+function saveConfig(reason = 'write') {
+  delete config.records;
+  delete config.weeklySchedule;
+  config.site_info = config.site_info && typeof config.site_info === 'object' ? config.site_info : {};
+  config.members = normalizeMembers(config.members);
+  config.class_rep_shares = normalizeClassRepShares(config.class_rep_shares);
+  config.weekly_schedule = Array.isArray(config.weekly_schedule)
+    ? config.weekly_schedule.map(normalizeWeeklyPlan).filter(plan => plan.start && plan.end)
+    : [];
+  config.task_sections = normalizeTaskSections(config.task_sections);
+  config.mounted_files = normalizeMountedFiles(config.mounted_files);
+  const backupPath = backupConfigFile(reason);
+  atomicWriteJson(configPath, config);
+  const saved = normalizeConfig(JSON.parse(fs.readFileSync(configPath, 'utf8')));
+  if (JSON.stringify(saved) !== JSON.stringify(config)) {
+    throw new Error('config_write_verification_failed');
+  }
+  config = saved;
+  return backupPath;
+}
+
+function loadMembers() {
+  return normalizeMembers(config.members);
 }
 
 function saveMembers() {
-  membersStore = normalizeMembers(membersStore);
-  atomicWriteJson(membersPath, membersStore);
+  config.members = normalizeMembers(membersStore);
+  membersStore = config.members;
+  saveConfig('members');
 }
 
 function normalizeShareItem(item) {
@@ -189,7 +376,7 @@ function normalizeShareItem(item) {
 }
 
 function normalizeClassRepShares(shares) {
-  const source = Array.isArray(shares) && shares.length > 0 ? shares : defaultClassRepShares;
+  const source = Array.isArray(shares) && shares.length > 0 ? shares : (Array.isArray(config.class_rep_shares) ? config.class_rep_shares : []);
   return source.map(normalizeShareItem).filter(Boolean);
 }
 
@@ -235,6 +422,7 @@ function normalizeWeeklyPlan(plan, index = 0) {
     title: String(plan.title || '').trim(),
     video: firstVideo.title,
     verse: String(plan.verse || '').trim(),
+    reciteText: String(plan.reciteText || plan.recite_text || '').trim(),
     url: firstVideo.url,
     videos,
     outlineImage: String(plan.outlineImage || plan.outline_image || plan.image || '').trim(),
@@ -243,35 +431,19 @@ function normalizeWeeklyPlan(plan, index = 0) {
   };
 }
 
-function loadWeeklySchedule(configStore) {
-  const saved = readJsonFile(weeklySchedulePath, null);
-  const bundled = readJsonFile(bundledWeeklySchedulePath, null);
-  const bundledSource = Array.isArray(bundled) && bundled.length > 0 ? bundled : defaultWeeklySchedule;
-  if (Array.isArray(saved)) {
-    const defaultsByWeek = new Map(bundledSource.map(plan => [`${plan.start}|${plan.end}`, plan]));
-    const cleaned = saved.map((plan, index) => {
-      const normalized = normalizeWeeklyPlan(plan, index);
-      const defaultPlan = defaultsByWeek.get(`${normalized.start}|${normalized.end}`);
-      if (!normalized.outlineImage && defaultPlan?.outlineImage) normalized.outlineImage = defaultPlan.outlineImage;
-      return normalized;
-    }).filter(plan => plan.start && plan.end && plan.title);
-    if (JSON.stringify(cleaned) !== JSON.stringify(saved)) atomicWriteJson(weeklySchedulePath, cleaned);
-    return cleaned;
-  }
-  const legacy = Array.isArray(configStore.weeklySchedule) ? configStore.weeklySchedule : [];
-  const source = legacy.length > 0 ? legacy : bundledSource;
-  const cleaned = source.map(normalizeWeeklyPlan).filter(plan => plan.start && plan.end && plan.title);
-  atomicWriteJson(weeklySchedulePath, cleaned);
-  return cleaned;
+function loadWeeklySchedule() {
+  const source = Array.isArray(config.weekly_schedule) ? config.weekly_schedule : [];
+  return source.map(normalizeWeeklyPlan).filter(plan => plan.start && plan.end);
 }
 
 function saveWeeklySchedule() {
   weeklyScheduleStore = weeklyScheduleStore
     .map(normalizeWeeklyPlan)
-    .filter(plan => plan.start && plan.end && plan.title)
+    .filter(plan => plan.start && plan.end)
     .sort((a, b) => String(a.start).localeCompare(String(b.start)))
     .map(normalizeWeeklyPlan);
-  atomicWriteJson(weeklySchedulePath, weeklyScheduleStore);
+  config.weekly_schedule = weeklyScheduleStore;
+  saveConfig('weekly-schedule');
 }
 
 if (hadEmbeddedRecords || hadEmbeddedMembers || hadEmbeddedWeeklySchedule) saveStore();
@@ -330,8 +502,10 @@ function listWeeklySchedule() {
 }
 
 function recordToClient(row) {
+  const { id, ...rest } = row;
   return {
-    Id: row.id,
+    ...rest,
+    Id: id,
     name: row.name,
     checkin_time: row.checkin_time,
     logical_date: row.logical_date,
@@ -349,6 +523,59 @@ function recordToClient(row) {
 
 function listRecords() {
   return [...recordsStore].sort((a, b) => String(b.checkin_time).localeCompare(String(a.checkin_time)) || (b.id - a.id)).map(recordToClient);
+}
+
+function getRecordLogicalDate(record = {}) {
+  return String(record.logical_date || record['逻辑日期'] || '').slice(0, 10);
+}
+
+function getReciteRecords({ ref = '', weekStart = '', weekEnd = '', logicalDate = '' } = {}) {
+  return recordsStore
+    .filter(record => record.kind === 'recite_exam' || record['类型'] === 'recite_exam')
+    .filter(record => !ref || record['默写经文'] === ref)
+    .filter(record => !weekStart || record['默写周开始'] === weekStart)
+    .filter(record => !weekEnd || record['默写周结束'] === weekEnd)
+    .filter(record => !logicalDate || getRecordLogicalDate(record) === logicalDate);
+}
+
+function reciteMetrics(record) {
+  const blankPercent = Math.max(10, Math.min(100, Math.round(Number(record['默写挖空率'] || 50))));
+  const blankCount = Math.max(0, Number(record['默写空数'] || 0));
+  const correctCount = Math.max(0, Number(record['默写正确数'] || 0));
+  const accuracy = blankCount > 0 ? Math.round((correctCount / blankCount) * 100) : 0;
+  const score = calculateReciteScore(correctCount, blankCount, blankPercent);
+  return { blankPercent, score, blankCount, correctCount, accuracy };
+}
+
+function calculateReciteScore(correctCount, blankCount, blankPercent) {
+  if (!blankCount) return 0;
+  return Math.round((correctCount / blankCount) * blankPercent);
+}
+
+function buildReciteLeaderboard(filters = {}) {
+  const groups = {};
+  for (const record of getReciteRecords(filters)) {
+    const name = String(record.name || record['姓名'] || '').trim();
+    if (!name) continue;
+    const ref = String(record['默写经文'] || '').trim();
+    const groupKey = `${name}||${ref}`;
+    const item = {
+      name,
+      ref,
+      createdAt: record.checkin_time || record['打卡时间'] || '',
+      attemptNo: Number(record['默写次数'] || 1),
+      ...reciteMetrics(record)
+    };
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push(item);
+  }
+  return Object.values(groups).map((attempts) => {
+    attempts.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    const best = attempts.reduce((winner, item) => (!winner || item.score > winner.score || (item.score === winner.score && item.blankPercent > winner.blankPercent)) ? item : winner, null);
+    const avgAccuracy = attempts.reduce((sum, item) => sum + item.accuracy, 0) / attempts.length;
+    const rankScore = best.score;
+    return { name: best.name, ref: best.ref, rankScore, attempts: attempts.length, bestScore: best.score, bestBlankPercent: best.blankPercent, bestAccuracy: best.accuracy, averageAccuracy: Math.round(avgAccuracy), latestAt: attempts[0]?.createdAt || '' };
+  }).sort((a, b) => b.rankScore - a.rankScore || b.bestAccuracy - a.bestAccuracy || b.bestBlankPercent - a.bestBlankPercent || a.name.localeCompare(b.name, 'zh-Hans-CN') || a.ref.localeCompare(b.ref, 'zh-Hans-CN'));
 }
 
 function recentRecords(limit = 20) {
@@ -482,28 +709,38 @@ app.use((req, res, next) => {
 app.use(express.static(__dirname, { extensions: ['html'] }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.get('/api/state', (req, res) => res.json({ members: listMembers(), weeklySchedule: listWeeklySchedule(), records: listRecords(), adminConfigured: Boolean(getSetting('admin_password_hash')) }));
+app.get('/api/config', (req, res) => res.json(reloadConfig()));
+app.get('/api/weekly-assets', (req, res) => res.json({
+  videos: listMountedAssets('videos'),
+  passages: listMountedAssets('passages'),
+  handouts: listMountedAssets('handouts'),
+  shares: listMountedAssets('shares'),
+  outlines: listMountedAssets('outlines'),
+  documents: listMountedAssets('documents'),
+  mountedFiles: normalizeMountedFiles(config.mounted_files)
+}));
+app.get('/api/state', (req, res) => {
+  reloadConfig();
+  res.json({ members: listMembers(), weeklySchedule: listWeeklySchedule(), records: listRecords(), adminConfigured: Boolean(getSetting('admin_password_hash')) });
+});
 app.get('/api/admin/status', (req, res) => res.json({ configured: Boolean(getSetting('admin_password_hash')) }));
 app.get('/api/admin/storage/status', requireAdmin, (req, res) => {
   let writable = true;
   let error = '';
   try {
     fs.mkdirSync(path.dirname(recordsPath), { recursive: true });
-    fs.mkdirSync(path.dirname(membersPath), { recursive: true });
-    fs.mkdirSync(path.dirname(weeklySchedulePath), { recursive: true });
     fs.accessSync(path.dirname(recordsPath), fs.constants.W_OK);
-    fs.accessSync(path.dirname(membersPath), fs.constants.W_OK);
-    fs.accessSync(path.dirname(weeklySchedulePath), fs.constants.W_OK);
+    fs.accessSync(path.dirname(configPath), fs.constants.W_OK);
     if (recordsBackupEnabled) fs.accessSync(recordsBackupDir, fs.constants.W_OK);
+    fs.accessSync(configBackupDir, fs.constants.W_OK);
   } catch (err) {
     writable = false;
     error = err.message;
   }
 
   res.json({
-    membersPath,
+    configPath,
     membersCount: membersStore.length,
-    weeklySchedulePath,
     weeklyScheduleCount: weeklyScheduleStore.length,
     recordsPath,
     recordsCount: recordsStore.length,
@@ -513,6 +750,9 @@ app.get('/api/admin/storage/status', requireAdmin, (req, res) => {
     backupDir: recordsBackupDir,
     backupLimit: recordsBackupLimit,
     latestBackups: listRecordBackups(8),
+    configBackupDir,
+    configBackupLimit,
+    latestConfigBackups: listConfigBackups(8),
     writable,
     error
   });
@@ -554,6 +794,26 @@ app.post('/api/admin/password', requireAdmin, (req, res) => {
   if (!password) return res.status(400).json({ error: 'password_required' });
   setSetting('admin_password_hash', hashPassword(password));
   res.json({ ok: true });
+});
+
+app.put('/api/admin/config', requireAdmin, (req, res) => {
+  try {
+    const nextConfig = req.body && typeof req.body.config === 'object' ? req.body.config : req.body;
+    config = normalizeConfig(nextConfig);
+    membersStore = loadMembers();
+    weeklyScheduleStore = loadWeeklySchedule();
+    const backupPath = saveConfig('admin-config');
+    res.json({
+      config,
+      members: listMembers(),
+      weeklySchedule: listWeeklySchedule(),
+      savedAt: new Date().toISOString(),
+      configPath,
+      backupPath
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'config_save_failed', message: error.message || String(error), configPath });
+  }
 });
 
 app.put('/api/admin/members', requireAdmin, (req, res) => {
@@ -627,6 +887,71 @@ app.post('/api/reflections', (req, res) => {
   res.status(201).json(recordToClient(record));
 });
 
+app.get('/api/recite/leaderboard', (req, res) => {
+  res.json({
+    leaderboard: buildReciteLeaderboard()
+  });
+});
+
+app.post('/api/recite-attempts', (req, res) => {
+  const body = req.body || {};
+  const name = String(body.name || '').trim();
+  const ref = String(body.ref || '').trim();
+  const weekStart = String(body.weekStart || '').trim();
+  const weekEnd = String(body.weekEnd || '').trim();
+  const logicalDate = String(body.logicalDate || '').trim();
+  if (!name || !ref || !logicalDate) return res.status(400).json({ error: 'name_ref_logicalDate_required' });
+
+  const blankPercent = Math.max(10, Math.min(100, Math.round(Number(body.blankPercent || 50))));
+  const correctCount = Math.max(0, Math.round(Number(body.correctCount || 0)));
+  const blankCount = Math.max(0, Math.round(Number(body.blankCount || 0)));
+  const accuracy = blankCount > 0 ? Math.round((correctCount / blankCount) * 100) : 0;
+  const score = calculateReciteScore(correctCount, blankCount, blankPercent);
+  const existingAttempts = getReciteRecords({ ref, weekStart }).filter(record => String(record.name || record['姓名'] || '').trim() === name);
+  const attemptNo = existingAttempts.length + 1;
+  const rankScore = score;
+
+  const record = {
+    id: nextId(recordsStore),
+    name,
+    checkin_time: String(body.createdAt || new Date().toISOString()),
+    logical_date: logicalDate,
+    is_retro: 'no',
+    daily: null,
+    book: null,
+    video: null,
+    verse: null,
+    detail: `[默写]${ref}`,
+    note: '',
+    kind: 'recite_exam',
+    part: '周背经',
+    '姓名': name,
+    '打卡时间': String(body.createdAt || new Date().toISOString()),
+    '逻辑日期': logicalDate,
+    '是否补签': '否',
+    '打卡详情': `[默写]${ref}`,
+    '类型': 'recite_exam',
+    '默写经文': ref,
+    '默写周开始': weekStart,
+    '默写周结束': weekEnd,
+    '默写挖空率': blankPercent,
+    '默写分数': score,
+    '默写正确数': correctCount,
+    '默写空数': blankCount,
+    '默写次数': attemptNo,
+    '默写准确率': accuracy,
+    '默写排行分': rankScore
+  };
+
+  recordsStore.push(record);
+  saveRecords({ reason: 'recite' });
+  res.status(201).json({
+    ok: true,
+    record: recordToClient(record),
+    leaderboard: buildReciteLeaderboard()
+  });
+});
+
 app.post('/api/feedback', (req, res) => {
   const body = req.body || {};
   const message = String(body.message || '').trim();
@@ -669,11 +994,14 @@ app.post('/api/import', requireAdmin, (req, res) => {
 
 app.get(/.*/, (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-app.listen(port, host, () => {
+const server = app.listen(port, host, () => {
   console.log(`ZK checkin app listening on http://${host}:${port}`);
+  console.log(`Config file: ${configPath}`);
   console.log(`Data file: ${dataPath}`);
   if (absenceAlertEnabled) {
     console.log(`Absence alert enabled: ${absenceAlertDays} days, ${absenceAlertHour}:00 ${absenceAlertTimezone}`);
   }
 });
 startAbsenceAlertTimer();
+
+module.exports = { app, server };

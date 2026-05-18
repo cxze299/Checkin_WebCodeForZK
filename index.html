@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>科大门训打卡</title>
+    <title id="site-title">科大门训打卡</title>
     <link rel="icon" href="/icon_ios_v2.png" type="image/png">
     <link rel="apple-touch-icon" href="/icon_ios_v2.png">
     
@@ -90,9 +90,9 @@
 
         #loading-status { text-align: center; color: var(--primary); font-size: 14px; margin: 15px 0; font-weight: 800;}
 
-        /* 四大进度条网格 */
+        /* 三项进度条网格 */
         .stats-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
-        @media (min-width: 768px) { .stats-dashboard { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 768px) { .stats-dashboard { grid-template-columns: repeat(3, 1fr); } }
 
         .stat-card { background: var(--card-bg); padding: 20px 10px; border-radius: 16px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 6px 16px rgba(15,23,42,0.025); }
         .stat-icon-wrapper { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; font-size: 16px; }
@@ -133,8 +133,8 @@
         .member-note-item + .member-note-item { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(17, 137, 235, 0.12); }
         .member-note-type { color: var(--primary); font-weight: 900; margin-right: 6px; }
 
-        /* 四个按钮并排网格 */
-        .btn-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        /* 三个按钮并排网格 */
+        .btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         button.action-btn { width: 100%; border: none; border-radius: 10px; padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
         button.action-btn:active:not(:disabled) { transform: scale(0.92); background: #e2e8f0 !important; color: #64748b !important; }
         button.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -203,6 +203,17 @@
         .btn-close-video:active { background: rgba(255,255,255,0.3); transform: scale(0.9); }
         .video-player-container { width: 100%; aspect-ratio: 16 / 9; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border-radius: 0 0 18px 18px; overflow: hidden; position: relative; border: 2px solid rgba(255,255,255,0.02); }
         .video-player-container video { width: 100%; height: 100%; border-radius: 0 0 16px 16px; outline: none; }
+        .weekly-resource-browser { display: grid; grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr); gap: 0; height: min(76vh, 760px); background: #f8fbff; border-radius: 0 0 18px 18px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+        .weekly-resource-sidebar { padding: 16px; background: #ffffff; overflow-y: auto; border-right: 1px solid var(--border-color); }
+        .weekly-resource-group + .weekly-resource-group { margin-top: 14px; }
+        .weekly-resource-label { display: block; color: var(--text-main); font-size: 13px; font-weight: 900; margin-bottom: 8px; }
+        .weekly-resource-select { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; background: #fff; color: var(--text-main); font: inherit; font-size: 13px; font-weight: 800; outline: none; }
+        .weekly-resource-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+        .weekly-resource-actions button { border: none; border-radius: 8px; padding: 10px 12px; color: #fff; background: var(--primary); font-weight: 900; cursor: pointer; }
+        .weekly-resource-actions button.secondary { background: var(--reading); }
+        .weekly-resource-preview { min-width: 0; background: #0b1220; display: flex; align-items: stretch; justify-content: center; }
+        .weekly-resource-preview video, .weekly-resource-preview iframe { width: 100%; height: 100%; border: 0; background: #000; }
+        .weekly-resource-empty { margin: auto; color: #cbd5e1; font-weight: 900; text-align: center; padding: 28px; line-height: 1.7; }
 
         .profile-content { padding: 28px 26px 26px 26px; max-width: 680px; width: 90%; max-height: 88vh; overflow-y: auto; text-align: left; }
         .profile-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
@@ -284,6 +295,12 @@
         .admin-login-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
         .admin-hidden { display: none !important; }
         .admin-note { color: var(--text-sub); font-size: 12px; line-height: 1.6; margin-top: 10px; }
+        .admin-note.ok { color: var(--success); font-weight: 900; }
+        .admin-note.warn { color: var(--warning); font-weight: 900; }
+        .admin-file-checklist { display: grid; gap: 8px; max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; background: #f8fafc; }
+        .admin-file-option { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #e5edf5; border-radius: 8px; background: #fff; color: var(--text-main); font-size: 13px; font-weight: 800; line-height: 1.35; }
+        .admin-file-option input { width: auto; flex: 0 0 auto; }
+        .admin-file-option span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .server-records-panel { margin-top: 12px; display: grid; gap: 8px; }
         .server-record-card { border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; padding: 10px 12px; font-size: 13px; line-height: 1.55; color: var(--text-main); }
         .server-record-title { display: flex; justify-content: space-between; gap: 10px; font-weight: 900; }
@@ -346,6 +363,10 @@
         .task-extra-line.share a { color: var(--primary); }
         .share-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; }
         .share-links a { display: block; min-width: 0; padding: 6px 10px; border-radius: 8px; background: #ffffff; border: 1px solid rgba(17,137,235,0.18); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .share-resource-list { display: grid; gap: 10px; padding: 10px 0; }
+        .share-resource-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; width: 100%; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fbff; color: var(--text-main); padding: 14px 16px; font: inherit; font-weight: 900; text-align: left; cursor: pointer; }
+        .share-resource-item:hover { border-color: rgba(17,137,235,0.36); background: #eef7ff; }
+        .share-resource-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .video-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
         .video-links a { display: block; min-width: 0; padding: 6px 10px; border-radius: 8px; background: #ffffff; border: 1px solid rgba(17,137,235,0.18); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .recite-practice-btn { display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; padding: 3px 9px; border-radius: 8px; background: rgba(139, 92, 246, 0.1); color: var(--verse) !important; text-decoration: none !important; font-size: 13px; font-weight: 900; white-space: nowrap; }
@@ -357,6 +378,8 @@
         .recite-tip { margin: 0 0 14px; color: var(--text-sub); font-size: 13px; line-height: 1.6; font-weight: 700; text-align: center; }
         .recite-origin { width: 100%; min-height: 150px; box-sizing: border-box; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; line-height: 1.7; resize: vertical; outline: none; color: var(--text-main); background: #f8fbff; }
         .recite-origin:focus { border-color: var(--primary); background: #fff; }
+        .recite-origin-panel { display: block; }
+        .recite-origin-panel.hidden { display: none; }
         .recite-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 14px 0; }
         .recite-controls label { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; color: var(--text-main); }
         .recite-controls input { width: 74px; padding: 9px 8px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; font-weight: 900; text-align: center; }
@@ -366,7 +389,7 @@
         .recite-blank-input { border: none; border-bottom: 2px solid var(--text-main); font-size: 17px; text-align: center; background: transparent; outline: none; margin: 0 4px; padding: 0 2px; color: var(--text-main); min-width: 50px; max-width: 100%; border-radius: 0; vertical-align: baseline; }
         .recite-blank-input:focus { border-bottom-color: var(--primary); }
         .recite-score { display: none; margin-top: 14px; padding: 16px; border-radius: 8px; background: #eaf4ff; color: var(--text-main); font-size: 17px; font-weight: 900; text-align: center; }
-        .recite-meta-grid { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 12px; margin: 0 0 14px; align-items: end; }
+        .recite-meta-grid { display: grid; grid-template-columns: minmax(140px, 190px) minmax(180px, 1fr); gap: 12px; margin: 0 0 14px; align-items: end; }
         .recite-meta-field { display: grid; gap: 6px; }
         .recite-meta-field label { color: var(--text-sub); font-size: 12px; font-weight: 900; }
         .recite-meta-field select, .recite-meta-field input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; color: var(--text-main); font-size: 14px; font-weight: 900; outline: none; }
@@ -406,6 +429,9 @@
             .hero-task-card .task-row > strong { width: fit-content; justify-content: flex-start; padding-inline: 16px; }
             .share-links { grid-template-columns: 1fr; }
             .video-links { grid-template-columns: 1fr; }
+            .weekly-resource-browser { grid-template-columns: 1fr; height: 78vh; }
+            .weekly-resource-sidebar { border-right: none; border-bottom: 1px solid var(--border-color); }
+            .weekly-resource-preview { min-height: 320px; }
             .recite-meta-grid { grid-template-columns: 1fr; }
             .recite-rank-row { grid-template-columns: 30px minmax(0, 1fr); }
             .recite-rank-score { grid-column: 2; justify-self: start; font-size: 15px; }
@@ -426,9 +452,9 @@
         <div class="header">
             <div class="hero-topline">
                 <div class="hero-copy">
-                    <div class="hero-kicker">DISCIPLE TRAINING CHECK-IN</div>
-                    <h1>黑门甘露</h1>
-                    <p>门训打卡（点击头像可以查看人物月历）</p>
+<div class="hero-kicker" id="hero-kicker">DISCIPLE TRAINING CHECK-IN</div>
+<h1 id="brand-name">黑门甘露</h1>
+<p id="hero-desc">门训打卡（点击头像可以查看人物月历）</p>
                 </div>
                 <div class="hero-actions">
                     <button class="hero-settings hero-feedback" onclick="openFeedbackPanel()" title="&#x53CD;&#x9988;&#x4E0E;&#x5EFA;&#x8BAE;">&#9993; <span>&#x53CD;&#x9988;</span></button>
@@ -507,19 +533,13 @@
                 <div class="stat-number num-video"><span id="video-count">0</span><span id="video-total">/15</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill video" id="video-progress"></div></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon-wrapper icon-verse">💬</div>
-                <div class="stat-title">本周背经</div>
-                <div class="stat-number num-verse"><span id="verse-count">0</span><span id="verse-total">/15</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill verse" id="verse-progress"></div></div>
-            </div>
         </div>
 
         <div id="members-container"></div>
 
         <div class="dash-card">
             <div class="dash-header">
-                <h2 class="dash-title">📊 香柏木数据统计中心</h2>
+                <h2 class="dash-title" id="dash-title">📊 香柏木数据统计中心</h2>
             </div>
             <div class="dash-tabs">
                 <button class="dash-tab-btn active" onclick="switchDashTab('total', this)">🏆 分项总榜</button>
@@ -567,7 +587,7 @@
     <input type="file" id="avatar-upload" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
     <input type="file" id="admin-import-file" accept="application/json,.json" style="display: none;" onchange="importBackupJson(event)">
     <input type="file" id="training-task-import-file" accept=".xls,.xml,application/vnd.ms-excel,text/xml,application/xml" style="display: none;" onchange="importTrainingTasksExcel(event)">
-    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModalFromOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="avatar" style="width:54px; height:54px; margin:0 auto 15px auto; background:var(--success); color:white; font-size:24px; border:none;">✔</div>
             <div style="font-size:22px; font-weight:900;" id="modal-action-title">打卡成功！</div>
@@ -577,7 +597,7 @@
         </div>
     </div>
 
-    <div id="cancel-modal-overlay" class="modal-overlay" onclick="closeCancelModal()">
+    <div id="cancel-modal-overlay" class="modal-overlay" onclick="closeCancelModalFromOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div style="font-size:20px; font-weight:900;">撤销打卡</div>
             <p style="margin:15px 0; font-weight:700; color:var(--text-main);">确定要撤销这条记录吗？</p>
@@ -588,7 +608,7 @@
         </div>
     </div>
 
-    <div id="record-note-overlay" class="modal-overlay" onclick="closeRecordNoteModal()">
+    <div id="record-note-overlay" class="modal-overlay" onclick="closeRecordNoteModalFromOverlay(event)">
         <div class="modal-content record-note-content" onclick="event.stopPropagation()">
             <h2 class="record-note-title">记录一句话</h2>
             <p class="record-note-subtitle">给 <span id="record-note-name"></span> 的 <span id="record-note-type" class="record-note-type"></span> 留一点问题、分享或记忆点。</p>
@@ -600,7 +620,7 @@
         </div>
     </div>
 
-    <div id="reflection-overlay" class="modal-overlay" onclick="closeReflectionPanel()">
+    <div id="reflection-overlay" class="modal-overlay" onclick="closeReflectionPanelFromOverlay(event)">
         <div class="modal-content record-note-content" onclick="event.stopPropagation()">
             <h2 class="record-note-title"><span id="reflection-name">姓名</span>的得着</h2>
             <p class="record-note-subtitle">可以补写问题、分享和记忆点，和当天打卡分开保存。</p>
@@ -623,7 +643,7 @@
         </div>
     </div>
 
-    <div id="feedback-overlay" class="modal-overlay" onclick="closeFeedbackPanel()">
+    <div id="feedback-overlay" class="modal-overlay" onclick="closeFeedbackPanelFromOverlay(event)">
         <div class="modal-content feedback-content" onclick="event.stopPropagation()">
             <h2 class="feedback-title">&#x53CD;&#x9988;&#x4E0E;&#x5EFA;&#x8BAE;</h2>
             <p class="feedback-note">&#x9047;&#x5230;&#x95EE;&#x9898;&#x6216;&#x60F3;&#x8BA9;&#x7F51;&#x7AD9;&#x66F4;&#x597D;&#x7528;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x8FD9;&#x91CC;&#x7559;&#x4E0B;&#x6765;&#x3002;</p>
@@ -647,7 +667,7 @@
         </div>
     </div>
 
-    <div id="profile-overlay" class="modal-overlay" onclick="closeProfile()">
+    <div id="profile-overlay" class="modal-overlay" onclick="closeProfileFromOverlay(event)">
         <div class="modal-content profile-content" onclick="event.stopPropagation()">
             <div class="profile-top">
                 <div>
@@ -677,10 +697,10 @@
         </div>
     </div>
 
-    <div id="admin-overlay" class="modal-overlay" onclick="closeAdminPanel()">
+    <div id="admin-overlay" class="modal-overlay">
         <div class="modal-content admin-content" onclick="event.stopPropagation()">
             <h2 class="admin-title">管理员后台</h2>
-            <p class="admin-subtitle">成员、周任务、同步和导出都在这里维护。当前静态版本的登录用于防误操作，不能替代服务器权限控制。</p>
+            <p class="admin-subtitle">只保留日常需要维护的内容。文件会自动从 config.json 配置的目录扫描，选择后保存即可。</p>
 
             <div id="admin-login-panel" class="admin-login-box">
                 <div class="admin-section">
@@ -700,7 +720,78 @@
             <div id="admin-tools-panel" class="admin-hidden">
                 <div class="admin-actions" style="margin-bottom:18px;">
                     <button class="admin-action-btn secondary" onclick="changeAdminPassword()">修改管理员密码</button>
+                    <button class="admin-action-btn secondary" onclick="refreshAdminFileChoices()">刷新文件列表</button>
                     <button class="admin-action-btn secondary" onclick="adminLogout()">退出后台</button>
+                </div>
+                <div id="admin-save-status" class="admin-note">保存后会写入服务器 config.json，并自动生成配置备份。</div>
+
+                <div class="admin-section">
+                    <h3>站点信息</h3>
+                    <div class="admin-field-grid">
+                        <div class="admin-field">
+                            <label for="admin-site-title">浏览器标题</label>
+                            <input id="admin-site-title" type="text">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-brand-name">首页标题</label>
+                            <input id="admin-brand-name" type="text">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-hero-kicker">顶部小标题</label>
+                            <input id="admin-hero-kicker" type="text">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-dashboard-title">统计标题</label>
+                            <input id="admin-dashboard-title" type="text">
+                        </div>
+                        <div class="admin-field full">
+                            <label for="admin-hero-desc">首页说明</label>
+                            <input id="admin-hero-desc" type="text">
+                        </div>
+                    </div>
+                    <div class="admin-actions" style="margin-top:12px;">
+                        <button class="admin-action-btn" onclick="saveConfigFromAdmin()">保存站点信息</button>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>任务文件</h3>
+                    <div class="admin-field-grid">
+                        <div class="admin-field">
+                            <label for="admin-daily-label">每日任务名称</label>
+                            <input id="admin-daily-label" type="text">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-daily-path">每日任务文件</label>
+                            <select id="admin-daily-path"></select>
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-weekly-label">周任务名称</label>
+                            <input id="admin-weekly-label" type="text">
+                        </div>
+                        <div class="admin-field">
+                            <label for="admin-weekly-path">周读物文件</label>
+                            <select id="admin-weekly-path"></select>
+                        </div>
+                        <div class="admin-field full">
+                            <label for="admin-share-label">分享区名称</label>
+                            <input id="admin-share-label" type="text">
+                        </div>
+                    </div>
+                    <div class="admin-actions" style="margin-top:12px;">
+                        <button class="admin-action-btn" onclick="saveConfigFromAdmin()">保存任务文件</button>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>资料分享</h3>
+                    <div id="admin-share-files" class="admin-file-checklist">
+                        <div class="admin-note">正在读取资料文件...</div>
+                    </div>
+                    <div class="admin-actions" style="margin-top:12px;">
+                        <button class="admin-action-btn" onclick="saveConfigFromAdmin()">保存资料分享</button>
+                    </div>
+                    <div class="admin-note">文件来自 config.json 中的资料分享目录，勾选后会写入 config.json。</div>
                 </div>
 
                 <div class="admin-section">
@@ -733,11 +824,11 @@
                             <input id="admin-week-title" type="text" placeholder="例如：《基督是一切》马太福音">
                         </div>
                         <div class="admin-field">
-                            <label for="admin-week-video">视频标题</label>
-                            <input id="admin-week-video" type="text" placeholder="视频名称">
+                            <label for="admin-week-video">视频文件</label>
+                            <select id="admin-week-video"></select>
                         </div>
                         <div class="admin-field">
-                            <label for="admin-week-verse">背经范围</label>
+                            <label for="admin-week-verse">默写经文</label>
                             <input id="admin-week-verse" type="text" placeholder="例如：罗马书 8:1-5">
                         </div>
                         <div class="admin-field full">
@@ -745,16 +836,8 @@
                             <textarea id="admin-week-recite-text" rows="5" placeholder="粘贴本周要默写的经文原文。留空时，前台仍可临时粘贴。"></textarea>
                         </div>
                         <div class="admin-field full">
-                            <label for="admin-week-url">视频地址</label>
-                            <input id="admin-week-url" type="url" placeholder="https:// 或 http://">
-                        </div>
-                        <div class="admin-field full">
-                            <label for="admin-week-videos">多个视频（每行：标题 | 地址）</label>
-                            <textarea id="admin-week-videos" rows="5" placeholder="新约圣经-01-圣经引言(上) | https://.../L1.mp4&#10;新约圣经-02-圣经引言(下) | https://.../L2.mp4"></textarea>
-                        </div>
-                        <div class="admin-field full">
-                            <label for="admin-week-outline-image">提纲背诵图片地址</label>
-                            <input id="admin-week-outline-image" type="text" placeholder="例如：recite1.jpg 或 https://...">
+                            <label for="admin-week-outline-image">提纲背诵图片</label>
+                            <select id="admin-week-outline-image"></select>
                         </div>
                     </div>
                     <div class="admin-actions" style="margin-top:12px;">
@@ -800,12 +883,12 @@
                     </div>
                 </div>
 
-                <button class="btn-close-modal" onclick="closeAdminPanel()">关闭</button>
+                <button class="btn-close-modal" onclick="adminLogout()">退出后台</button>
             </div>
         </div>
     </div>
 
-    <div id="reading-overlay" class="modal-overlay" onclick="closeReading()">
+    <div id="reading-overlay" class="modal-overlay" onclick="closeReadingFromOverlay(event)">
         <div class="modal-content reading-modal" onclick="event.stopPropagation()">
             <div class="reading-header">
                 <h2 id="reading-title">加载中...</h2>
@@ -820,25 +903,27 @@
         </div>
     </div>
 
-    <div id="recite-overlay" class="modal-overlay" onclick="closeReciteExam()">
+    <div id="recite-overlay" class="modal-overlay" onclick="closeReciteExamFromOverlay(event)">
         <div class="modal-content recite-modal" onclick="event.stopPropagation()">
             <div class="reading-header">
-                <h2 id="recite-title">背经默写</h2>
+                <h2 id="recite-title">默写测试</h2>
                 <button class="btn-close-reading" onclick="closeReciteExam()">✕</button>
             </div>
             <div class="recite-body">
-                <p class="recite-tip">先确认默写原文，再生成挖空练习。标点和章节号不会挖空；批改后点击错题可切换查看答案。</p>
+                <p class="recite-tip">选择默写经文后可直接生成练习；经文原文来自 config.json 或管理员周任务配置。</p>
                 <div class="recite-meta-grid">
                     <div class="recite-meta-field">
                         <label for="recite-member-select">测试人</label>
                         <select id="recite-member-select"></select>
                     </div>
                     <div class="recite-meta-field">
-                        <label for="recite-scope-display">测试范围</label>
-                        <input id="recite-scope-display" type="text" readonly>
+                        <label for="recite-ref-select">默写经文</label>
+                        <select id="recite-ref-select" onchange="handleReciteRefChange()"></select>
                     </div>
                 </div>
-                <textarea id="recite-origin-text" class="recite-origin" placeholder="粘贴要默写的原文，或在管理员周任务里配置“默写原文”。"></textarea>
+                <div id="recite-origin-panel" class="recite-origin-panel">
+                    <textarea id="recite-origin-text" class="recite-origin" placeholder="粘贴要默写的原文，或在管理员周任务里配置“默写原文”。"></textarea>
+                </div>
                 <div class="recite-controls">
                     <label>挖空比例 <input type="number" id="recite-blank-percent" value="50" min="10" max="100">%</label>
                     <button type="button" onclick="createReciteBlank()">生成默写卷</button>
@@ -850,7 +935,7 @@
                 <div class="recite-leaderboard">
                     <div class="recite-leaderboard-head">
                         <h3 class="recite-leaderboard-title">默写排行榜</h3>
-                        <div class="recite-leaderboard-rule">排行分 = 最高表现 82% + 平均表现 10% + 参与奖励（最多 8 分）</div>
+                        <div class="recite-leaderboard-rule">分数 = 正确率 × 挖空率</div>
                     </div>
                     <div id="recite-leaderboard-list" class="recite-leaderboard-list">
                         <div class="recite-empty">还没有默写记录。</div>
@@ -860,17 +945,19 @@
         </div>
     </div>
 
-    <div id="video-overlay" class="video-modal-overlay" onclick="closeVideo()">
+    <div id="video-overlay" class="video-modal-overlay" onclick="closeVideoFromOverlay(event)">
         <div class="video-modal-content" onclick="event.stopPropagation()">
             <div class="video-modal-header">
                 <h2 id="video-modal-title">视频播放</h2>
                 <button class="btn-close-video" onclick="closeVideo()">✕</button>
             </div>
-            <div class="video-player-container">
-                <video id="main-video-player" controls playsinline preload="metadata">
-                    <source src="" type="video/mp4">
-                    您的浏览器不支持视频播放。
-                </video>
+            <div id="video-modal-body">
+                <div class="video-player-container">
+                    <video id="main-video-player" controls playsinline preload="metadata">
+                        <source src="" type="video/mp4">
+                        您的浏览器不支持视频播放。
+                    </video>
+                </div>
             </div>
         </div>
     </div>
@@ -895,52 +982,39 @@
             }
             return [...new Set(bases)];
         })();
-        const DEFAULT_MEMBERS = ["顺丞", "信择", "明明", "亮亮", "杰涛", "嘉杰", "银华", "青青", "依萱", "喜悦", "胡蜜", "馨香", "虹伊", "刘欣", "义路"]; 
-        let MEMBERS = loadMembersConfig();
-        let TOTAL_MEMBERS = MEMBERS.length;
-        const DEFAULT_CLASS_REP_SHARES = [
-            { title: "圣经纵览的目的与价值", url: "/圣经纵览的目的与价值.pdf" },
-            { title: "圣经引言（上）内容概要", url: "/圣经引言（上）内容概要.pdf" },
-            { title: "圣经引言（下）内容概要", url: "/圣经引言（下）内容概要.pdf" }
-        ];
+        const EMPTY_SITE_CONFIG = {
+            site_info: {},
+            members: [],
+            class_rep_shares: [],
+            weekly_schedule: [],
+            task_sections: {},
+            mounted_files: {}
+        };
+        let SITE_CONFIG = { ...EMPTY_SITE_CONFIG };
+        let MEMBERS = [];
+        let TOTAL_MEMBERS = 0;
+        const DEFAULT_CLASS_REP_SHARES = [];
+        let WEEKLY_SCHEDULE = [];
 
-        const DEFAULT_WEEKLY_SCHEDULE = [
-            { start: "2026-04-06", end: "2026-04-12", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-01-211209-圣经引言(上)", verse: "罗马书 7:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L1.mp4" },
-            { start: "2026-04-13", end: "2026-04-19", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-02-190307-圣经引言(下)", verse: "罗马书 7:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L2.mp4" },
-            { start: "2026-04-20", end: "2026-04-26", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-03-220120-马太福音(上)", verse: "罗马书 7:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L3.mp4" },
-            { start: "2026-04-27", end: "2026-05-03", title: "《基督是一切》马太福音：基督是我们的王", video: "新约圣经-04-220120-马太福音(下)", verse: "罗马书 7:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L4.mp4" },
-            { start: "2026-05-04", end: "2026-05-10", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-07-220714-马可福音(上)", verse: "罗马书 7:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L5.mp4", outlineImage: "recite1.jpg" },
-            { start: "2026-05-11", end: "2026-05-17", title: "《基督是一切》基督是神的仆人--马可福音", video: "新约圣经-08-220714-马可福音(下)", verse: "罗马书 8:1-5", url: "http://nas.restinhim.online:5777/Newtestament/L6.mp4" },
-            { start: "2026-05-18", end: "2026-05-24", title: "《基督是一切》基督是人子--路加福音", video: "新约圣经-09-220818-路加福音(上)", verse: "罗马书 8:6-10", url: "http://nas.restinhim.online:5777/Newtestament/L7.mp4" },
-            { start: "2026-05-25", end: "2026-05-31", title: "《基督是一切》基督是人子--路加福音", video: "新约圣经-10-220818-路加福音(下)", verse: "罗马书 8:11-15", url: "http://nas.restinhim.online:5777/Newtestament/L8.mp4" },
-            { start: "2026-06-01", end: "2026-06-07", title: "《基督是一切》基督是神的儿子--约翰福音", video: "新约圣经-11-220901-约翰福音(上)", verse: "罗马书 8:16-20", url: "http://nas.restinhim.online:5777/Newtestament/L9.mp4" },
-            { start: "2026-06-08", end: "2026-06-14", title: "《基督是一切》基督是神的儿子--约翰福音", video: "新约圣经-12-220901-约翰福音(下)", verse: "罗马书 8:21-25", url: "http://nas.restinhim.online:5777/Newtestament/L10.mp4" }
-        ];
-        let WEEKLY_SCHEDULE = loadWeeklySchedule();
 
         let viewingDate = new Date(), profileMonthDate = new Date(), datePickerMonthDate = new Date(), globalRecords = [], currentProfileName = "", pendingCancel = null, pendingCheckin = null, currentReflectionName = "";
         let adminAuthenticated = false;
         let mdCache = { daily: null, weekly: null }; 
+        let weeklyAssetsCache = null;
+        let adminAssetsCache = null;
         
         function getRealToday() { return new Date(); }
         const fontStackQuotes = `"Noto Serif SC", "Kaiti SC", STKaiti, "Songti SC", FangSong, STFangsong, serif`;
         let chartInstances = {};
 
-        function loadMembersConfig() {
-            try {
-                const saved = JSON.parse(localStorage.getItem('keda_members') || 'null');
-                if (Array.isArray(saved)) {
-                    const cleaned = [...new Set(saved.map(name => String(name).trim()).filter(Boolean))];
-                    if (cleaned.length > 0) return cleaned;
-                }
-            } catch(e) {}
-            return [...DEFAULT_MEMBERS];
-        }
+function loadMembersConfig() {
+    return SITE_CONFIG.members || [];
+}
+
 
         function persistMembersConfig() {
             MEMBERS = [...new Set(MEMBERS.map(name => String(name).trim()).filter(Boolean))];
             TOTAL_MEMBERS = MEMBERS.length || 1;
-            localStorage.setItem('keda_members', JSON.stringify(MEMBERS));
             renderMembers();
             resetButtons();
             renderStatus();
@@ -961,10 +1035,43 @@
             return url ? { title, url } : null;
         }
 
-        function normalizeClassRepShares(shares) {
-            const source = Array.isArray(shares) && shares.length > 0 ? shares : DEFAULT_CLASS_REP_SHARES;
-            return source.map(normalizeShareItem).filter(Boolean);
+function normalizeClassRepShares(shares) {
+    const source = Array.isArray(shares) && shares.length > 0 ? shares : (SITE_CONFIG.class_rep_shares || []);
+    return source.map(normalizeShareItem).filter(Boolean);
+}
+
+        function getTaskSectionsConfig() {
+            return SITE_CONFIG.task_sections && typeof SITE_CONFIG.task_sections === 'object' ? SITE_CONFIG.task_sections : {};
         }
+
+        function getMountedFilesConfig() {
+            return SITE_CONFIG.mounted_files && typeof SITE_CONFIG.mounted_files === 'object' ? SITE_CONFIG.mounted_files : {};
+        }
+
+        function normalizeMountedFilesConfig(value = {}) {
+            const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+            const defaults = {
+                videos: { label: 'Newtestament 视频', dir: 'Newtestament', publicPath: '/Newtestament', extensions: ['.mp4', '.webm', '.mov', '.m4v'] },
+                passages: { label: 'Passage PDF', dir: 'Passage', publicPath: '/Passage', extensions: ['.pdf'] },
+                handouts: { label: '讲义 PDF', dir: 'PPT', publicPath: '/PPT', extensions: ['.pdf'] },
+                shares: { label: '资料分享 PDF', dir: 'Mentor', publicPath: '/Mentor', extensions: ['.pdf'] },
+                outlines: { label: '提纲图片', dir: '.', publicPath: '', extensions: ['.jpg', '.jpeg', '.png', '.webp'] },
+                documents: { label: 'Markdown 文件', dir: '.', publicPath: '', extensions: ['.md'] }
+            };
+            return Object.fromEntries(Object.entries(defaults).map(([key, item]) => {
+                const current = source[key] && typeof source[key] === 'object' ? source[key] : {};
+                const extensions = Array.isArray(current.extensions) ? current.extensions : String(current.extensions || item.extensions.join(',')).split(',');
+                return [key, {
+                    ...item,
+                    ...current,
+                    label: String(current.label || item.label).trim(),
+                    dir: String(current.dir || item.dir).trim(),
+                    publicPath: String(current.publicPath || current.public_path || item.publicPath).trim(),
+                    extensions: extensions.map(ext => String(ext).trim()).filter(Boolean).map(ext => ext.startsWith('.') ? ext : `.${ext}`)
+                }];
+            }));
+        }
+
 
         function normalizeVideoItem(item) {
             if (typeof item === 'string') {
@@ -1015,22 +1122,71 @@
             };
         }
 
-        function loadWeeklySchedule() {
+function loadWeeklySchedule() {
+    return (SITE_CONFIG.weekly_schedule || []).map(normalizeWeekPlan);
+}
+
+        function hasLocalConfig(key) {
             try {
-                const saved = JSON.parse(localStorage.getItem('keda_weekly_schedule') || 'null');
-                if (Array.isArray(saved)) {
-                    const cleaned = saved.map(normalizeWeekPlan).filter(plan => plan.start && plan.end && plan.title);
-                    if (cleaned.length > 0) return cleaned.sort((a, b) => a.start.localeCompare(b.start));
-                }
-            } catch(e) {}
-            return DEFAULT_WEEKLY_SCHEDULE.map(normalizeWeekPlan);
+                const saved = JSON.parse(localStorage.getItem(key) || 'null');
+                return Array.isArray(saved) && saved.length > 0;
+            } catch(e) {
+                return false;
+            }
         }
+
+        async function fetchJsonWithTimeout(url, timeoutMs = 8000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        function normalizeSiteConfig(config) {
+            const source = config && typeof config === 'object' ? config : {};
+            return {
+                ...EMPTY_SITE_CONFIG,
+                ...source,
+                site_info: source.site_info && typeof source.site_info === 'object' ? source.site_info : {},
+                members: Array.isArray(source.members) ? source.members : [],
+                class_rep_shares: Array.isArray(source.class_rep_shares) ? source.class_rep_shares : [],
+                weekly_schedule: Array.isArray(source.weekly_schedule) ? source.weekly_schedule : [],
+                task_sections: source.task_sections && typeof source.task_sections === 'object' ? source.task_sections : {},
+                mounted_files: normalizeMountedFilesConfig(source.mounted_files)
+            };
+        }
+
+        async function loadSiteConfig() {
+            const candidates = ['/api/config', './config.json'];
+            for (const url of candidates) {
+                try {
+                    return normalizeSiteConfig(await fetchJsonWithTimeout(url));
+                } catch (error) {
+                    console.warn(`Config load failed from ${url}:`, error);
+                }
+            }
+            return normalizeSiteConfig(EMPTY_SITE_CONFIG);
+        }
+
+        function applySiteInfo() {
+            const info = SITE_CONFIG.site_info || {};
+            if (info.title) document.title = info.title;
+            if (info.hero_kicker && document.getElementById('hero-kicker')) document.getElementById('hero-kicker').innerText = info.hero_kicker;
+            if (info.brand_name && document.getElementById('brand-name')) document.getElementById('brand-name').innerText = info.brand_name;
+            if (info.hero_desc && document.getElementById('hero-desc')) document.getElementById('hero-desc').innerText = info.hero_desc;
+            if (info.dashboard_title && document.getElementById('dash-title')) document.getElementById('dash-title').innerText = info.dashboard_title;
+        }
+
 
         function persistWeeklySchedule() {
             WEEKLY_SCHEDULE = WEEKLY_SCHEDULE.map(normalizeWeekPlan)
-                .filter(plan => plan.start && plan.end && plan.title)
+                .filter(plan => plan.start && plan.end)
                 .sort((a, b) => a.start.localeCompare(b.start));
-            localStorage.setItem('keda_weekly_schedule', JSON.stringify(WEEKLY_SCHEDULE));
             updateDateUI();
             resetButtons();
             renderStatus();
@@ -1088,22 +1244,57 @@
         function getRecordNote(record) {
             const direct = record.note || record['分享记录'] || record['文字记录'];
             if (direct) return String(direct).trim();
-            const detail = String(record['打卡详情'] || '');
+            const detail = getRecordDetail(record);
             const match = detail.match(/(?:分享|记录|问题)[:：]\s*([\s\S]+)$/);
             return match ? match[1].trim() : '';
         }
 
         function isReflectionRecord(record) {
-            const detail = String(record['打卡详情'] || '');
-            return record['类型'] === 'reflection' || detail.includes('得着') || detail.includes('感言') || detail.includes('分享');
+            const detail = getRecordDetail(record);
+            return record.kind === 'reflection' || record['类型'] === 'reflection' || detail.includes('得着') || detail.includes('感言') || detail.includes('分享');
         }
 
         function getReflectionPart(record) {
             if (record['部分'] || record.part) return String(record['部分'] || record.part).trim();
-            const detail = String(record['打卡详情'] || '');
+            const detail = getRecordDetail(record);
             const known = ['每日灵修', '周读物', '周视频', '周背经', '其他'];
             return known.find(part => detail.includes(part)) || '其他';
         }
+
+        function getRecordName(record) {
+            return String(record.name || record['姓名'] || '').trim();
+        }
+
+        function getRecordTime(record) {
+            return record.checkin_time || record['打卡时间'] || '';
+        }
+
+        function getRecordDetail(record) {
+            return String(record.detail || record['打卡详情'] || '');
+        }
+
+        function isDoneValue(value) {
+            return value === 'done' || value === '已完成';
+        }
+
+        function isRecordDone(record, key, chineseKey) {
+            return isDoneValue(record[key]) || isDoneValue(record[chineseKey]);
+        }
+
+        function closeFromOverlay(event, closeFn) {
+            if (event.target === event.currentTarget) closeFn();
+        }
+
+        function closeModalFromOverlay(event) { closeFromOverlay(event, closeModal); }
+        function closeCancelModalFromOverlay(event) { closeFromOverlay(event, closeCancelModal); }
+        function closeRecordNoteModalFromOverlay(event) { closeFromOverlay(event, closeRecordNoteModal); }
+        function closeReflectionPanelFromOverlay(event) { closeFromOverlay(event, closeReflectionPanel); }
+        function closeFeedbackPanelFromOverlay(event) { closeFromOverlay(event, closeFeedbackPanel); }
+        function closeProfileFromOverlay(event) { closeFromOverlay(event, closeProfile); }
+        function closeAdminPanelFromOverlay(event) { closeFromOverlay(event, closeAdminPanel); }
+        function closeReadingFromOverlay(event) { closeFromOverlay(event, closeReading); }
+        function closeReciteExamFromOverlay(event) { closeFromOverlay(event, closeReciteExam); }
+        function closeVideoFromOverlay(event) { closeFromOverlay(event, closeVideo); }
 
         function csvCell(value) {
             const text = value == null ? '' : String(value);
@@ -1166,24 +1357,27 @@
             if (/^\d{4}-\d{2}-\d{2}$/.test(explicitDate)) return explicitDate;
             if (/^\d{4}-\d{2}-\d{2}/.test(explicitDate)) return explicitDate.slice(0, 10);
 
-            if (r['打卡详情']) {
-                let match = r['打卡详情'].match(/(\d+)月(\d+)日/);
+            const detail = getRecordDetail(r);
+            if (detail) {
+                let match = detail.match(/(\d+)月(\d+)日/);
                 if (match) {
                     let y = new Date().getFullYear();
-                    if (r['打卡时间']) {
-                        let d = new Date(r['打卡时间']);
+                    const recordTime = getRecordTime(r);
+                    if (recordTime) {
+                        let d = new Date(recordTime);
                         if (!isNaN(d)) y = d.getFullYear();
                     }
                     return `${y}-${String(match[1]).padStart(2, '0')}-${String(match[2]).padStart(2, '0')}`;
                 }
             }
-            if (!r['打卡时间']) return "";
+            const recordTime = getRecordTime(r);
+            if (!recordTime) return "";
             try {
-                if (/^\d{4}-\d{2}-\d{2}$/.test(String(r['打卡时间']).trim())) return String(r['打卡时间']).trim();
-                let d = new Date(r['打卡时间']);
+                if (/^\d{4}-\d{2}-\d{2}$/.test(String(recordTime).trim())) return String(recordTime).trim();
+                let d = new Date(recordTime);
                 if (!isNaN(d)) return getSafeDateString(d); 
             } catch(e) {}
-            return r['打卡时间'].substring(0, 10);
+            return String(recordTime).substring(0, 10);
         }
 
         function toChineseNum(num) { const chars = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十']; if (num <= 10) return chars[num]; if (num < 20) return '十' + (num % 10 === 0 ? '' : chars[num % 10]); if (num < 100) return chars[Math.floor(num / 10)] + '十' + (num % 10 === 0 ? '' : chars[num % 10]); return num; }
@@ -1196,18 +1390,191 @@
             return matchScore >= 4;
         }
 
-        function openVideo(url, title) {
-            let cleanTitle = title.split('211209-')[1] || title; 
+        function renderVideoPlayer(url, title, autoplay = true) {
+            const cleanTitle = String(title || '视频播放').split('211209-')[1] || String(title || '视频播放');
             document.getElementById('video-modal-title').innerText = cleanTitle;
-            const player = document.getElementById('main-video-player'); player.src = url;
+            const bodyEl = document.getElementById('video-modal-body');
+            bodyEl.innerHTML = `
+                <div class="video-player-container">
+                    <video id="main-video-player" controls playsinline preload="metadata">
+                        <source src="${escapeHtml(url)}" type="video/mp4">
+                        您的浏览器不支持视频播放。
+                    </video>
+                </div>
+            `;
             document.getElementById('video-overlay').classList.add('show');
+            const player = document.getElementById('main-video-player');
+            if (autoplay) player.play().catch(e => console.log("Autoplay prevented:", e));
+        }
+
+        function openVideo(url, title) {
+            renderVideoPlayer(url, title, true);
+        }
+
+        function closeVideo() {
+            const player = document.getElementById('main-video-player');
+            if (player) {
+                player.pause();
+                player.removeAttribute('src');
+                player.load();
+            }
+            document.getElementById('video-overlay').classList.remove('show');
+        }
+
+        async function getWeeklyAssets() {
+            if (weeklyAssetsCache) return weeklyAssetsCache;
+            try {
+                const assets = await apiRequest('/weekly-assets');
+                weeklyAssetsCache = {
+                    videos: Array.isArray(assets.videos) ? assets.videos : [],
+                    passages: Array.isArray(assets.passages) ? assets.passages : [],
+                    handouts: Array.isArray(assets.handouts) ? assets.handouts : [],
+                    shares: Array.isArray(assets.shares) ? assets.shares : [],
+                    outlines: Array.isArray(assets.outlines) ? assets.outlines : [],
+                    documents: Array.isArray(assets.documents) ? assets.documents : [],
+                    mountedFiles: assets.mountedFiles || getMountedFilesConfig()
+                };
+            } catch (error) {
+                weeklyAssetsCache = { videos: [], passages: [], handouts: [], shares: [], outlines: [], documents: [], mountedFiles: getMountedFilesConfig() };
+            }
+            return weeklyAssetsCache;
+        }
+
+        function buildAssetOptions(items, emptyLabel, selectedUrl = '') {
+            if (!items.length) return `<option value="">${escapeHtml(emptyLabel)}</option>`;
+            return items.map(item => {
+                const url = item.url || '';
+                const title = item.title || item.filename || url;
+                const selected = url === selectedUrl ? ' selected' : '';
+                return `<option value="${escapeHtml(url)}" data-title="${escapeHtml(title)}"${selected}>${escapeHtml(title)}</option>`;
+            }).join('');
+        }
+
+        function normalizeAssetText(value) {
+            return String(value || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
+        }
+
+        function getAssetMatchKeys(value) {
+            const raw = String(value || '');
+            const normalized = normalizeAssetText(raw);
+            const keys = normalized ? [normalized] : [];
+            const topicMatch = raw.match(/([\u4e00-\u9fa5]{2,12})\s*[（(]\s*([上下中1234一二三四]+)\s*[）)]/);
+            if (topicMatch) keys.unshift(normalizeAssetText(`${topicMatch[1]}${topicMatch[2]}`));
+            const lessonMatch = raw.match(/新约圣经\s*[-_－—]?\s*0*(\d{1,2})/);
+            if (lessonMatch) keys.push(`新约圣经${lessonMatch[1].padStart(2, '0')}`.toLowerCase());
+            return keys;
+        }
+
+        function findPreferredAsset(items, plan, preferredText = '') {
+            const keys = [preferredText, plan?.video, plan?.url, plan?.title].flatMap(getAssetMatchKeys).filter(Boolean);
+            const strongKeys = keys.filter(key => !/^新约圣经\d{2}$/.test(key));
+            const lessonKeys = keys.filter(key => /^新约圣经\d{2}$/.test(key));
+            return items.find(item => {
+                const haystack = normalizeAssetText(`${item.title || ''}${item.filename || ''}${item.url || ''}`);
+                return strongKeys.some(key => key.length >= 3 && haystack.includes(key));
+            }) || items.find(item => {
+                const haystack = normalizeAssetText(`${item.title || ''}${item.filename || ''}${item.url || ''}`);
+                return lessonKeys.some(key => haystack.includes(key));
+            }) || items[0] || null;
+        }
+
+        function getSelectedAsset(selectId) {
+            const select = document.getElementById(selectId);
+            if (!select || !select.value) return null;
+            const option = select.selectedOptions?.[0];
+            return {
+                url: select.value,
+                title: option?.dataset?.title || option?.textContent || select.value
+            };
+        }
+
+        function previewWeeklyAsset(type) {
+            const selectMap = {
+                video: 'weekly-video-choice',
+                passage: 'weekly-passage-choice',
+                handout: 'weekly-handout-choice'
+            };
+            const asset = getSelectedAsset(selectMap[type] || 'weekly-video-choice');
+            const previewEl = document.getElementById('weekly-resource-preview');
+            if (!asset || !previewEl) return;
+            document.getElementById('video-modal-title').innerText = asset.title;
+            if (type === 'passage' || type === 'handout') {
+                previewEl.innerHTML = `<iframe src="${escapeHtml(asset.url)}#view=FitH" title="${escapeHtml(asset.title)}"></iframe>`;
+                return;
+            }
+            previewEl.innerHTML = `
+                <video id="main-video-player" controls playsinline preload="metadata">
+                    <source src="${escapeHtml(asset.url)}" type="video/mp4">
+                    您的浏览器不支持视频播放。
+                </video>
+            `;
+            const player = document.getElementById('main-video-player');
             player.play().catch(e => console.log("Autoplay prevented:", e));
         }
-        function closeVideo() { const player = document.getElementById('main-video-player'); player.pause(); player.src = ""; document.getElementById('video-overlay').classList.remove('show'); }
+
+        async function openWeeklyResourceBrowser(plan = {}, preferredText = '') {
+            document.getElementById('video-modal-title').innerText = '周任务资料';
+            document.getElementById('video-overlay').classList.add('show');
+            const bodyEl = document.getElementById('video-modal-body');
+            bodyEl.innerHTML = `<div class="weekly-resource-browser"><div class="weekly-resource-empty">正在加载资料...</div></div>`;
+            const assets = await getWeeklyAssets();
+            const preferredVideo = findPreferredAsset(assets.videos, plan, preferredText);
+            const preferredPassage = findPreferredAsset(assets.passages, plan, preferredText);
+            const preferredHandout = findPreferredAsset(assets.handouts, plan, preferredText);
+            const mountedLabels = normalizeMountedFilesConfig(assets.mountedFiles);
+
+            bodyEl.innerHTML = `
+                <div class="weekly-resource-browser">
+                    <div class="weekly-resource-sidebar">
+                        <div class="weekly-resource-group">
+                            <label class="weekly-resource-label" for="weekly-video-choice">${escapeHtml(mountedLabels.videos.label)}</label>
+                            <select id="weekly-video-choice" class="weekly-resource-select">
+                                ${buildAssetOptions(assets.videos, '暂无视频', preferredVideo?.url || '')}
+                            </select>
+                            <div class="weekly-resource-actions">
+                                <button onclick="previewWeeklyAsset('video')">观看</button>
+                                <button class="secondary" onclick="window.open(document.getElementById('weekly-video-choice').value, '_blank')">新窗口</button>
+                            </div>
+                        </div>
+                        <div class="weekly-resource-group">
+                            <label class="weekly-resource-label" for="weekly-passage-choice">${escapeHtml(mountedLabels.passages.label)}</label>
+                            <select id="weekly-passage-choice" class="weekly-resource-select">
+                                ${buildAssetOptions(assets.passages, '暂无 PDF', preferredPassage?.url || '')}
+                            </select>
+                            <div class="weekly-resource-actions">
+                                <button onclick="previewWeeklyAsset('passage')">查看</button>
+                                <button class="secondary" onclick="window.open(document.getElementById('weekly-passage-choice').value, '_blank')">新窗口</button>
+                            </div>
+                        </div>
+                        <div class="weekly-resource-group">
+                            <label class="weekly-resource-label" for="weekly-handout-choice">${escapeHtml(mountedLabels.handouts.label)}</label>
+                            <select id="weekly-handout-choice" class="weekly-resource-select">
+                                ${buildAssetOptions(assets.handouts, '暂无讲义', preferredHandout?.url || '')}
+                            </select>
+                            <div class="weekly-resource-actions">
+                                <button onclick="previewWeeklyAsset('handout')">查看</button>
+                                <button class="secondary" onclick="window.open(document.getElementById('weekly-handout-choice').value, '_blank')">新窗口</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="weekly-resource-preview" class="weekly-resource-preview">
+                        <div class="weekly-resource-empty">选择左侧资料查看</div>
+                    </div>
+                </div>
+            `;
+
+            if (preferredVideo) previewWeeklyAsset('video');
+            else if (preferredPassage) previewWeeklyAsset('passage');
+            else if (preferredHandout) previewWeeklyAsset('handout');
+        }
+
+        function openCurrentWeeklyResourceBrowser(preferredText = '') {
+            openWeeklyResourceBrowser(getWeekPlanForDate(getSafeDateString(viewingDate)), preferredText);
+        }
 
         async function openScriptureOnline(refStr) {
             refStr = extractScriptureReference(refStr);
-            document.getElementById('reading-title').innerText = `背经 | ${refStr}`;
+            document.getElementById('reading-title').innerText = `默写任务 | ${refStr}`;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
             bodyEl.innerHTML = `<div style="text-align:center; padding: 40px 0;"><div style="font-size:30px; margin-bottom:15px; animation: flowingWatermark 1.5s infinite;">⏳</div>正在加载经文...</div>`;
@@ -1232,6 +1599,31 @@
             bodyEl.innerHTML = `<div class="outline-image-wrap"><img class="outline-image" src="${escapeHtml(cleanUrl)}" alt="提纲背诵" onerror="this.closest('.outline-image-wrap').innerHTML='<div style=&quot;text-align:center; color:var(--warning); font-weight:900;&quot;>图片加载失败，请检查图片地址。</div>'"></div>`;
         }
 
+        function getCurrentClassRepShares() {
+            return normalizeClassRepShares(SITE_CONFIG.class_rep_shares);
+        }
+
+        function openClassRepShareBrowser() {
+            const shares = getCurrentClassRepShares();
+            document.getElementById('reading-title').innerText = '资料分享';
+            document.getElementById('reading-overlay').classList.add('show');
+            const bodyEl = document.getElementById('reading-body');
+            if (!shares.length) {
+                bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📄</span><br><br><strong>还没有配置分享文件。</strong></div>`;
+                return;
+            }
+            bodyEl.innerHTML = `
+                <div class="share-resource-list">
+                    ${shares.map(item => `
+                        <button type="button" class="share-resource-item" onclick="openClassRepShare('${escapeJs(item.url)}', '${escapeJs(item.title)}')">
+                            <span>📄</span>
+                            <span class="share-resource-title">${escapeHtml(item.title)}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
         function openClassRepShare(pdfUrl, title = '课代表分享') {
             const cleanUrl = String(pdfUrl || '').trim();
             document.getElementById('reading-title').innerText = title;
@@ -1245,7 +1637,7 @@
             bodyEl.innerHTML = `
                 <iframe class="pdf-frame" src="${safeUrl}#view=FitH" title="${escapeHtml(title)}"></iframe>
                 <div style="text-align:center; margin-top:12px;">
-                    <a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:900;">在新窗口打开 PDF</a>
+                    <a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:900;">在新窗口打开文件</a>
                 </div>
             `;
         }
@@ -1270,6 +1662,63 @@
             return WEEKLY_SCHEDULE.find(plan => dateStr >= plan.start && dateStr <= plan.end) || WEEKLY_SCHEDULE[0] || {};
         }
 
+        function getReciteOptions() {
+            return WEEKLY_SCHEDULE
+                .map((plan, index) => ({
+                    index,
+                    ref: String(plan.verse || '').trim(),
+                    reciteText: String(plan.reciteText || '').trim(),
+                    weekStart: plan.start || '',
+                    weekEnd: plan.end || ''
+                }))
+                .filter(item => item.ref);
+        }
+
+        function populateReciteRefSelect(preferredRef = '', preferredWeekStart = '') {
+            const select = document.getElementById('recite-ref-select');
+            if (!select) return null;
+            const options = getReciteOptions();
+            select.innerHTML = options.map(item => {
+                const label = `${item.ref}${item.weekStart ? `｜${item.weekStart}` : ''}`;
+                return `<option value="${item.index}">${escapeHtml(label)}</option>`;
+            }).join('');
+            if (!options.length) {
+                select.innerHTML = '<option value="">暂无默写经文</option>';
+                return null;
+            }
+            const selected = options.find(item => item.ref === preferredRef && (!preferredWeekStart || item.weekStart === preferredWeekStart))
+                || options.find(item => item.ref === preferredRef)
+                || options.find(item => preferredWeekStart && item.weekStart === preferredWeekStart)
+                || options[0];
+            select.value = String(selected.index);
+            return selected;
+        }
+
+        function getSelectedReciteOption() {
+            const select = document.getElementById('recite-ref-select');
+            const index = Number(select?.value);
+            return getReciteOptions().find(item => item.index === index) || null;
+        }
+
+        function applyReciteOption(option, overrideText = '') {
+            if (!option) return;
+            reciteCurrentContext = {
+                ref: option.ref || '本周默写',
+                weekStart: option.weekStart || '',
+                weekEnd: option.weekEnd || '',
+                logicalDate: getSafeDateString(viewingDate)
+            };
+            document.getElementById('recite-title').innerText = `默写测试 | ${reciteCurrentContext.ref}`;
+            document.getElementById('recite-origin-text').value = String(overrideText || option.reciteText || '').trim();
+            document.getElementById('recite-origin-panel')?.classList.remove('hidden');
+            resetReciteExam(false);
+            refreshReciteLeaderboard();
+        }
+
+        function handleReciteRefChange() {
+            applyReciteOption(getSelectedReciteOption());
+        }
+
         function populateReciteMemberSelect() {
             const select = document.getElementById('recite-member-select');
             if (!select) return;
@@ -1283,39 +1732,45 @@
             return globalRecords.filter(record => record['类型'] === 'recite_exam');
         }
 
+        function calculateReciteScore(correctCount, blankCount, blankPercent) {
+            const accuracy = blankCount > 0 ? correctCount / blankCount : 0;
+            return Math.round(accuracy * blankPercent);
+        }
+
         function getClientReciteMetrics(record) {
             const blankPercent = Math.max(10, Math.min(100, Math.round(Number(record['默写挖空率'] || 50))));
-            const score = Math.max(0, Math.min(blankPercent, Number(record['默写分数'] || 0)));
             const blankCount = Math.max(0, Number(record['默写空数'] || 0));
             const correctCount = Math.max(0, Number(record['默写正确数'] || 0));
-            const accuracy = blankCount > 0 ? Math.round((correctCount / blankCount) * 100) : Math.round(blankPercent > 0 ? (score / blankPercent) * 100 : 0);
-            const weighted = Math.round((accuracy * 0.7 + blankPercent * 0.3) * 10) / 10;
-            return { blankPercent, score, blankCount, correctCount, accuracy, weighted };
+            const accuracy = blankCount > 0 ? Math.round((correctCount / blankCount) * 100) : 0;
+            const score = calculateReciteScore(correctCount, blankCount, blankPercent);
+            return { blankPercent, score, blankCount, correctCount, accuracy };
         }
 
         function buildClientReciteLeaderboard() {
             const groups = {};
             getClientReciteRecords().forEach(record => {
-                if (record['默写经文'] !== reciteCurrentContext.ref) return;
-                if (reciteCurrentContext.weekStart && record['默写周开始'] !== reciteCurrentContext.weekStart) return;
-                const name = record['姓名'];
+                const name = getRecordName(record);
                 if (!name) return;
+                const ref = record['默写经文'] || '';
                 const item = {
                     name,
-                    createdAt: record['打卡时间'] || '',
+                    ref,
+                    createdAt: getRecordTime(record),
                     attemptNo: Number(record['默写次数'] || 1),
                     ...getClientReciteMetrics(record)
                 };
-                if (!groups[name]) groups[name] = [];
-                groups[name].push(item);
+                const groupKey = `${name}||${ref}`;
+                if (!groups[groupKey]) groups[groupKey] = [];
+                groups[groupKey].push(item);
             });
-            return Object.entries(groups).map(([name, attempts]) => {
+            return Object.values(groups).map((attempts) => {
                 attempts.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-                const best = attempts.reduce((winner, item) => (!winner || item.weighted > winner.weighted || (item.weighted === winner.weighted && item.blankPercent > winner.blankPercent)) ? item : winner, null);
-                const avgWeighted = attempts.reduce((sum, item) => sum + item.weighted, 0) / attempts.length;
+                const name = attempts[0]?.name || '';
+                const ref = attempts[0]?.ref || '';
+                const best = attempts.reduce((winner, item) => (!winner || item.score > winner.score || (item.score === winner.score && item.blankPercent > winner.blankPercent)) ? item : winner, null);
                 const avgAccuracy = attempts.reduce((sum, item) => sum + item.accuracy, 0) / attempts.length;
-                const rankScore = Math.round(Math.min(100, best.weighted * 0.82 + avgWeighted * 0.10 + Math.min(8, attempts.length * 2)));
-                return { name, rankScore, attempts: attempts.length, bestScore: best.score, bestBlankPercent: best.blankPercent, bestAccuracy: best.accuracy, averageAccuracy: Math.round(avgAccuracy), latestAt: attempts[0]?.createdAt || '' };
+                const rankScore = best.score;
+                return { name, ref, rankScore, attempts: attempts.length, bestScore: best.score, bestBlankPercent: best.blankPercent, bestAccuracy: best.accuracy, averageAccuracy: Math.round(avgAccuracy), latestAt: attempts[0]?.createdAt || '' };
             }).sort((a, b) => b.rankScore - a.rankScore || b.bestAccuracy - a.bestAccuracy || b.bestBlankPercent - a.bestBlankPercent || a.name.localeCompare(b.name));
         }
 
@@ -1330,7 +1785,7 @@
                 <div class="recite-rank-row">
                     <span class="recite-rank-no">${index + 1}</span>
                     <div>
-                        <div class="recite-rank-name">${escapeHtml(item.name)}</div>
+                        <div class="recite-rank-name">${escapeHtml(item.name)}${item.ref ? `｜${escapeHtml(item.ref)}` : ''}</div>
                         <div class="recite-rank-meta">最佳 ${Number(item.bestScore || 0)} 分 / 挖空 ${Number(item.bestBlankPercent || 0)}% / 准确率 ${Number(item.bestAccuracy || 0)}% / ${Number(item.attempts || 0)} 次</div>
                     </div>
                     <div class="recite-rank-score">${Number(item.rankScore || 0)} 分</div>
@@ -1341,11 +1796,7 @@
         async function refreshReciteLeaderboard() {
             renderReciteLeaderboard(buildClientReciteLeaderboard());
             try {
-                const params = new URLSearchParams();
-                if (reciteCurrentContext.weekStart) params.set('weekStart', reciteCurrentContext.weekStart);
-                if (reciteCurrentContext.weekEnd) params.set('weekEnd', reciteCurrentContext.weekEnd);
-                if (reciteCurrentContext.ref) params.set('ref', reciteCurrentContext.ref);
-                const result = await apiRequest(`/recite/leaderboard?${params.toString()}`);
+                const result = await apiRequest('/recite/leaderboard');
                 renderReciteLeaderboard(Array.isArray(result.leaderboard) ? result.leaderboard : []);
             } catch (error) {}
         }
@@ -1353,19 +1804,15 @@
         function openReciteExam(ref, presetText = '') {
             const logicalDate = getSafeDateString(viewingDate);
             const weekPlan = getWeekPlanForDate(logicalDate);
-            reciteCurrentContext = {
-                ref: ref || weekPlan.verse || '本周背经',
-                weekStart: weekPlan.start || '',
-                weekEnd: weekPlan.end || '',
-                logicalDate
-            };
             populateReciteMemberSelect();
-            document.getElementById('recite-title').innerText = `背经默写 | ${reciteCurrentContext.ref}`;
-            document.getElementById('recite-scope-display').value = `${reciteCurrentContext.weekStart || ''} ~ ${reciteCurrentContext.weekEnd || ''}`;
             document.getElementById('recite-overlay').classList.add('show');
-            document.getElementById('recite-origin-text').value = String(presetText || '').trim();
-            resetReciteExam(false);
-            refreshReciteLeaderboard();
+            const option = populateReciteRefSelect(ref || weekPlan.verse || '', weekPlan.start || '');
+            applyReciteOption(option || {
+                ref: ref || weekPlan.verse || '本周默写',
+                reciteText: presetText,
+                weekStart: weekPlan.start || '',
+                weekEnd: weekPlan.end || ''
+            }, presetText);
             setTimeout(() => document.getElementById('recite-origin-text').focus(), 50);
         }
 
@@ -1409,6 +1856,7 @@
                 }
             }
             renderReciteResult();
+            document.getElementById('recite-origin-panel')?.classList.add('hidden');
             document.getElementById('recite-score').style.display = 'none';
             reciteAttemptSaved = false;
         }
@@ -1474,7 +1922,7 @@
                     };
                 }
             });
-            const score = Math.round((right / total) * percent);
+            const score = calculateReciteScore(right, total, percent);
             const scoreEl = document.getElementById('recite-score');
             scoreEl.style.display = 'block';
             scoreEl.innerHTML = `得分：<span style="color:var(--primary); font-size:28px;">${score}</span> 分
@@ -1521,6 +1969,7 @@
 
         function resetReciteExam(clearText = true) {
             if (clearText) document.getElementById('recite-origin-text').value = '';
+            document.getElementById('recite-origin-panel')?.classList.remove('hidden');
             document.getElementById('recite-blank-percent').value = 50;
             document.getElementById('recite-result').innerHTML = '';
             document.getElementById('recite-score').style.display = 'none';
@@ -1555,6 +2004,7 @@
         }
 
         async function openDailyReading() {
+            const dailyConfig = getTaskSectionsConfig().daily || {};
             const bMonth = viewingDate.getMonth() + 1; const bDay = viewingDate.getDate();
             const targetChineseDate = `${toChineseNum(bMonth)}月${toChineseNum(bDay)}日`;
             document.getElementById('reading-title').innerText = targetChineseDate;
@@ -1566,7 +2016,9 @@
                 if (mdCache.daily) {
                     text = mdCache.daily;
                 } else {
-                    const res = await fetch(`./Kuangye.md?v=${getSafeDateString(getRealToday())}`);
+                    const sourcePath = dailyConfig.path || dailyConfig.url;
+                    if (!sourcePath) throw new Error('daily_source_missing');
+                    const res = await fetch(`${sourcePath}?v=${getSafeDateString(getRealToday())}`);
                     if (!res.ok) throw new Error("File not found");
                     text = await res.text();
                     mdCache.daily = text; 
@@ -1588,10 +2040,11 @@
                 }
                 while (contentLines.length > 0 && (contentLines[0].trim() === '' || contentLines[0].trim() === target2 || contentLines[0].trim() === target1)) { contentLines.shift(); }
                 if (contentLines.length > 0) bodyEl.innerHTML = formatMarkdownBlocks(contentLines); else bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-sub); margin-top:30px;"><span style="font-size:40px;">📭</span><br><br><strong>没有在文档里找到 ${targetChineseDate} 的内容。</strong></div>`;
-            } catch (e) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>读取 Kuangye.md 失败</strong></div>`; }
+            } catch (e) { bodyEl.innerHTML = `<div style="text-align:center; color:var(--warning); margin-top:30px;"><span style="font-size:40px;">⚠️</span><br><br><strong>读取 ${escapeHtml(dailyConfig.path || dailyConfig.url || '每日任务文件')} 失败</strong></div>`; }
         }
 
         async function openWeeklyReading(targetTitle) {
+            const weeklyConfig = getTaskSectionsConfig().weekly || {};
             document.getElementById('reading-title').innerText = `本周读书`;
             document.getElementById('reading-overlay').classList.add('show');
             const bodyEl = document.getElementById('reading-body');
@@ -1601,7 +2054,9 @@
                 if (mdCache.weekly) {
                     text = mdCache.weekly;
                 } else {
-                    const res = await fetch(`./weekly_task.md?v=${getSafeDateString(getRealToday())}`);
+                    const sourcePath = weeklyConfig.reading_path || weeklyConfig.path || weeklyConfig.url;
+                    if (!sourcePath) throw new Error('weekly_source_missing');
+                    const res = await fetch(`${sourcePath}?v=${getSafeDateString(getRealToday())}`);
                     if (!res.ok) throw new Error("File not found");
                     text = await res.text();
                     mdCache.weekly = text;
@@ -1626,50 +2081,56 @@
         async function hydrateWeeklyCache() {
             if (mdCache.weekly) return;
             try {
-                const res = await fetch(`./weekly_task.md?v=${getSafeDateString(getRealToday())}`);
+                const weeklyConfig = getTaskSectionsConfig().weekly || {};
+                const sourcePath = weeklyConfig.reading_path || weeklyConfig.path || weeklyConfig.url;
+                if (!sourcePath) return;
+                const res = await fetch(`${sourcePath}?v=${getSafeDateString(getRealToday())}`);
                 if (!res.ok) return;
                 mdCache.weekly = await res.text();
                 updateDateUI();
             } catch (error) {}
         }
 
-        function getTodayPlan() {
-            const bMonth = viewingDate.getMonth() + 1;
-            const bDay = viewingDate.getDate();
-            const targetChineseDate = `${toChineseNum(bMonth)}月${toChineseNum(bDay)}日`;
-            const viewStr = getSafeDateString(viewingDate);
+function getTodayPlan() {
+    const bMonth = viewingDate.getMonth() + 1;
+    const bDay = viewingDate.getDate();
+    const targetChineseDate = `${toChineseNum(bMonth)}月${toChineseNum(bDay)}日`;
+    const viewStr = getSafeDateString(viewingDate);
 
-            let currentWeekData = WEEKLY_SCHEDULE[0];
-            for (let weekPlan of WEEKLY_SCHEDULE) {
-                if (viewStr >= weekPlan.start && viewStr <= weekPlan.end) {
-                    currentWeekData = weekPlan;
-                    break;
-                }
-            }
+    if (!WEEKLY_SCHEDULE || WEEKLY_SCHEDULE.length === 0) {
+        return {
+            devotion: `<div class="clickable-task" onclick="openDailyReading()">📖 每日灵修（<span class="task-highlight">${targetChineseDate}</span>）<span class="read-badge">点击阅读</span></div>`,
+            weekly: `<div class="clickable-task">⏳ 暂无周任务配置</div>`,
+            share: '<span style="color:var(--text-sub); font-weight:800;">暂无分享</span>'
+        };
+    }
+
+    let currentWeekData = WEEKLY_SCHEDULE[0];
+    for (let weekPlan of WEEKLY_SCHEDULE) {
+        if (viewStr >= weekPlan.start && viewStr <= weekPlan.end) {
+            currentWeekData = weekPlan;
+            break;
+        }
+    }
+
 
             const weeklyTitleStr = currentWeekData.title;
             const verseStr = extractMemoryVerseFromWeeklyText(mdCache.weekly, currentWeekData.title, currentWeekData.verse);
             const videoItems = normalizeWeekVideos(currentWeekData);
-            const videoLinks = videoItems.map(item => {
-                const title = item.title || item.url || '视频';
-                const url = item.url || '';
-                return url
-                    ? `<a onclick="openVideo('${escapeJs(url)}', '${escapeJs(title)}')">${escapeHtml(title)} (播放)</a>`
-                    : `<span style="color:var(--text-sub);">${escapeHtml(title)}</span>`;
-            }).join('');
-            const videoUI = videoLinks ? `<span class="video-links">${videoLinks}</span>` : '<span style="color:var(--text-sub);">暂无视频</span>';
+            const videoTitle = videoItems[0]?.title || currentWeekData.video || '点击查看资料';
+            const videoUI = `<span class="video-links"><a onclick="openCurrentWeeklyResourceBrowser('${escapeJs(videoTitle)}')">${escapeHtml(videoTitle)} (查看)</a></span>`;
             const outlineImage = currentWeekData.outlineImage || '';
-            const shareLinks = normalizeClassRepShares(currentWeekData.shares).map(item => `<a onclick="openClassRepShare('${escapeJs(item.url)}', '${escapeJs(item.title)}')">${escapeHtml(item.title)}</a>`).join('');
-            const shareUI = shareLinks ? `<div class="task-extra-line share"><span>📄</span><span>课代表分享：</span><span class="share-links">${shareLinks}</span></div>` : '';
+            const shareItems = getCurrentClassRepShares();
+            const shareEntry = shareItems.length ? `<a onclick="openClassRepShareBrowser()">资料分享</a>` : '';
             const outlineUI = outlineImage ? `<div class="task-extra-line outline"><span>🖹</span><span>&#x63D0;&#x7EB2;&#x80CC;&#x8BF5;&#xFF1A;</span><a onclick="openOutlineImage('${escapeJs(outlineImage)}', '&#x63D0;&#x7EB2;&#x80CC;&#x8BF5;')">&#x70B9;&#x51FB;&#x67E5;&#x770B;</a></div>` : '';
 
             const tagUI = `<div class="task-extra-list">
                 <div class="task-extra-line"><span>▶️</span><span>&#x89C6;&#x9891;&#xFF1A;</span>${videoUI}</div>
-                <div class="task-extra-line verse"><span>📚</span><span>&#x80CC;&#x7ECF;&#xFF1A;</span><span><a onclick="openScriptureOnline('${escapeJs(verseStr)}')">${escapeHtml(verseStr)}</a><a class="recite-practice-btn" onclick="openReciteExam('${escapeJs(verseStr)}', '${escapeJs(currentWeekData.reciteText || '')}')">默写练习</a></span></div>
+                <div class="task-extra-line verse"><span>📚</span><span>默写任务：</span><span><a onclick="openScriptureOnline('${escapeJs(verseStr)}')">${escapeHtml(verseStr)}</a><a class="recite-practice-btn" onclick="openReciteExam('${escapeJs(verseStr)}', '${escapeJs(currentWeekData.reciteText || '')}')">默写测试</a></span></div>
                 ${outlineUI}
             </div>`;
 
-            const sharePanelUI = shareLinks ? `<div class="task-extra-line share"><span></span><span></span><span class="share-links">${shareLinks}</span></div>` : '<span style="color:var(--text-sub); font-weight:800;">&#x6682;&#x65E0;&#x5206;&#x4EAB;</span>';
+            const sharePanelUI = shareEntry ? `<div class="task-extra-line share"><span></span><span></span><span class="share-links">${shareEntry}</span></div>` : '<span style="color:var(--text-sub); font-weight:800;">&#x6682;&#x65E0;&#x5206;&#x4EAB;</span>';
 
             return {
                 devotion: `<div class="clickable-task" onclick="openDailyReading()">&#128214; &#x65F7;&#x91CE;&#x7075;&#x4FEE;&#xFF08;<span class="task-highlight">${targetChineseDate}</span>&#xFF09;<span class="read-badge">&#x70B9;&#x51FB;&#x9605;&#x8BFB;</span></div>`,
@@ -1730,16 +2191,34 @@
             } catch(e) { console.log("Cache read error", e); }
         }
 
-        window.onload = () => { 
-            try { 
-                viewingDate = getRealToday();
-                updateDateUI(); 
-                hydrateWeeklyCache();
-                renderMembers(); 
-                loadLocalCache(); 
-                fetchStatus();    
-            } catch(e) { document.getElementById('loading-status').innerHTML = `⚠️ 初始化错误: ${e.message}`; } 
-        };
+window.onload = async () => {
+    const loadingEl = document.getElementById('loading-status');
+    try {
+        SITE_CONFIG = await loadSiteConfig();
+        applySiteInfo();
+
+        viewingDate = getRealToday();
+        MEMBERS = loadMembersConfig();
+        TOTAL_MEMBERS = MEMBERS.length || 1;
+        WEEKLY_SCHEDULE = loadWeeklySchedule();
+
+        updateDateUI();
+        hydrateWeeklyCache();
+        renderMembers();
+        resetButtons();
+        renderStatus();
+        renderDashboard();
+        renderAdminMembers();
+        renderWeekPlanOptions();
+        loadLocalCache();
+        if (loadingEl) loadingEl.style.display = 'none';
+        fetchStatus();
+    } catch(e) {
+        console.error('Initialization failed:', e);
+        if (loadingEl) loadingEl.innerHTML = `⚠️ 初始化错误: ${escapeHtml(e.message || String(e))}`;
+    }
+};
+
 
         function updateAvatarUI(name) {
             const base64Data = localStorage.getItem('avatar_' + name);
@@ -1777,7 +2256,6 @@
                         <button class="action-btn btn-daily" id="daily-${safeName}" onclick="submitCheckin('${jsName}', '每日灵修', this)">灵修</button>
                         <button class="action-btn btn-book" id="book-${safeName}" onclick="submitCheckin('${jsName}', '周读物', this)">书</button>
                         <button class="action-btn btn-video" id="video-${safeName}" onclick="submitCheckin('${jsName}', '周视频', this)">视频</button>
-                        <button class="action-btn btn-verse" id="verse-${safeName}" onclick="submitCheckin('${jsName}', '周背经', this)">背经</button>
                     </div>
                     <div class="member-notes" id="notes-${safeName}"></div>`;
                 container.appendChild(card);
@@ -1787,11 +2265,10 @@
         function resetButtons() {
             const viewStr = getSafeDateString(viewingDate), todayStr = getSafeDateString(getRealToday()), isFuture = viewStr > todayStr, isPast = viewStr < todayStr;
             MEMBERS.forEach(name => {
-                const d = document.getElementById(`daily-${name}`), b = document.getElementById(`book-${name}`), v = document.getElementById(`video-${name}`), verse = document.getElementById(`verse-${name}`);
+                const d = document.getElementById(`daily-${name}`), b = document.getElementById(`book-${name}`), v = document.getElementById(`video-${name}`);
                 if(d){ d.disabled = isFuture; d.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-daily'); d.innerHTML = isFuture ? '⏳' : (isPast ? '补灵修' : '灵修'); }
                 if(b){ b.disabled = isFuture; b.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-book'); b.innerHTML = isFuture ? '⏳' : (isPast ? '补书' : '书'); }
                 if(v){ v.disabled = isFuture; v.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-video'); v.innerHTML = isFuture ? '⏳' : (isPast ? '补视频' : '视频'); }
-                if(verse){ verse.disabled = isFuture; verse.className = isFuture ? 'action-btn btn-future' : (isPast ? 'action-btn btn-retro' : 'action-btn btn-verse'); verse.innerHTML = isFuture ? '⏳' : (isPast ? '补背经' : '背经'); }
             });
         }
 
@@ -1808,7 +2285,7 @@
                 const notesEl = document.getElementById(`notes-${name}`);
                 const btn = document.getElementById(`reflection-btn-${name}`);
                 const reflectionCount = globalRecords
-                    .filter(record => record['姓名'] === name && getLogicalDateStr(record) === viewStr)
+                    .filter(record => getRecordName(record) === name.trim() && getLogicalDateStr(record) === viewStr)
                     .filter(record => isReflectionRecord(record) && getRecordNote(record))
                     .length;
                 if (btn) {
@@ -1834,16 +2311,15 @@
             }
 
             globalRecords.forEach(record => {
-                const name = record['姓名'];
-                if (!name || !MEMBERS.includes(name)) return;
+                const name = getRecordName(record);
+                if (!name || !MEMBERS.map(m => m.trim()).includes(name)) return;
                 const recordDate = getLogicalDateStr(record);
                 const isRetro = record['是否补签'] === '是';
 
-                if (recordDate === viewStr && record['每日灵修'] === '已完成') {
+                if (recordDate === viewStr && isRecordDone(record, 'daily', '每日灵修')) {
                     doneD.add(name);
                     setSuccess(document.getElementById(`daily-${name}`), isRetro ? "已补" : "✔");
                 }
-
                 if (!currentWeekData) return;
                 let recordWeekData = null;
                 for (const weekPlan of WEEKLY_SCHEDULE) {
@@ -1853,16 +2329,27 @@
                     }
                 }
                 if (!recordWeekData) return;
-
-                if (record['周读物'] === '已完成' && recordWeekData.title === currentWeekData.title) {
+                if (isRecordDone(record, 'book', '周读物') && recordWeekData.title === currentWeekData.title) {
                     doneB.add(name);
                     setSuccess(document.getElementById(`book-${name}`));
                 }
-                if (record['周视频'] === '已完成' && recordWeekData.video === currentWeekData.video) {
+                if (isRecordDone(record, 'video', '周视频') && recordWeekData.video === currentWeekData.video) {
                     doneV.add(name);
                     setSuccess(document.getElementById(`video-${name}`));
                 }
-                if (record['周背经'] === '已完成' && recordWeekData.verse === currentWeekData.verse) {
+                if (isRecordDone(record, 'verse', '周背经') && recordWeekData.verse === currentWeekData.verse) {
+                    doneVerse.add(name);
+                    setSuccess(document.getElementById(`verse-${name}`));
+                }
+                if (isRecordDone(record, 'book', '周读物') && recordWeekData.title === currentWeekData.title) {
+                    doneB.add(name);
+                    setSuccess(document.getElementById(`book-${name}`));
+                }
+                if (isRecordDone(record, 'video', '周视频') && recordWeekData.video === currentWeekData.video) {
+                    doneV.add(name);
+                    setSuccess(document.getElementById(`video-${name}`));
+                }
+                if (isRecordDone(record, 'verse', '周背经') && recordWeekData.verse === currentWeekData.verse) {
                     doneVerse.add(name);
                     setSuccess(document.getElementById(`verse-${name}`));
                 }
@@ -2075,16 +2562,16 @@
             const historyEl = document.getElementById('reflection-history');
             if (!historyEl) return;
             const items = globalRecords
-                .filter(record => record['姓名'] === name && getRecordNote(record))
+                .filter(record => getRecordName(record) === name && getRecordNote(record))
                 .filter(isReflectionRecord)
-                .sort((a, b) => String(getLogicalDateStr(b)).localeCompare(String(getLogicalDateStr(a))) || String(b['打卡时间'] || '').localeCompare(String(a['打卡时间'] || '')));
+                .sort((a, b) => String(getLogicalDateStr(b)).localeCompare(String(getLogicalDateStr(a))) || String(getRecordTime(b)).localeCompare(String(getRecordTime(a))));
             if (items.length === 0) {
                 historyEl.innerHTML = '<div class="reflection-empty">还没有得着。</div>';
                 return;
             }
             historyEl.innerHTML = items.slice(0, 20).map(record => `
                 <div class="reflection-item">
-                    <div class="reflection-date">${escapeHtml(getLogicalDateStr(record) || formatLocalDateTime(record['打卡时间']))}｜${escapeHtml(getReflectionPart(record))}</div>
+                    <div class="reflection-date">${escapeHtml(getLogicalDateStr(record) || formatLocalDateTime(getRecordTime(record)))}｜${escapeHtml(getReflectionPart(record))}</div>
                     <div>${escapeHtml(getRecordNote(record))}</div>
                 </div>
             `).join('');
@@ -2241,6 +2728,7 @@
             if (adminAuthenticated) {
                 renderAdminMembers();
                 renderWeekPlanOptions();
+                renderAdminConfigFields();
             }
         }
 
@@ -2268,6 +2756,7 @@
         function adminLogout() {
             adminAuthenticated = false;
             renderAdminAuthState();
+            closeAdminPanel();
         }
 
         function changeAdminPassword() {
@@ -2288,7 +2777,7 @@
             `).join('');
         }
 
-        function addAdminMember() {
+        async function addAdminMember() {
             const input = document.getElementById('admin-new-member');
             const name = input.value.trim();
             if (!name) return;
@@ -2298,24 +2787,43 @@
             }
             MEMBERS.push(name);
             input.value = '';
-            persistMembersConfig();
+            try {
+                await persistMembersConfig();
+                setAdminSaveStatus('成员名单已写入 config.json。', 'ok');
+            } catch (error) {
+                setAdminSaveStatus(`成员保存失败：${error.message || error}`, 'warn');
+                alert(`成员保存失败：${error.message || error}`);
+            }
         }
 
-        function removeAdminMember(name) {
+        async function removeAdminMember(name) {
             if (MEMBERS.length <= 1) {
                 alert("至少保留一名成员。");
                 return;
             }
             if (!confirm(`确定从页面名单中移除「${name}」吗？历史记录不会被删除。`)) return;
             MEMBERS = MEMBERS.filter(member => member !== name);
-            persistMembersConfig();
+            try {
+                await persistMembersConfig();
+                setAdminSaveStatus('成员名单已写入 config.json。', 'ok');
+            } catch (error) {
+                setAdminSaveStatus(`成员保存失败：${error.message || error}`, 'warn');
+                alert(`成员保存失败：${error.message || error}`);
+            }
         }
 
-        function resetAdminMembers() {
-            if (!confirm("确定恢复默认成员名单吗？本地新增成员会被隐藏，历史记录不会删除。")) return;
-            MEMBERS = [...DEFAULT_MEMBERS];
-            persistMembersConfig();
-        }
+async function resetAdminMembers() {
+    if (!confirm("确定恢复默认成员名单吗？本地新增成员会被隐藏，历史记录不会删除。")) return;
+    MEMBERS = [...(SITE_CONFIG.members || [])];
+    try {
+        await persistMembersConfig();
+        setAdminSaveStatus('成员名单已恢复并写入 config.json。', 'ok');
+    } catch (error) {
+        setAdminSaveStatus(`成员保存失败：${error.message || error}`, 'warn');
+        alert(`成员保存失败：${error.message || error}`);
+    }
+}
+
 
         function renderWeekPlanOptions() {
             const select = document.getElementById('admin-week-select');
@@ -2340,26 +2848,29 @@
             document.getElementById('admin-week-start').value = plan.start || '';
             document.getElementById('admin-week-end').value = plan.end || '';
             document.getElementById('admin-week-title').value = plan.title || '';
-            document.getElementById('admin-week-video').value = plan.video || '';
             document.getElementById('admin-week-verse').value = plan.verse || '';
             document.getElementById('admin-week-recite-text').value = plan.reciteText || '';
-            document.getElementById('admin-week-url').value = plan.url || '';
-            const videosEl = document.getElementById('admin-week-videos');
-            if (videosEl) videosEl.value = normalizeWeekVideos(plan).map(item => `${item.title} | ${item.url}`).join('\n');
-            document.getElementById('admin-week-outline-image').value = plan.outlineImage || '';
+            renderAdminFileChoices();
         }
 
         function readWeekPlanForm() {
+            const select = document.getElementById('admin-week-select');
+            const existing = WEEKLY_SCHEDULE[Number(select?.value)] || {};
+            const videoSelect = document.getElementById('admin-week-video');
+            const selectedVideo = getSelectedAsset('admin-week-video');
+            const videoOptionsLoaded = Boolean(videoSelect && videoSelect.options.length > 1);
+            const outlineSelect = document.getElementById('admin-week-outline-image');
+            const outlineOptionsLoaded = Boolean(outlineSelect && outlineSelect.options.length > 0);
             return normalizeWeekPlan({
                 start: document.getElementById('admin-week-start').value,
                 end: document.getElementById('admin-week-end').value,
                 title: document.getElementById('admin-week-title').value,
-                video: document.getElementById('admin-week-video').value,
+                video: selectedVideo?.title || (videoOptionsLoaded ? '' : existing.video || ''),
                 verse: document.getElementById('admin-week-verse').value,
                 reciteText: document.getElementById('admin-week-recite-text').value,
-                url: document.getElementById('admin-week-url').value,
-                videos: document.getElementById('admin-week-videos')?.value || '',
-                outlineImage: document.getElementById('admin-week-outline-image').value
+                url: selectedVideo?.url || (videoOptionsLoaded ? '' : existing.url || ''),
+                videos: selectedVideo ? [selectedVideo] : (videoOptionsLoaded ? [] : normalizeWeekVideos(existing)),
+                outlineImage: outlineSelect?.value || (outlineOptionsLoaded ? '' : existing.outlineImage || '')
             });
         }
 
@@ -2376,55 +2887,86 @@
         }
 
         async function saveWeekPlanFromAdmin() {
-            const select = document.getElementById('admin-week-select');
-            const index = Number(select.value);
-            const plan = readWeekPlanForm();
-            if (!validateWeekPlan(plan)) return;
-            if (index >= 0 && index < WEEKLY_SCHEDULE.length) WEEKLY_SCHEDULE[index] = plan;
-            else WEEKLY_SCHEDULE.push(plan);
-            await persistWeeklySchedule();
-            alert("周任务已保存。");
+            try {
+                const select = document.getElementById('admin-week-select');
+                const index = Number(select.value);
+                const plan = readWeekPlanForm();
+                if (!validateWeekPlan(plan)) return;
+                if (index >= 0 && index < WEEKLY_SCHEDULE.length) WEEKLY_SCHEDULE[index] = plan;
+                else WEEKLY_SCHEDULE.push(plan);
+                await persistWeeklySchedule();
+                setAdminSaveStatus('周任务已写入 config.json。', 'ok');
+                alert("周任务已保存。");
+            } catch (error) {
+                setAdminSaveStatus(`周任务保存失败：${error.message || error}`, 'warn');
+                alert(`周任务保存失败：${error.message || error}`);
+            }
         }
 
         async function addWeekPlanFromAdmin() {
-            const plan = readWeekPlanForm();
-            if (!validateWeekPlan(plan)) return;
-            WEEKLY_SCHEDULE.push(plan);
-            await persistWeeklySchedule();
-            const select = document.getElementById('admin-week-select');
-            if (select) {
-                const newIndex = WEEKLY_SCHEDULE.findIndex(item => item.start === plan.start && item.end === plan.end && item.title === plan.title);
-                select.value = String(Math.max(newIndex, 0));
-                loadSelectedWeekForEdit();
+            try {
+                const plan = readWeekPlanForm();
+                if (!validateWeekPlan(plan)) return;
+                WEEKLY_SCHEDULE.push(plan);
+                await persistWeeklySchedule();
+                const select = document.getElementById('admin-week-select');
+                if (select) {
+                    const newIndex = WEEKLY_SCHEDULE.findIndex(item => item.start === plan.start && item.end === plan.end && item.title === plan.title);
+                    select.value = String(Math.max(newIndex, 0));
+                    loadSelectedWeekForEdit();
+                }
+                setAdminSaveStatus('新周任务已写入 config.json。', 'ok');
+                alert("新周任务已添加。");
+            } catch (error) {
+                setAdminSaveStatus(`新增周任务失败：${error.message || error}`, 'warn');
+                alert(`新增周任务失败：${error.message || error}`);
             }
-            alert("新周任务已添加。");
         }
 
         async function deleteWeekPlanFromAdmin() {
-            const select = document.getElementById('admin-week-select');
-            const index = Number(select.value);
-            if (WEEKLY_SCHEDULE.length <= 1) {
-                alert("至少保留一条周任务。");
-                return;
+            try {
+                const select = document.getElementById('admin-week-select');
+                const index = Number(select.value);
+                if (WEEKLY_SCHEDULE.length <= 1) {
+                    alert("至少保留一条周任务。");
+                    return;
+                }
+                if (index < 0 || index >= WEEKLY_SCHEDULE.length) return;
+                if (!confirm("确定删除当前周任务吗？历史打卡记录不会删除。")) return;
+                WEEKLY_SCHEDULE.splice(index, 1);
+                await persistWeeklySchedule();
+                setAdminSaveStatus('周任务已从 config.json 删除。', 'ok');
+            } catch (error) {
+                setAdminSaveStatus(`删除周任务失败：${error.message || error}`, 'warn');
+                alert(`删除周任务失败：${error.message || error}`);
             }
-            if (index < 0 || index >= WEEKLY_SCHEDULE.length) return;
-            if (!confirm("确定删除当前周任务吗？历史打卡记录不会删除。")) return;
-            WEEKLY_SCHEDULE.splice(index, 1);
-            await persistWeeklySchedule();
         }
 
-        async function resetWeekPlans() {
-            if (!confirm("确定恢复默认周任务安排吗？本地编辑会被覆盖。")) return;
-            WEEKLY_SCHEDULE = DEFAULT_WEEKLY_SCHEDULE.map(normalizeWeekPlan);
-            await persistWeeklySchedule();
-        }
+async function resetWeekPlans() {
+    if (!confirm("确定恢复默认周任务安排吗？本地编辑会被覆盖。")) return;
+    try {
+        WEEKLY_SCHEDULE = (SITE_CONFIG.weekly_schedule || []).map(normalizeWeekPlan);
+        await persistWeeklySchedule();
+        setAdminSaveStatus('周任务已恢复并写入 config.json。', 'ok');
+    } catch (error) {
+        setAdminSaveStatus(`恢复周任务失败：${error.message || error}`, 'warn');
+        alert(`恢复周任务失败：${error.message || error}`);
+    }
+}
+
 
         function exportRecordsCsv() {
             const headers = ["姓名", "打卡时间", "逻辑日期", "是否补签", "每日灵修", "周读物", "周视频", "周背经", "分享记录", "部分", "打卡详情", "类型", "默写经文", "默写周开始", "默写周结束", "默写挖空率", "默写分数", "默写正确数", "默写空数", "默写次数", "默写准确率", "默写排行分"];
             const rows = globalRecords.map(record => headers.map(header => {
                 if (header === "逻辑日期") return csvCell(getLogicalDateStr(record));
-                if (header === "打卡时间") return csvCell(formatLocalDateTime(record[header]));
+                if (header === "打卡时间") return csvCell(formatLocalDateTime(getRecordTime(record)));
+                if (header === "打卡详情") return csvCell(getRecordDetail(record));
                 if (header === "分享记录") return csvCell(getRecordNote(record));
+                if (header === "姓名") return csvCell(getRecordName(record));
+                if (header === "每日灵修") return csvCell(isRecordDone(record, 'daily', '每日灵修') ? '已完成' : (record.daily || record['每日灵修'] || ''));
+                if (header === "周读物") return csvCell(isRecordDone(record, 'book', '周读物') ? '已完成' : (record.book || record['周读物'] || ''));
+                if (header === "周视频") return csvCell(isRecordDone(record, 'video', '周视频') ? '已完成' : (record.video || record['周视频'] || ''));
+                if (header === "周背经") return csvCell(isRecordDone(record, 'verse', '周背经') ? '已完成' : (record.verse || record['周背经'] || ''));
                 return csvCell(record[header]);
             }).join(','));
             downloadTextFile(`科大门训打卡明细_${getSafeDateString(getRealToday())}.csv`, [headers.map(csvCell).join(','), ...rows].join('\n'), 'text/csv');
@@ -2436,11 +2978,11 @@
             const rows = [];
             dates.forEach(dateStr => {
                 MEMBERS.forEach(name => {
-                    const records = globalRecords.filter(record => record['姓名'] === name && getLogicalDateStr(record) === dateStr);
-                    const daily = records.some(record => record['每日灵修'] === '已完成') ? '已完成' : '';
-                    const book = records.some(record => record['周读物'] === '已完成') ? '已完成' : '';
-                    const video = records.some(record => record['周视频'] === '已完成') ? '已完成' : '';
-                    const verse = records.some(record => record['周背经'] === '已完成') ? '已完成' : '';
+                    const records = globalRecords.filter(record => getRecordName(record) === name && getLogicalDateStr(record) === dateStr);
+                    const daily = records.some(record => isRecordDone(record, 'daily', '每日灵修')) ? '已完成' : '';
+                    const book = records.some(record => isRecordDone(record, 'book', '周读物')) ? '已完成' : '';
+                    const video = records.some(record => isRecordDone(record, 'video', '周视频')) ? '已完成' : '';
+                    const verse = records.some(record => isRecordDone(record, 'verse', '周背经')) ? '已完成' : '';
                     const count = [daily, book, video, verse].filter(Boolean).length;
                     rows.push([dateStr, name, daily, book, video, verse, count].map(csvCell).join(','));
                 });
@@ -2590,22 +3132,29 @@
             downloadTextFile(`科大门训本地备份_${getSafeDateString(getRealToday())}.json`, JSON.stringify(backup, null, 2), 'application/json');
         }
 
-        function importBackupJson(event) {
+        async function importBackupJson(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const backup = JSON.parse(e.target.result);
                     if (!Array.isArray(backup.members) || !Array.isArray(backup.records)) throw new Error("格式不正确");
                     MEMBERS = [...new Set(backup.members.map(name => String(name).trim()).filter(Boolean))];
                     if (Array.isArray(backup.weeklySchedule)) {
-                        WEEKLY_SCHEDULE = backup.weeklySchedule.map(normalizeWeekPlan).filter(plan => plan.start && plan.end && plan.title);
-                        if (WEEKLY_SCHEDULE.length === 0) WEEKLY_SCHEDULE = DEFAULT_WEEKLY_SCHEDULE.map(normalizeWeekPlan);
-                        localStorage.setItem('keda_weekly_schedule', JSON.stringify(WEEKLY_SCHEDULE));
+                        WEEKLY_SCHEDULE = backup.weeklySchedule.map(normalizeWeekPlan).filter(plan => plan.start && plan.end);
+                    }
+                    await apiRequest('/admin/members', {
+                        method: 'PUT',
+                        body: JSON.stringify({ members: MEMBERS })
+                    });
+                    if (WEEKLY_SCHEDULE.length > 0) {
+                        await apiRequest('/admin/weekly-schedule', {
+                            method: 'PUT',
+                            body: JSON.stringify({ weeklySchedule: WEEKLY_SCHEDULE })
+                        });
                     }
                     globalRecords = backup.records;
-                    localStorage.setItem('keda_members', JSON.stringify(MEMBERS));
                     localStorage.setItem('keda_checkin_cache', JSON.stringify(globalRecords));
                     TOTAL_MEMBERS = MEMBERS.length || 1;
                     updateDateUI();
@@ -2638,22 +3187,21 @@
         }
 
         function getMemberDayCompletion(name, dateStr) {
-            const dayRecords = globalRecords.filter(record => record['姓名'] === name && getLogicalDateStr(record) === dateStr);
-            const daily = dayRecords.some(record => record['每日灵修'] === '已完成');
+            const dayRecords = globalRecords.filter(record => getRecordName(record) === name && getLogicalDateStr(record) === dateStr);
+            const daily = dayRecords.some(record => isRecordDone(record, 'daily', '每日灵修'));
             const weekPlan = getWeekPlanForDate(dateStr);
             const weekRecords = globalRecords.filter(record => {
-                if (record['姓名'] !== name || !weekPlan?.start || !weekPlan?.end) return false;
+                if (getRecordName(record) !== name || !weekPlan?.start || !weekPlan?.end) return false;
                 const recordDate = getLogicalDateStr(record);
                 return recordDate >= weekPlan.start && recordDate <= weekPlan.end;
             });
-            const book = weekRecords.some(record => record['周读物'] === '已完成');
-            const video = weekRecords.some(record => record['周视频'] === '已完成');
-            const verse = weekRecords.some(record => record['周背经'] === '已完成');
-            const weeklyCount = [book, video, verse].filter(Boolean).length;
+            const book = weekRecords.some(record => isRecordDone(record, 'book', '周读物'));
+            const video = weekRecords.some(record => isRecordDone(record, 'video', '周视频'));
+            const weeklyCount = [book, video].filter(Boolean).length;
             return {
                 daily,
                 weeklyCount,
-                totalCount: [daily, book, video, verse].filter(Boolean).length,
+                totalCount: [daily, book, video].filter(Boolean).length,
                 complete: daily && weeklyCount >= 2
             };
         }
@@ -2688,7 +3236,7 @@
                 html += `
                     <button type="button" class="${classes.join(' ')}" onclick="pickProfileCalendarDate(${cellDate.getFullYear()}, ${cellDate.getMonth()}, ${cellDate.getDate()})">
                         <div class="profile-day-number">${cellDate.getDate()}</div>
-                        ${completion.totalCount > 0 ? `<div class="profile-day-badge">${completion.totalCount}/4</div>` : ''}
+                        ${completion.totalCount > 0 ? `<div class="profile-day-badge">${completion.totalCount}/3</div>` : ''}
                     </button>
                 `;
             }
@@ -2783,13 +3331,11 @@
             const dailyKey = '\u6bcf\u65e5\u7075\u4fee';
             const bookKey = '\u5468\u8bfb\u7269';
             const videoKey = '\u5468\u89c6\u9891';
-            const memoryKey = '\u5468\u80cc\u7ecf';
             const doneValue = '\u5df2\u5b8c\u6210';
             const taskItems = [
                 { key: 'daily', label: '\u7075\u4fee' },
                 { key: 'book', label: '\u8bfb\u7269' },
-                { key: 'video', label: '\u89c6\u9891' },
-                { key: 'memory', label: '\u80cc\u7ecf' }
+                { key: 'video', label: '\u89c6\u9891' }
             ];
 
             const todayStr = getSafeDateString(getRealToday());
@@ -2798,7 +3344,7 @@
             const sevenDaysAgoStr = getSafeDateString(sevenDaysAgo);
 
             const summary = {};
-            MEMBERS.forEach(name => { summary[name] = { daily: 0, book: 0, video: 0, memory: 0 }; });
+            MEMBERS.forEach(name => { summary[name] = { daily: 0, book: 0, video: 0 }; });
 
             globalRecords.forEach(record => {
                 const name = record[nameKey];
@@ -2809,7 +3355,6 @@
                 if (record[dailyKey] === doneValue) summary[name].daily++;
                 if (record[bookKey] === doneValue) summary[name].book++;
                 if (record[videoKey] === doneValue) summary[name].video++;
-                if (record[memoryKey] === doneValue) summary[name].memory++;
             });
 
             const sorted = MEMBERS.slice().sort((a, b) => {
@@ -2837,7 +3382,7 @@
                     labels: hasData ? taskItems.map(item => item.label) : ['\u6682\u65e0\u6570\u636e'],
                     datasets: [{
                         data: hasData ? totals : [1],
-                        backgroundColor: hasData ? ['#1189eb', '#14b8a6', '#69bdf5', '#8b5cf6'] : ['#e5edf5'],
+                        backgroundColor: hasData ? ['#1189eb', '#14b8a6', '#69bdf5'] : ['#e5edf5'],
                         borderColor: '#ffffff',
                         borderWidth: 4,
                         hoverOffset: 6
@@ -2860,30 +3405,41 @@
             if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
             let lastError = null;
             for (const base of API_BASES) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
                 try {
-                    const response = await fetch(`${base}${path}`, { ...options, headers });
+                    const response = await fetch(`${base}${path}`, { ...options, headers, signal: controller.signal });
                     if (!response.ok) {
                         const detail = await response.json().catch(() => ({}));
-                        throw new Error(detail.error || `HTTP ${response.status}`);
+                        throw new Error(detail.message || detail.error || `HTTP ${response.status}`);
                     }
                     const data = await response.json();
                     localStorage.setItem('keda_api_base', base);
                     return data;
                 } catch (error) {
                     lastError = error;
+                } finally {
+                    clearTimeout(timeoutId);
                 }
             }
             throw lastError || new Error('api_unreachable');
         }
 
         function applyBackendState(state) {
+            console.log("Backend state received:", state);
             if (Array.isArray(state.members) && state.members.length > 0) {
                 MEMBERS = state.members;
-                TOTAL_MEMBERS = MEMBERS.length;
+            } else {
+                MEMBERS = SITE_CONFIG.members || [];
             }
+            TOTAL_MEMBERS = MEMBERS.length || 1;
+
             if (Array.isArray(state.weeklySchedule) && state.weeklySchedule.length > 0) {
                 WEEKLY_SCHEDULE = state.weeklySchedule.map(normalizeWeekPlan);
+            } else {
+                WEEKLY_SCHEDULE = (SITE_CONFIG.weekly_schedule || []).map(normalizeWeekPlan);
             }
+
             if (Array.isArray(state.records)) {
                 globalRecords = state.records;
             }
@@ -2896,14 +3452,8 @@
             renderWeekPlanOptions();
         }
 
-        window.onload = () => {
-            viewingDate = getRealToday();
-            updateDateUI();
-            renderMembers();
-            fetchStatus();
-        };
+async function fetchStatus() {
 
-        async function fetchStatus() {
             const loadingEl = document.getElementById('loading-status');
             loadingEl.style.display = 'block';
             loadingEl.innerHTML = "🔄 正在同步 NAS 后端数据...";
@@ -2979,6 +3529,10 @@
 
             const recordToCancel = globalRecords.find(r => {
                 const rLogicalDate = getLogicalDateStr(r);
+                const typeMap = { '每日灵修': 'daily', '周读物': 'book', '周视频': 'video', '周背经': 'verse' };
+                const apiKey = typeMap[type];
+                if (!apiKey) return false;
+
                 if (type !== '每日灵修') {
                     let rWeekData = null;
                     for (let weekPlan of WEEKLY_SCHEDULE) {
@@ -2988,12 +3542,12 @@
                         }
                     }
                     if (rWeekData && currentWeekData) {
-                        if (type === '周读物' && r['周读物'] === '已完成' && rWeekData.title === currentWeekData.title) return r['姓名'] === name;
-                        if (type === '周视频' && r['周视频'] === '已完成' && rWeekData.video === currentWeekData.video) return r['姓名'] === name;
-                        if (type === '周背经' && r['周背经'] === '已完成' && rWeekData.verse === currentWeekData.verse) return r['姓名'] === name;
+                        if (type === '周读物' && isRecordDone(r, 'book', '周读物') && rWeekData.title === currentWeekData.title) return getRecordName(r) === name.trim();
+                        if (type === '周视频' && isRecordDone(r, 'video', '周视频') && rWeekData.video === currentWeekData.video) return getRecordName(r) === name.trim();
+                        if (type === '周背经' && isRecordDone(r, 'verse', '周背经') && rWeekData.verse === currentWeekData.verse) return getRecordName(r) === name.trim();
                     }
                 }
-                return r['姓名'] === name && rLogicalDate === viewDateStr && r[type] === '已完成';
+                return getRecordName(r) === name.trim() && rLogicalDate === viewDateStr && isDoneValue(r[apiKey]);
             });
 
             try {
@@ -3032,6 +3586,7 @@
             if (adminAuthenticated) {
                 renderAdminMembers();
                 renderWeekPlanOptions();
+                renderAdminConfigFields();
             }
         }
 
@@ -3060,6 +3615,257 @@
             localStorage.removeItem('keda_admin_token');
             adminAuthenticated = false;
             renderAdminAuthState();
+            closeAdminPanel();
+        }
+
+        function setAdminValue(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.value = value || '';
+        }
+
+        function getAdminValue(id) {
+            return document.getElementById(id)?.value?.trim() || '';
+        }
+
+        function shareItemsToText(items = []) {
+            return normalizeClassRepShares(items).map(item => `${item.title} | ${item.url}`).join('\n');
+        }
+
+        function parseShareItemsText(value) {
+            return String(value || '')
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(Boolean)
+                .map(line => {
+                    const parts = line.split('|').map(part => part.trim());
+                    if (parts.length >= 2) return { title: parts[0], url: parts.slice(1).join('|').trim() };
+                    return normalizeShareItem(line);
+                })
+                .filter(Boolean);
+        }
+
+        function extensionTextToArray(value) {
+            return String(value || '')
+                .split(',')
+                .map(item => item.trim())
+                .filter(Boolean)
+                .map(item => item.startsWith('.') ? item : `.${item}`);
+        }
+
+        function setAdminSaveStatus(message, type = '') {
+            const el = document.getElementById('admin-save-status');
+            if (!el) return;
+            el.textContent = message;
+            el.className = `admin-note ${type}`.trim();
+        }
+
+        function canonicalAssetValue(value) {
+            const raw = String(value || '').trim();
+            if (!raw || /^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) return raw;
+            return raw.replace(/^\.\//, '/').replace(/\/{2,}/g, '/');
+        }
+
+        function adminAssetTitle(item) {
+            return String(item?.title || item?.filename || item?.name || item?.url || '').trim();
+        }
+
+        function resolveAdminAssetValue(items = [], value = '', title = '') {
+            const target = canonicalAssetValue(value);
+            const targetTitle = String(title || '').trim();
+            const byValue = items.find(item => canonicalAssetValue(item.url) === target);
+            if (byValue) return byValue.url || '';
+            if (targetTitle) {
+                const byTitle = items.find(item => adminAssetTitle(item) === targetTitle || String(item.filename || '').trim() === targetTitle);
+                if (byTitle) return byTitle.url || '';
+            }
+            return target || '';
+        }
+
+        function buildAdminAssetOptions(items = [], emptyLabel = '请选择文件', selectedValue = '', selectedTitle = '') {
+            const normalizedItems = items.filter(item => item && item.url);
+            const selectedCanonical = canonicalAssetValue(selectedValue);
+            let html = `<option value="">${escapeHtml(emptyLabel)}</option>`;
+            html += normalizedItems.map(item => {
+                const url = item.url || '';
+                const title = adminAssetTitle(item) || url;
+                const selected = canonicalAssetValue(url) === selectedCanonical ? ' selected' : '';
+                return `<option value="${escapeHtml(url)}" data-title="${escapeHtml(title)}"${selected}>${escapeHtml(title)}</option>`;
+            }).join('');
+            if (selectedCanonical && !normalizedItems.some(item => canonicalAssetValue(item.url) === selectedCanonical)) {
+                const title = selectedTitle || selectedValue;
+                html += `<option value="${escapeHtml(selectedValue)}" data-title="${escapeHtml(title)}" selected>${escapeHtml(title)}</option>`;
+            }
+            return html;
+        }
+
+        function setAdminAssetSelectOptions(id, items = [], emptyLabel = '请选择文件', selectedValue = '', selectedTitle = '') {
+            const select = document.getElementById(id);
+            if (!select) return;
+            const resolvedValue = resolveAdminAssetValue(items, selectedValue, selectedTitle);
+            select.innerHTML = buildAdminAssetOptions(items, emptyLabel, resolvedValue, selectedTitle || selectedValue);
+            select.value = resolvedValue;
+        }
+
+        function findAdminPreferredAsset(items = [], plan = {}, preferredText = '') {
+            const url = String(plan?.url || '').trim();
+            if (url) {
+                const byUrl = items.find(item => canonicalAssetValue(item.url) === canonicalAssetValue(url));
+                if (byUrl) return byUrl;
+            }
+            const keys = [preferredText, plan?.video].flatMap(getAssetMatchKeys).filter(Boolean);
+            if (!keys.length) return null;
+            return items.find(item => {
+                const haystack = normalizeAssetText(`${item.title || ''}${item.filename || ''}${item.url || ''}`);
+                return keys.some(key => key.length >= 3 && haystack.includes(key));
+            }) || null;
+        }
+
+        async function loadAdminAssets(force = false) {
+            if (!force && adminAssetsCache) return adminAssetsCache;
+            const assets = await getWeeklyAssets();
+            adminAssetsCache = {
+                videos: assets.videos || [],
+                passages: assets.passages || [],
+                handouts: assets.handouts || [],
+                shares: assets.shares || [],
+                outlines: assets.outlines || [],
+                documents: assets.documents || [],
+                mountedFiles: assets.mountedFiles || getMountedFilesConfig()
+            };
+            return adminAssetsCache;
+        }
+
+        function renderAdminShareFiles(items = []) {
+            const panel = document.getElementById('admin-share-files');
+            if (!panel) return;
+            const selected = new Set(normalizeClassRepShares(SITE_CONFIG.class_rep_shares).map(item => canonicalAssetValue(item.url)));
+            const files = items.filter(item => item && item.url);
+            if (!files.length) {
+                panel.innerHTML = '<div class="admin-note">资料分享目录里暂时没有可选 PDF。</div>';
+                return;
+            }
+            panel.innerHTML = files.map((item, index) => {
+                const url = item.url || '';
+                const title = adminAssetTitle(item) || url;
+                const id = `admin-share-file-${index}`;
+                const checked = selected.has(canonicalAssetValue(url)) ? ' checked' : '';
+                return `
+                    <label class="admin-file-option" for="${id}">
+                        <input id="${id}" name="admin-share-file" type="checkbox" value="${escapeHtml(url)}" data-title="${escapeHtml(title)}"${checked}>
+                        <span title="${escapeHtml(title)}">${escapeHtml(title)}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        async function renderAdminFileChoices(force = false) {
+            try {
+                const assets = await loadAdminAssets(force);
+                const sections = getTaskSectionsConfig();
+                setAdminAssetSelectOptions('admin-daily-path', assets.documents, '请选择每日任务文件', sections.daily?.path || sections.daily?.url || '', sections.daily?.label || '');
+                setAdminAssetSelectOptions('admin-weekly-path', assets.documents, '请选择周读物文件', sections.weekly?.reading_path || sections.weekly?.path || sections.weekly?.url || '', sections.weekly?.label || '');
+                const weekSelect = document.getElementById('admin-week-select');
+                const plan = WEEKLY_SCHEDULE[Number(weekSelect?.value)] || {};
+                const preferredVideo = findAdminPreferredAsset(assets.videos, plan, plan.video);
+                setAdminAssetSelectOptions('admin-week-video', assets.videos, '请选择本周视频文件', plan.url || preferredVideo?.url || '', plan.video || preferredVideo?.title || '');
+                setAdminAssetSelectOptions('admin-week-outline-image', assets.outlines, '无提纲图片', plan.outlineImage || '', plan.outlineImage || '');
+                renderAdminShareFiles(assets.shares);
+            } catch (error) {
+                setAdminSaveStatus(`文件列表读取失败：${error.message || error}`, 'warn');
+            }
+        }
+
+        async function refreshAdminFileChoices() {
+            adminAssetsCache = null;
+            weeklyAssetsCache = null;
+            await renderAdminFileChoices(true);
+            setAdminSaveStatus('文件列表已刷新。', 'ok');
+        }
+
+        function getSelectedAdminShareFiles() {
+            const inputs = [...document.querySelectorAll('input[name="admin-share-file"]')];
+            if (!inputs.length) return SITE_CONFIG.class_rep_shares || [];
+            return inputs
+                .filter(input => input.checked)
+                .map(input => ({ title: input.dataset.title || input.value, url: input.value }))
+                .filter(item => item.url);
+        }
+
+        function renderAdminConfigFields() {
+            const info = SITE_CONFIG.site_info || {};
+            const sections = getTaskSectionsConfig();
+            setAdminValue('admin-site-title', info.title);
+            setAdminValue('admin-brand-name', info.brand_name);
+            setAdminValue('admin-hero-kicker', info.hero_kicker);
+            setAdminValue('admin-hero-desc', info.hero_desc);
+            setAdminValue('admin-dashboard-title', info.dashboard_title);
+            setAdminValue('admin-daily-label', sections.daily?.label);
+            setAdminValue('admin-daily-path', sections.daily?.path || sections.daily?.url);
+            setAdminValue('admin-weekly-label', sections.weekly?.label);
+            setAdminValue('admin-weekly-path', sections.weekly?.reading_path || sections.weekly?.path || sections.weekly?.url);
+            setAdminValue('admin-share-label', sections.share?.label);
+            renderAdminFileChoices();
+        }
+
+        function readConfigForm() {
+            const mounted = normalizeMountedFilesConfig(getMountedFilesConfig());
+            return normalizeSiteConfig({
+                ...SITE_CONFIG,
+                site_info: {
+                    ...(SITE_CONFIG.site_info || {}),
+                    title: getAdminValue('admin-site-title'),
+                    brand_name: getAdminValue('admin-brand-name'),
+                    hero_kicker: getAdminValue('admin-hero-kicker'),
+                    hero_desc: getAdminValue('admin-hero-desc'),
+                    dashboard_title: getAdminValue('admin-dashboard-title')
+                },
+                task_sections: {
+                    ...(SITE_CONFIG.task_sections || {}),
+                    daily: { ...((SITE_CONFIG.task_sections || {}).daily || {}), label: getAdminValue('admin-daily-label'), path: getAdminValue('admin-daily-path') },
+                    weekly: { ...((SITE_CONFIG.task_sections || {}).weekly || {}), label: getAdminValue('admin-weekly-label'), reading_path: getAdminValue('admin-weekly-path') },
+                    share: { ...((SITE_CONFIG.task_sections || {}).share || {}), label: getAdminValue('admin-share-label') }
+                },
+                class_rep_shares: getSelectedAdminShareFiles(),
+                mounted_files: mounted,
+                members: MEMBERS,
+                weekly_schedule: WEEKLY_SCHEDULE.map(normalizeWeekPlan)
+            });
+        }
+
+        async function persistFullConfig(nextConfig) {
+            const result = await apiRequest('/admin/config', {
+                method: 'PUT',
+                body: JSON.stringify({ config: nextConfig })
+            });
+            SITE_CONFIG = normalizeSiteConfig(result.config || nextConfig);
+            MEMBERS = Array.isArray(result.members) ? result.members : (SITE_CONFIG.members || []);
+            TOTAL_MEMBERS = MEMBERS.length || 1;
+            WEEKLY_SCHEDULE = (Array.isArray(result.weeklySchedule) ? result.weeklySchedule : SITE_CONFIG.weekly_schedule || []).map(normalizeWeekPlan);
+            weeklyAssetsCache = null;
+            adminAssetsCache = null;
+            mdCache = { daily: null, weekly: null };
+            applySiteInfo();
+            updateDateUI();
+            renderMembers();
+            resetButtons();
+            renderStatus();
+            renderDashboard();
+            renderAdminMembers();
+            renderWeekPlanOptions();
+            renderAdminConfigFields();
+            return result;
+        }
+
+        async function saveConfigFromAdmin() {
+            try {
+                const result = await persistFullConfig(readConfigForm());
+                const suffix = result.backupPath ? '，已生成配置备份。' : '。';
+                setAdminSaveStatus(`config.json 已保存并读回校验通过${suffix}`, 'ok');
+                alert('config.json 已保存。');
+            } catch (error) {
+                setAdminSaveStatus(`保存失败：${error.message || error}`, 'warn');
+                alert(`保存失败：${error.message || error}`);
+            }
         }
 
         async function changeAdminPassword() {
@@ -3077,8 +3883,14 @@
         }
 
         function recordDoneLabel(record) {
-            return ['每日灵修', '周读物', '周视频', '周背经']
-                .filter(key => record[key] === '已完成')
+            return [
+                    ['每日灵修', 'daily'],
+                    ['周读物', 'book'],
+                    ['周视频', 'video'],
+                    ['周背经', 'verse']
+                ]
+                .filter(([label, key]) => isRecordDone(record, key, label))
+                .map(([label]) => label)
                 .join(' / ') || '打卡';
         }
 
@@ -3101,11 +3913,11 @@
                     return `
                         <div class="server-record-card">
                             <div class="server-record-title">
-                                <span>${escapeHtml(record['姓名'] || '')}</span>
+                                <span>${escapeHtml(getRecordName(record))}</span>
                                 <span>${escapeHtml(recordDoneLabel(record))}</span>
                             </div>
                             <div class="server-record-meta">
-                                日期：${escapeHtml(getLogicalDateStr(record))} ｜ 时间：${escapeHtml(formatLocalDateTime(record['打卡时间']))}
+                                日期：${escapeHtml(getLogicalDateStr(record))} ｜ 时间：${escapeHtml(formatLocalDateTime(getRecordTime(record)))}
                             </div>
                             ${note ? `<div class="server-record-note">记录：${escapeHtml(note)}</div>` : ''}
                         </div>
@@ -3129,11 +3941,13 @@
                         </div>
                         ${status.error ? `<div class="server-record-note">错误：${escapeHtml(status.error)}</div>` : ''}
                         <div class="storage-status-grid">
-                            <div class="storage-status-item"><span class="storage-status-label">成员名单</span>${escapeHtml(status.membersPath || '')}<br>${Number(status.membersCount || 0)} 人</div>
-                            <div class="storage-status-item"><span class="storage-status-label">周任务</span>${escapeHtml(status.weeklySchedulePath || '')}<br>${Number(status.weeklyScheduleCount || 0)} 条</div>
+                            <div class="storage-status-item"><span class="storage-status-label">成员名单</span>${escapeHtml(status.configPath || '')}<br>${Number(status.membersCount || 0)} 人</div>
+                            <div class="storage-status-item"><span class="storage-status-label">周任务</span>${escapeHtml(status.configPath || '')}<br>${Number(status.weeklyScheduleCount || 0)} 条</div>
                             <div class="storage-status-item"><span class="storage-status-label">记录文件</span>${escapeHtml(status.recordsPath || '')}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">配置文件</span>${escapeHtml(status.configPath || '')}</div>
                             <div class="storage-status-item"><span class="storage-status-label">文件大小</span>${Number(status.recordsFileSize || 0)} bytes</div>
                             <div class="storage-status-item"><span class="storage-status-label">备份目录</span>${escapeHtml(status.backupDir || '')}</div>
+                            <div class="storage-status-item"><span class="storage-status-label">配置备份目录</span>${escapeHtml(status.configBackupDir || '')}</div>
                             <div class="storage-status-item"><span class="storage-status-label">备份策略</span>${status.backupEnabled ? `开启，保留 ${Number(status.backupLimit || 0)} 份` : '关闭'}</div>
                         </div>
                     </div>
@@ -3167,6 +3981,11 @@
         async function persistMembersConfig() {
             MEMBERS = [...new Set(MEMBERS.map(name => String(name).trim()).filter(Boolean))];
             TOTAL_MEMBERS = MEMBERS.length || 1;
+            renderMembers();
+            resetButtons();
+            renderStatus();
+            renderDashboard();
+            renderAdminMembers();
             try {
                 const result = await apiRequest('/admin/members', {
                     method: 'PUT',
@@ -3174,33 +3993,45 @@
                 });
                 MEMBERS = result.members || MEMBERS;
                 TOTAL_MEMBERS = MEMBERS.length || 1;
+                SITE_CONFIG.members = MEMBERS;
                 renderMembers();
                 resetButtons();
                 renderStatus();
                 renderDashboard();
                 renderAdminMembers();
+                renderAdminConfigFields();
             } catch (error) {
-                alert("成员保存失败，请确认已登录后台。");
+                console.warn('Server member sync failed; localStorage kept:', error);
+                throw error;
             }
         }
 
         async function persistWeeklySchedule() {
             WEEKLY_SCHEDULE = WEEKLY_SCHEDULE.map(normalizeWeekPlan)
-                .filter(plan => plan.start && plan.end && plan.title)
+                .filter(plan => plan.start && plan.end)
                 .sort((a, b) => a.start.localeCompare(b.start));
+            updateDateUI();
+            resetButtons();
+            renderStatus();
+            renderDashboard();
+            renderWeekPlanOptions();
             try {
                 const result = await apiRequest('/admin/weekly-schedule', {
                     method: 'PUT',
                     body: JSON.stringify({ weeklySchedule: WEEKLY_SCHEDULE })
                 });
                 WEEKLY_SCHEDULE = (result.weeklySchedule || WEEKLY_SCHEDULE).map(normalizeWeekPlan);
+                SITE_CONFIG.weekly_schedule = WEEKLY_SCHEDULE;
+                adminAssetsCache = null;
                 updateDateUI();
                 resetButtons();
                 renderStatus();
                 renderDashboard();
                 renderWeekPlanOptions();
+                renderAdminConfigFields();
             } catch (error) {
-                alert("周任务保存失败，请确认已登录后台。");
+                console.warn('Server weekly schedule sync failed; localStorage kept:', error);
+                throw error;
             }
         }
 
@@ -3238,11 +4069,11 @@
 
         function renderDashboard() {
             let stats = {};
-            let userDailyDates = {}; let userBookContents = {}; let userVideoContents = {}; let userVerseContents = {};
+            let userDailyDates = {}; let userBookContents = {}; let userVideoContents = {};
 
             MEMBERS.forEach(m => { 
-                stats[m] = { totalD: 0, totalB: 0, totalV: 0, totalVerse: 0, perfectWeeks: 0, last7: 0, streak: 0 };
-                userDailyDates[m] = new Set(); userBookContents[m] = new Set(); userVideoContents[m] = new Set(); userVerseContents[m] = new Set();
+                stats[m] = { totalD: 0, totalB: 0, totalV: 0, perfectWeeks: 0, last7: 0, streak: 0 };
+                userDailyDates[m] = new Set(); userBookContents[m] = new Set(); userVideoContents[m] = new Set();
             });
 
             const todayStr = getSafeDateString(getRealToday());
@@ -3251,10 +4082,10 @@
             const sevenDaysAgoStr = getSafeDateString(sevenDaysAgo);
 
             globalRecords.forEach(r => {
-                const name = r['姓名']; if (!stats[name]) return;
+                const name = getRecordName(r); if (!stats[name]) return;
                 const rLogicalDate = getLogicalDateStr(r);
                 
-                if (r['每日灵修'] === '已完成') userDailyDates[name].add(rLogicalDate);
+                if (isRecordDone(r, 'daily', '每日灵修')) userDailyDates[name].add(rLogicalDate);
                 
                 let rWeekData = null;
                 for (let weekPlan of WEEKLY_SCHEDULE) {
@@ -3262,9 +4093,8 @@
                 }
 
                 if (rWeekData) {
-                    if (r['周读物'] === '已完成') userBookContents[name].add(rWeekData.title);
-                    if (r['周视频'] === '已完成') userVideoContents[name].add(rWeekData.video);
-                    if (r['周背经'] === '已完成') userVerseContents[name].add(rWeekData.verse);
+                    if (isRecordDone(r, 'book', '周读物')) userBookContents[name].add(rWeekData.title);
+                    if (isRecordDone(r, 'video', '周视频')) userVideoContents[name].add(rWeekData.video);
                 }
             });
 
@@ -3272,14 +4102,12 @@
                 stats[name].totalD = userDailyDates[name].size;
                 stats[name].totalB = userBookContents[name].size; 
                 stats[name].totalV = userVideoContents[name].size;
-                stats[name].totalVerse = userVerseContents[name].size;
 
                 let perfectCount = 0;
                 WEEKLY_SCHEDULE.forEach(weekPlan => {
                     if (weekPlan.start <= todayStr) {
                         if (userBookContents[name].has(weekPlan.title) &&
-                            userVideoContents[name].has(weekPlan.video) &&
-                            userVerseContents[name].has(weekPlan.verse)) {
+                            userVideoContents[name].has(weekPlan.video)) {
                             perfectCount++;
                         }
                     }
@@ -3304,7 +4132,7 @@
 
             Chart.defaults.font.family = '"Noto Sans SC", sans-serif'; Chart.defaults.color = '#8e8e93';
 
-            let sortedByTotal = MEMBERS.slice().sort((a, b) => (stats[b].totalD + stats[b].totalB + stats[b].totalV + stats[b].totalVerse) - (stats[a].totalD + stats[a].totalB + stats[a].totalV + stats[a].totalVerse));
+            let sortedByTotal = MEMBERS.slice().sort((a, b) => (stats[b].totalD + stats[b].totalB + stats[b].totalV) - (stats[a].totalD + stats[a].totalB + stats[a].totalV));
             chartInstances['total'] = new Chart(document.getElementById('chart-total'), {
                 type: 'bar',
                 data: {
@@ -3312,8 +4140,7 @@
                     datasets: [
                         { label: '灵修', data: sortedByTotal.map(m => stats[m].totalD), backgroundColor: '#10b981', borderRadius: 4 },
                         { label: '书', data: sortedByTotal.map(m => stats[m].totalB), backgroundColor: '#ec4899', borderRadius: 4 },
-                        { label: '视频', data: sortedByTotal.map(m => stats[m].totalV), backgroundColor: '#1189eb', borderRadius: 4 },
-                        { label: '背经', data: sortedByTotal.map(m => stats[m].totalVerse), backgroundColor: '#8b5cf6', borderRadius: 4 }
+                        { label: '视频', data: sortedByTotal.map(m => stats[m].totalV), backgroundColor: '#1189eb', borderRadius: 4 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } } }, scales: { x: { stacked: true, ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { stacked: true, beginAtZero: true } } }
@@ -3322,7 +4149,7 @@
             let sortedByPerfect = MEMBERS.slice().sort((a, b) => stats[b].perfectWeeks - stats[a].perfectWeeks);
             chartInstances['perfect'] = new Chart(document.getElementById('chart-perfect'), {
                 type: 'bar',
-                data: { labels: sortedByPerfect, datasets: [{ label: '三项全通关周数', data: sortedByPerfect.map(m => stats[m].perfectWeeks), backgroundColor: '#f59e0b', borderRadius: 6 }] },
+                data: { labels: sortedByPerfect, datasets: [{ label: '读物+视频通关周数', data: sortedByPerfect.map(m => stats[m].perfectWeeks), backgroundColor: '#f59e0b', borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }, y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 

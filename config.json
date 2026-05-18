@@ -1,0 +1,194 @@
+{
+  "site_info": {
+    "title": "科大门训打卡",
+    "brand_name": "黑门甘露",
+    "hero_kicker": "DISCIPLE TRAINING CHECK-IN",
+    "hero_desc": "门训打卡（点击头像可以查看人物月历）",
+    "dashboard_title": "香柏木数据统计中心"
+  },
+  "members": [
+    "顺丞",
+    "信择",
+    "明明",
+    "亮亮",
+    "杰涛",
+    "嘉杰",
+    "银华",
+    "青青",
+    "依萱",
+    "喜悦",
+    "胡蜜",
+    "馨香",
+    "虹伊",
+    "刘欣",
+    "义路",
+    "婷婷"
+  ],
+  "class_rep_shares": [
+    {
+      "title": "圣经纵览的目的与价值",
+      "url": "/Mentor/圣经纵览的目的与价值.pdf"
+    },
+    {
+      "title": "圣经引言（上）内容概要",
+      "url": "/Mentor/圣经引言（上）内容概要.pdf"
+    },
+    {
+      "title": "圣经引言（下）内容概要",
+      "url": "/Mentor/圣经引言（下）内容概要.pdf"
+    },
+    {
+      "title": "马太福音（上）导读",
+      "url": "/Mentor/马太福音（上）导读.pdf"
+    },
+    {
+      "title": "马太福音（下）导读",
+      "url": "/Mentor/马太福音（下）导读.pdf"
+    }
+  ],
+  "weekly_schedule": [
+    {
+      "start": "2026-04-06",
+      "end": "2026-04-12",
+      "title": "《基督是一切》马太福音：基督是我们的王",
+      "video": "新约圣经-01-211209-圣经引言(上)",
+      "verse": "罗马书 7:1-5",
+      "url": "http://nas.restinhim.online:5777/Newtestament/L1.mp4"
+    },
+    {
+      "start": "2026-04-13",
+      "end": "2026-04-19",
+      "title": "《基督是一切》马太福音：基督是我们的王",
+      "video": "新约圣经-02-190307-圣经引言(下)",
+      "verse": "罗马书 7:6-10",
+      "url": "http://nas.restinhim.online:5777/Newtestament/L2.mp4"
+    },
+    {
+      "start": "2026-04-20",
+      "end": "2026-04-26",
+      "title": "《基督是一切》马太福音：基督是我们的王",
+      "video": "新约圣经-03-220120-马太福音(上)",
+      "verse": "罗马书 7:11-15"
+    },
+    {
+      "start": "2026-04-27",
+      "end": "2026-05-03",
+      "title": "《基督是一切》马太福音：基督是我们的王",
+      "video": "新约圣经-04-220120-马太福音(下)",
+      "verse": "罗马书 7:16-20"
+    },
+    {
+      "start": "2026-05-04",
+      "end": "2026-05-10",
+      "title": "《基督是一切》马太福音：基督是我们的王",
+      "video": "新约圣经-圣经引言(上&下)&马太福音(上&下)",
+      "verse": "罗马书 7:1-10",
+      "outlineImage": "recite1.jpg"
+    },
+    {
+      "start": "2026-05-11",
+      "end": "2026-05-17",
+      "title": "《基督是一切》基督是神的仆人--马可福音",
+      "video": "新约圣经-07-220714-马可福音(上)",
+      "verse": "罗马书 7:11-15",
+      "outlineImage": "recite1.jpg"
+    },
+    {
+      "start": "2026-05-18",
+      "end": "2026-05-24",
+      "title": "《基督是一切》基督是人子--路加福音",
+      "video": "新约圣经-09-220818-路加福音(上)",
+      "verse": "罗马书 8:6-10"
+    },
+    {
+      "start": "2026-05-25",
+      "end": "2026-05-31",
+      "title": "《基督是一切》基督是人子--路加福音",
+      "video": "新约圣经-10-220818-路加福音(下)",
+      "verse": "罗马书 8:11-15"
+    },
+    {
+      "start": "2026-06-01",
+      "end": "2026-06-07",
+      "title": "《基督是一切》基督是神的儿子--约翰福音",
+      "video": "新约圣经-11-220901-约翰福音(上)",
+      "verse": "罗马书 8:16-20"
+    },
+    {
+      "start": "2026-06-08",
+      "end": "2026-06-14",
+      "title": "《基督是一切》基督是神的儿子--约翰福音",
+      "video": "新约圣经-12-220901-约翰福音(下)",
+      "verse": "罗马书 8:21-25"
+    }
+  ],
+  "task_sections": {
+    "daily": {
+      "label": "每日灵修",
+      "path": "./Kuangye.md"
+    },
+    "weekly": {
+      "label": "周课任务",
+      "reading_path": "./weekly_task.md"
+    },
+    "share": {
+      "label": "课代表分享"
+    }
+  },
+  "mounted_files": {
+    "videos": {
+      "label": "Newtestament 视频",
+      "dir": "Newtestament",
+      "publicPath": "/Newtestament",
+      "extensions": [
+        ".mp4",
+        ".webm",
+        ".mov",
+        ".m4v"
+      ]
+    },
+    "passages": {
+      "label": "Passage PDF",
+      "dir": "Passage",
+      "publicPath": "/Passage",
+      "extensions": [
+        ".pdf"
+      ]
+    },
+    "handouts": {
+      "label": "讲义 PDF",
+      "dir": "PPT",
+      "publicPath": "/PPT",
+      "extensions": [
+        ".pdf"
+      ]
+    },
+    "shares": {
+      "label": "资料分享 PDF",
+      "dir": "Mentor",
+      "publicPath": "/Mentor",
+      "extensions": [
+        ".pdf"
+      ]
+    },
+    "outlines": {
+      "label": "提纲图片",
+      "dir": ".",
+      "publicPath": "",
+      "extensions": [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp"
+      ]
+    },
+    "documents": {
+      "label": "Markdown 文件",
+      "dir": ".",
+      "publicPath": "",
+      "extensions": [
+        ".md"
+      ]
+    }
+  }
+}
