@@ -45,6 +45,7 @@ services:
     volumes:
       - ../data/assets:/data/agp/assets
       - ../Book:/data/agp/content/Book:ro
+      - ../Mentor:/data/agp/content/Mentor:ro
       - ../Passage:/data/agp/content/Passage:ro
       - ../PPT:/data/agp/content/PPT:ro
       - ../newtestament.md:/data/agp/content/newtestament.md:ro
@@ -64,5 +65,6 @@ services:
     volumes:
       - ../Passage:/usr/share/nginx/html/Passage:ro
       - ../PPT:/usr/share/nginx/html/PPT:ro
+      - ../Mentor:/usr/share/nginx/html/Mentor:ro
     ports:
-      - "${AGP_WEB_PORT:-5112}:80"
+      - "${AGP_WEB_PORT:-2973}:80"

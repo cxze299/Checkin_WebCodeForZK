@@ -13,6 +13,8 @@ data/
 !/Passage/.gitkeep
 /PPT/*
 !/PPT/.gitkeep
+/Mentor/*
+!/Mentor/.gitkeep
 .env
 .env.local
 .env.production
