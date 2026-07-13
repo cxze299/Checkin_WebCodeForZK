@@ -28,7 +28,7 @@ import (
 	"time"
 	"unicode"
 
-	_ "github.com/go-sql-driver/mysql"
+	mysqlDriver "github.com/go-sql-driver/mysql"
 	pdfapi "github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/xuri/excelize/v2"
 )
@@ -264,6 +264,12 @@ func withCommonHeaders(next http.Handler) http.Handler {
 }
 
 func (a *app) runMigrations() error {
+	if _, err := a.db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
+		filename VARCHAR(255) PRIMARY KEY,
+		applied_at DATETIME(3) NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`); err != nil {
+		return fmt.Errorf("create schema_migrations: %w", err)
+	}
 	entries, err := os.ReadDir(a.migrationsDir)
 	if err != nil {
 		return err
@@ -272,17 +278,41 @@ func (a *app) runMigrations() error {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".sql") {
 			continue
 		}
+		var applied int
+		if err := a.db.QueryRow("SELECT COUNT(1) FROM schema_migrations WHERE filename=?", entry.Name()).Scan(&applied); err != nil {
+			return fmt.Errorf("check migration %s: %w", entry.Name(), err)
+		}
+		if applied > 0 {
+			continue
+		}
 		data, err := os.ReadFile(filepath.Join(a.migrationsDir, entry.Name()))
 		if err != nil {
 			return err
 		}
 		for _, stmt := range splitSQL(string(data)) {
 			if _, err := a.db.Exec(stmt); err != nil {
+				if isIgnorableMigrationError(err) {
+					log.Printf("migration %s skipped existing schema object: %v", entry.Name(), err)
+					continue
+				}
 				return fmt.Errorf("%s: %w", entry.Name(), err)
 			}
 		}
+		if _, err := a.db.Exec("INSERT INTO schema_migrations(filename,applied_at) VALUES(?,?)", entry.Name(), nowSQL()); err != nil {
+			return fmt.Errorf("record migration %s: %w", entry.Name(), err)
+		}
 	}
 	return nil
+}
+
+func isIgnorableMigrationError(err error) bool {
+	var mysqlErr *mysqlDriver.MySQLError
+	if !errors.As(err, &mysqlErr) {
+		return false
+	}
+	// DDL in MySQL commits implicitly. If a previous startup stopped between
+	// statements, retrying must be able to finish the remaining statements.
+	return mysqlErr.Number == 1060 || mysqlErr.Number == 1061
 }
 
 func splitSQL(s string) []string {

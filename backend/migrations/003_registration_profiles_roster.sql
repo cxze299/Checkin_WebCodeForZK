@@ -1,6 +1,10 @@
 ALTER TABLE users
-  ADD COLUMN email_normalized VARCHAR(255) NULL AFTER email,
-  ADD COLUMN avatar_path VARCHAR(1024) NOT NULL DEFAULT '' AFTER phone,
+  ADD COLUMN email_normalized VARCHAR(255) NULL AFTER email;
+
+ALTER TABLE users
+  ADD COLUMN avatar_path VARCHAR(1024) NOT NULL DEFAULT '' AFTER phone;
+
+ALTER TABLE users
   ADD COLUMN profile_updated_at DATETIME(3) NULL AFTER avatar_path;
 
 UPDATE users SET email_normalized = NULLIF(LOWER(TRIM(email)), '');
