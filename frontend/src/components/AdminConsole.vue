@@ -26,6 +26,9 @@ const rosterLeader = ref(false);
 const rosterMinor = ref(false);
 const studyWeeksInput = ref(null);
 const backupInput = ref(null);
+const legacyConfigInput = ref(null);
+const legacyRecordsInput = ref(null);
+const legacyPreview = ref(null);
 
 const settings = computed(() => learningConfig.value || {});
 const daily = computed(() => settings.value.task_sections?.daily || {});
@@ -103,6 +106,122 @@ async function addRosterEntry() {
 async function runExport(path, name, message) { try { await downloadAdminExport(path, name, message); } catch (error) { toast(error.message); } }
 async function runWeeksImport() { try { await importStudyWeeksExcel(studyWeeksInput.value); } catch (error) { toast(error.message); } }
 async function runBackupImport() { try { await importLocalBackupJSON(backupInput.value); } catch (error) { toast(error.message); } }
+
+function normalizedName(value) { return String(value || '').trim().replace(/\s+/g, '').toLocaleLowerCase(); }
+function titleText(value) { return Array.isArray(value) ? value.filter(Boolean).join(' / ') : String(value || ''); }
+function boolValue(value, fallback = true) { return typeof value === 'boolean' ? value : fallback; }
+function legacyBinding(item, fallbackType = 'pdf') {
+  if (!item) return null;
+  if (typeof item === 'string') return { title: item, url: '', type: fallbackType, asset_id: 0 };
+  return { title: item.title || '', url: item.url || '', type: item.type || fallbackType, asset_id: 0 };
+}
+
+function currentMemberMap() {
+  const result = new Map();
+  for (const member of members.value) {
+    const profile = {
+      username: member.username,
+      display_name: member.member_name || member.display_name || member.username,
+      name_pinyin: member.name_pinyin || member.username,
+      roles: Array.isArray(member.roles) ? member.roles : [],
+    };
+    for (const name of [member.member_name, member.display_name, member.username, member.name_pinyin]) {
+      if (name) result.set(normalizedName(name), profile);
+    }
+  }
+  return result;
+}
+
+function convertLegacyWeek(week) {
+  const videoItems = Array.isArray(week.videos) ? week.videos.map((item) => legacyBinding(item, 'video')).filter(Boolean) : [];
+  if (!videoItems.length && (week.video || week.url)) videoItems.push({ title: week.video || '本周视频', url: week.url || '', type: 'video', asset_id: 0 });
+  return {
+    start_date: week.start || week.start_date || '', end_date: week.end || week.end_date || '', title: titleText(week.title),
+    verse_ref: week.verse || week.verse_ref || '', recite_text: week.reciteText || week.recite_text || '',
+    book_enabled: boolValue(week.book_enabled), video_enabled: boolValue(week.video_enabled),
+    verse_enabled: boolValue(week.verse_enabled), outline_enabled: boolValue(week.outline_enabled),
+    readings: (Array.isArray(week.readings) ? week.readings : []).map((item) => legacyBinding(item, 'pdf')).filter(Boolean),
+    videos: videoItems,
+    outline: week.outlineImage ? { title: '提纲图片', url: week.outlineImage, type: 'image', asset_id: 0 } : legacyBinding(week.outline, 'image') || { title: '', url: '', type: 'image', asset_id: 0 },
+  };
+}
+
+function recordRows(record, username) {
+  const common = {
+    username, logical_date: record.logical_date || '', checkin_time: record.checkin_time || '',
+    part: record.part || '', detail: record.detail || '', note: record.note || '',
+    is_retro: record.is_retro === true || record.is_retro === 1 || ['1','true','yes'].includes(String(record.is_retro || '').toLowerCase()),
+  };
+  const rows = [];
+  const add = (taskType) => rows.push({ ...common, task_type: taskType, detail: common.detail || taskType });
+  if (String(record.daily || '').toLowerCase() === 'done') add('daily_devotion');
+  if (String(record.book || '').toLowerCase() === 'done') add('weekly_book');
+  if (String(record.video || '').toLowerCase() === 'done') add('weekly_video');
+  if (String(record.verse || '').toLowerCase() === 'done') add('weekly_verse');
+  if (record.kind === 'reflection') add('reflection');
+  if (record.kind === 'recite_exam') add('recite_exam');
+  return rows;
+}
+
+async function previewLegacyRestore() {
+  try {
+    const configFile = legacyConfigInput.value?.files?.[0];
+    if (!configFile) return toast('请先选择旧网站的 config.json');
+    const config = JSON.parse(await configFile.text());
+    const recordsFile = legacyRecordsInput.value?.files?.[0];
+    const records = recordsFile ? JSON.parse(await recordsFile.text()) : [];
+    if (!Array.isArray(config.weekly_schedule)) throw new Error('config.json 中没有 weekly_schedule');
+    if (!Array.isArray(records)) throw new Error('打卡记录 JSON 必须是数组');
+    const memberMap = currentMemberMap();
+    const unmatched = new Set();
+    const checkins = [];
+    for (const record of records) {
+      const member = memberMap.get(normalizedName(record.name));
+      if (!member?.username) { if (record.name) unmatched.add(record.name); continue; }
+      checkins.push(...recordRows(record, member.username));
+    }
+    const uniqueMembers = [...new Map([...memberMap.values()].map((item) => [item.username, item])).values()];
+    legacyPreview.value = {
+      payload: {
+        version: 1, exported_at: new Date().toISOString(), group: { id: currentGroupID.value },
+        settings: { site_info: config.site_info || {}, task_sections: config.task_sections || {}, mounted_files: config.mounted_files || {}, class_rep_shares: config.class_rep_shares || [] },
+        members: uniqueMembers, weeks: config.weekly_schedule.map(convertLegacyWeek), checkins, feedbacks: [], assets: [],
+      },
+      weeks: config.weekly_schedule.length, sourceRecords: records.length, checkins: checkins.length, unmatched: [...unmatched],
+    };
+  } catch (error) { legacyPreview.value = null; toast(`解析失败：${error.message}`); }
+}
+
+async function confirmLegacyRestore() {
+  if (!legacyPreview.value?.payload) return;
+  const message = `将用旧网站数据替换当前组的任务设置和打卡记录。\n\n任务：${legacyPreview.value.weeks} 周\n打卡明细：${legacyPreview.value.checkins} 条\n\n确认继续吗？`;
+  if (!window.confirm(message)) return;
+  try {
+    await api('/admin/imports/local-backup', { method: 'POST', body: JSON.stringify(legacyPreview.value.payload) });
+    legacyPreview.value = null;
+    if (legacyConfigInput.value) legacyConfigInput.value.value = '';
+    if (legacyRecordsInput.value) legacyRecordsInput.value.value = '';
+    await loadAdminData(true); toast('旧网站任务设置和打卡记录已恢复');
+  } catch (error) { toast(`恢复失败：${error.message}`); }
+}
+
+function selectResourceForTask(item) {
+  if (!weekDraft.value) createWeekDraft();
+  const value = librarySelectionValue(item);
+  if (!value) return toast('该资源没有可用地址');
+  const isImage = item.type === 'image' || item.category === 'outline';
+  const isVideo = item.type === 'video' || item.category === 'video';
+  if (isImage) applyOutlineSelection(value);
+  else {
+    const kind = isVideo ? 'videos' : 'readings';
+    const list = weekDraft.value?.[kind] || [];
+    let index = list.findIndex((entry) => !entry.title && !entry.url && !entry.asset_id);
+    if (index < 0) { addWeekBinding(kind); index = list.length; }
+    applyBindingSelection(kind, index, value);
+  }
+  setAdminSection('learning');
+  toast('资源已选入当前任务，请确认周次后保存');
+}
 
 onMounted(() => {
   if (!['overview','learning','members','library','roster','data'].includes(adminSection.value)) setAdminSection('overview');
@@ -187,7 +306,7 @@ onMounted(() => {
       <section v-else-if="adminSection === 'library'" class="ios-admin-page">
         <header class="ios-page-heading"><div><small>LIBRARY</small><h1>学习资源</h1><p>上传一次，即可在周任务中重复使用。</p></div></header>
         <article class="ios-upload-panel"><span class="upload-illustration"><AppIcon name="upload" :size="28" /></span><div><b>上传新资源</b><small>支持 PDF、Markdown、图片等学习资料</small></div><select v-model="uploadCategory"><option value="book">PDF 读物</option><option value="markdown">Markdown</option><option value="handout">讲义</option><option value="outline">提纲图片</option></select><input ref="uploadInput" type="file" /><button :disabled="!canEditLearning" type="button" @click="uploadResource">上传</button></article>
-        <div class="ios-resource-sections"><section v-for="section in resourceLibrary" :key="section.key || section.label" class="ios-panel"><div class="panel-heading"><div><h2>{{ section.label }}</h2><small>{{ section.count || 0 }} 项</small></div></div><div v-if="section.items?.length" class="ios-resource-list"><button v-for="item in section.items" :key="item.id || item.url" type="button" @click="previewLibraryItem(item)"><span><AppIcon name="file" /></span><div><b>{{ item.title || item.original_name }}</b><small>{{ item.original_name || '点击预览' }}</small></div><AppIcon name="chevron" /></button></div><div v-else class="ios-empty compact">暂无资源</div></section></div>
+        <div class="ios-resource-sections"><section v-for="section in resourceLibrary" :key="section.key || section.label" class="ios-panel"><div class="panel-heading"><div><h2>{{ section.label }}</h2><small>{{ section.count || 0 }} 项</small></div></div><div v-if="section.items?.length" class="ios-resource-list"><div v-for="item in section.items" :key="item.id || item.url" class="ios-resource-row"><button class="resource-preview" type="button" @click="previewLibraryItem(item)"><span><AppIcon name="file" /></span><div><b>{{ item.title || item.original_name }}</b><small>{{ item.original_name || '点击预览' }}</small></div></button><button class="ios-resource-use" type="button" @click="selectResourceForTask(item)">选入任务</button></div></div><div v-else class="ios-empty compact">暂无资源</div></section></div>
       </section>
 
       <section v-else-if="adminSection === 'roster' && user?.is_super_admin" class="ios-admin-page">
@@ -198,7 +317,8 @@ onMounted(() => {
 
       <section v-else-if="adminSection === 'data'" class="ios-admin-page">
         <header class="ios-page-heading"><div><small>DATA</small><h1>数据工具</h1><p>导出报表和执行恢复操作。</p></div></header>
-        <div class="ios-panel-grid"><article class="ios-panel"><div class="panel-heading"><div><h2>导出数据</h2><small>下载当前小组的数据文件</small></div></div><div class="ios-action-list"><button type="button" @click="runExport('/admin/exports/checkins-detail','checkins-detail.csv','打卡明细已下载')"><AppIcon name="database" /><span><b>打卡明细</b><small>CSV 格式</small></span><AppIcon name="chevron" /></button><button type="button" @click="runExport('/admin/exports/daily-summary','daily-summary.csv','每日汇总已下载')"><AppIcon name="chart" /><span><b>每日汇总</b><small>CSV 格式</small></span><AppIcon name="chevron" /></button><button type="button" @click="runExport('/admin/exports/study-weeks','study-weeks.xlsx','任务计划已下载')"><AppIcon name="calendar" /><span><b>任务计划</b><small>Excel 格式</small></span><AppIcon name="chevron" /></button><button type="button" @click="runExport('/admin/exports/local-backup','local-backup.json','备份已下载')"><AppIcon name="database" /><span><b>完整备份</b><small>JSON 格式</small></span><AppIcon name="chevron" /></button></div></article><article class="ios-panel"><div class="panel-heading"><div><h2>导入与恢复</h2><small>写入当前小组，请谨慎操作</small></div></div><div class="ios-stack"><label><span>导入任务计划 Excel</span><input ref="studyWeeksInput" type="file" accept=".xlsx,.xlsm" /></label><button class="ios-secondary-button" :disabled="!canEditLearning" type="button" @click="runWeeksImport">导入任务计划</button><label><span>恢复本地备份 JSON</span><input ref="backupInput" type="file" accept=".json" /></label><button class="ios-danger-button" :disabled="!canEditLearning" type="button" @click="runBackupImport">恢复备份</button></div></article></div>
+        <div class="ios-panel-grid"><article class="ios-panel"><div class="panel-heading"><div><h2>导出数据</h2><small>下载当前小组的数据文件</small></div></div><div class="ios-action-list"><button type="button" @click="runExport('/admin/exports/checkins-detail','checkins-detail.csv','打卡明细已下载')"><AppIcon name="database" /><span><b>打卡明细</b><small>CSV 格式</small></span><AppIcon name="chevron" /></button><button type="button" @click="runExport('/admin/exports/daily-summary','daily-summary.csv','每日汇总已下载')"><AppIcon name="chart" /><span><b>每日汇总</b><small>CSV 格式</small></span><AppIcon name="chevron" /></button><button type="button" @click="runExport('/api/admin/exports/study-weeks','study-weeks.xlsx','任务计划已下载')"><AppIcon name="calendar" /><span><b>任务计划</b><small>Excel 格式</small></span><AppIcon name="chevron" /></button><button type="button" @click="runExport('/admin/exports/local-backup','local-backup.json','备份已下载')"><AppIcon name="database" /><span><b>完整备份</b><small>JSON 格式</small></span><AppIcon name="chevron" /></button></div></article><article class="ios-panel"><div class="panel-heading"><div><h2>导入与恢复</h2><small>写入当前小组，请谨慎操作</small></div></div><div class="ios-stack"><label><span>导入任务计划 Excel</span><input ref="studyWeeksInput" type="file" accept=".xlsx,.xlsm" /></label><button class="ios-secondary-button" :disabled="!canEditLearning" type="button" @click="runWeeksImport">导入任务计划</button><label><span>恢复新版完整备份 JSON</span><input ref="backupInput" type="file" accept=".json" /></label><button class="ios-danger-button" :disabled="!canEditLearning" type="button" @click="runBackupImport">恢复新版备份</button></div></article></div>
+        <article class="ios-panel ios-legacy-restore"><div class="panel-heading"><div><h2>从旧网站恢复</h2><small>直接读取旧版 config.json 和 records.json，恢复到当前小组</small></div></div><div class="ios-form-grid"><label><span>旧网站 config.json（必选）</span><input ref="legacyConfigInput" type="file" accept=".json" @change="legacyPreview = null" /></label><label><span>旧网站打卡记录 records.json（可选）</span><input ref="legacyRecordsInput" type="file" accept=".json" @change="legacyPreview = null" /></label></div><div class="legacy-actions"><button class="ios-secondary-button" :disabled="!canEditLearning" type="button" @click="previewLegacyRestore">解析并预览</button><button v-if="legacyPreview" class="ios-danger-button" :disabled="!canEditLearning" type="button" @click="confirmLegacyRestore">确认恢复到当前组</button></div><div v-if="legacyPreview" class="legacy-preview"><div><b>{{ legacyPreview.weeks }}</b><span>周任务</span></div><div><b>{{ legacyPreview.sourceRecords }}</b><span>原始打卡记录</span></div><div><b>{{ legacyPreview.checkins }}</b><span>转换后打卡明细</span></div><p v-if="legacyPreview.unmatched.length"><strong>{{ legacyPreview.unmatched.length }} 个姓名未匹配，不会导入：</strong>{{ legacyPreview.unmatched.slice(0,12).join('、') }}<template v-if="legacyPreview.unmatched.length > 12"> 等</template></p><p v-else class="success-copy">所有打卡姓名均已匹配当前组成员。</p></div></article>
       </section>
     </main>
   </div>

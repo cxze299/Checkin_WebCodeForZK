@@ -272,7 +272,8 @@ function triggerDownload(blob, filename) {
 }
 
 export async function downloadAdminExport(path, fallbackName, successMessage = '文件已开始下载') {
-  const res = await fetch(`/api${path}`, { headers: authHeaders() });
+  const requestPath = String(path || '').startsWith('/api/') ? path : `/api${path}`;
+  const res = await fetch(requestPath, { headers: authHeaders() });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || `HTTP ${res.status}`);

@@ -17,6 +17,7 @@ const authMode = ref('login');
 const loginIdentifier = ref('');
 const loginPassword = ref('');
 const authError = ref('');
+const authNotice = ref('');
 const registrationGroups = ref([]);
 const registerName = ref('');
 const registerGroupID = ref('');
@@ -53,7 +54,7 @@ function friendlyError(code) {
 }
 
 async function chooseAuthMode(mode) {
-  authMode.value = mode; authError.value = '';
+  authMode.value = mode; authError.value = ''; authNotice.value = '';
   if (mode === 'register' && !registrationGroups.value.length) {
     try { const data = await api('/auth/registration-groups'); registrationGroups.value = data.groups || []; }
     catch (error) { authError.value = friendlyError(error.message); }
@@ -97,7 +98,14 @@ async function uploadAvatar() {
 async function changePassword() {
   if (newPassword.value.length < 8) return toast('新密码至少需要 8 位');
   if (newPassword.value !== confirmPassword.value) return toast('两次输入的新密码不一致');
-  try { await api('/auth/change-password', { method: 'POST', body: JSON.stringify({ old_password: oldPassword.value, new_password: newPassword.value }) }); oldPassword.value = ''; newPassword.value = ''; confirmPassword.value = ''; toast('登录密码已更新'); }
+  try {
+    const identifier = user.value?.email || user.value?.username || '';
+    await api('/auth/change-password', { method: 'POST', body: JSON.stringify({ old_password: oldPassword.value, new_password: newPassword.value }) });
+    oldPassword.value = ''; newPassword.value = ''; confirmPassword.value = '';
+    logout();
+    authMode.value = 'login'; loginIdentifier.value = identifier; loginPassword.value = '';
+    authNotice.value = '密码已更新，请使用新密码重新登录。';
+  }
   catch (error) { toast(friendlyError(error.message)); }
 }
 
@@ -147,6 +155,7 @@ async function chooseCalendarDate(day) { if (!day || !calendar.value?.month) ret
           <button :disabled="registrationPreview?.claimed" type="submit">注册并进入</button>
         </form>
       </template>
+      <div v-if="authNotice" class="ios-form-success">{{ authNotice }}</div>
       <div v-if="authError" class="ios-form-error">{{ authError }}</div>
     </section>
   </div>

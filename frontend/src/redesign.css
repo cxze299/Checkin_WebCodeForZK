@@ -16,6 +16,27 @@
   --ios-radius: 24px;
 }
 
+.ios-resource-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; align-items: center; border-bottom: 1px solid var(--ios-border); }
+.ios-resource-row .resource-preview { width: 100%; display: grid; grid-template-columns: 42px 1fr; gap: 10px; align-items: center; padding: 13px 4px; border-radius: 0; background: transparent; color: var(--ios-text); text-align: left; box-shadow: none; }
+.ios-resource-row .resource-preview:hover { background: transparent; color: var(--ios-blue); box-shadow: none; transform: none; }
+.ios-resource-row .resource-preview > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: var(--ios-blue-soft); color: var(--ios-blue); }
+.ios-resource-use { min-height: 36px !important; padding: 8px 11px !important; border-radius: 11px !important; font-size: 12px; box-shadow: none !important; white-space: nowrap; }
+.ios-legacy-restore { margin-top: 16px; }
+.legacy-actions { display: flex; gap: 10px; margin-top: 16px; }
+.legacy-preview { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 16px; padding: 16px; border-radius: 16px; background: var(--ios-blue-soft); }
+.legacy-preview > div { display: grid; gap: 2px; }
+.legacy-preview b { font-size: 25px; color: var(--ios-blue); }
+.legacy-preview span { color: var(--ios-secondary); font-size: 12px; }
+.legacy-preview p { grid-column: 1/-1; margin: 4px 0 0; color: #b45309; font-size: 13px; line-height: 1.6; }
+.legacy-preview .success-copy { color: #15803d; }
+.ios-form-success { padding: 12px 14px; border-radius: 13px; background: rgba(52,199,89,.12); color: #15803d; font-size: 13px; font-weight: 700; }
+
+@media (max-width: 620px) {
+  .legacy-preview { grid-template-columns: 1fr; }
+  .legacy-preview p { grid-column: auto; }
+  .legacy-actions { align-items: stretch; flex-direction: column; }
+}
+
 body { background: var(--ios-bg); color: var(--ios-text); }
 .ios-app-shell button, .ios-auth-screen button { letter-spacing: 0; }
 .ios-app-shell input, .ios-app-shell select, .ios-app-shell textarea,
