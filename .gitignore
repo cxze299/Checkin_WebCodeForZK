@@ -7,6 +7,12 @@ frontend/dist/
 output/
 *.log
 data/
+/Book/*
+!/Book/.gitkeep
+/Passage/*
+!/Passage/.gitkeep
+/PPT/*
+!/PPT/.gitkeep
 .env
 .env.local
 .env.production
