@@ -1,4 +1,11 @@
 node_modules/
+frontend/dist/
+/backend/main
+/backend/name.json
+.playwright-cli/
+.trae/
+output/
+*.log
 data/
 .env
 .env.local

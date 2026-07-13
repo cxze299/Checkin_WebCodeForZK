@@ -1,0 +1,1075 @@
+{
+  "site_info": {
+    "title": "Agape门训打卡",
+    "brand_name": "AGAPE",
+    "hero_kicker": "DISCIPLE TRAINING CHECK-IN",
+    "hero_desc": "门训打卡，点击头像可查看个人月历，点击对应日期可以补卡。",
+    "dashboard_title": "数据统计中心",
+    "video_base_url": "https://mouss.synology.me:1050/Newtestament/"
+  },
+  "members": [
+    "张迦勒",
+    "陈思佳",
+    "廖美倩",
+    "苏相宜",
+    "李群",
+    "邹桂芬",
+    "戴许诺",
+    "许水英",
+    "贺丽华",
+    "朱灵",
+    "李思思",
+    "何金群",
+    "胡方舟",
+    "戴维多尔",
+    "仇健棒",
+    "彭朋",
+    "李英红",
+    "杨留影"
+  ],
+  "class_rep_shares": [
+    {
+      "title": "路加福音（上）导读",
+      "url": "/Mentor/%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+    },
+    {
+      "title": "路加福音（下）导读",
+      "url": "/Mentor/%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+    },
+    {
+      "title": "马可福音（上）导读",
+      "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+    },
+    {
+      "title": "马可福音（下）导读",
+      "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+    },
+    {
+      "title": "马太福音（上）导读",
+      "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+    },
+    {
+      "title": "马太福音（下）导读",
+      "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+    },
+    {
+      "title": "圣经引言（上）内容概要",
+      "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+    },
+    {
+      "title": "圣经引言（下）内容概要",
+      "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+    },
+    {
+      "title": "圣经纵览的目的与价值",
+      "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+    }
+  ],
+  "weekly_schedule": [
+    {
+      "id": 1,
+      "start": "2026-05-03",
+      "end": "2026-05-09",
+      "title": [
+        "《基督是一切》基督是神的仆人--马可福音（25-28页）",
+        "《救赎史剧》纵览 79-84页（读到基督的赎罪工作为止）"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》基督是神的仆人--马可福音（25-28页）",
+          "url": "",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》纵览 79-84页（读到基督的赎罪工作为止）",
+          "url": "",
+          "type": "pdf"
+        }
+      ],
+      "video": "07 马可福音（上）",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "",
+      "videos": [
+        {
+          "title": "07 马可福音（上）",
+          "url": ""
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "id": 2,
+      "start": "2026-05-10",
+      "end": "2026-05-16",
+      "title": [
+        "《基督是一切》基督是神的仆人--马可福音",
+        "《救赎史剧》纵览 84-88页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》基督是神的仆人--马可福音",
+          "url": "",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》纵览 84-88页",
+          "url": "",
+          "type": "pdf"
+        }
+      ],
+      "video": "08 马可福音（下）",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "",
+      "videos": [
+        {
+          "title": "08 马可福音（下）",
+          "url": ""
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "id": 3,
+      "start": "2026-05-17",
+      "end": "2026-05-23",
+      "title": "《基督是一切》基督是神的仆人--马可福音（28-35页）",
+      "readings": [
+        {
+          "title": "《基督是一切》基督是神的仆人--马可福音（28-35页）",
+          "url": "",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-08-220714-马可福音(下)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-08-220714-%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3(%E4%B8%8B).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-08-220714-马可福音(下)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-08-220714-%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3(%E4%B8%8B).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "id": 4,
+      "start": "2026-05-24",
+      "end": "2026-05-30",
+      "title": "《基督是一切》36-44页（读到主耶稣的工作为止）",
+      "readings": [
+        {
+          "title": "《基督是一切》36-44页（读到主耶稣的工作为止）",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-09-220818-路加福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-09-220818-路加福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "id": 5,
+      "start": "2026-05-31",
+      "end": "2026-06-06",
+      "title": [
+        "《基督是一切》36-40页",
+        "《救赎史剧》纵览 88-96页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》36-40页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》纵览 88-96页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-09-220818-路加福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-09-220818-路加福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "id": 6,
+      "start": "2026-06-07",
+      "end": "2026-06-13",
+      "title": [
+        "基督是一切40-44页",
+        "救赎史剧96-102页"
+      ],
+      "readings": [
+        {
+          "title": "基督是一切40-44页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "救赎史剧96-102页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-10-220818-路加福音(下)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-10-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8B).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-10-220818-路加福音(下)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-10-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8B).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "id": 7,
+      "start": "2026-06-14",
+      "end": "2026-06-20",
+      "title": [
+        "《基督是一切》44-48页",
+        "《救赎史剧》102-108页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》44-48页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》102-108页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-09-220818-路加福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-09-220818-路加福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "id": 8,
+      "start": "2026-06-21",
+      "end": "2026-06-27",
+      "title": [
+        "《基督是一切》48-52页",
+        "《救赎史剧》109-118页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》48-52页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》109-118页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-11-220901-约翰福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-11-220901-%E7%BA%A6%E7%BF%B0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-11-220901-约翰福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-11-220901-%E7%BA%A6%E7%BF%B0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "id": 9,
+      "start": "2026-06-28",
+      "end": "2026-07-04",
+      "title": [
+        "《基督是一切》约翰福音53-57页",
+        "《救赎史剧》118-125页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》约翰福音53-57页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》118-125页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-11-220901-约翰福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-11-220901-%E7%BA%A6%E7%BF%B0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-11-220901-约翰福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-11-220901-%E7%BA%A6%E7%BF%B0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "id": 10,
+      "start": "2026-07-05",
+      "end": "2026-07-11",
+      "title": [
+        "《基督是一切》基督是神的仆人--马可福音（25-28页）",
+        "《救赎史剧》纵览 79-84页（读到基督的赎罪工作为止）"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》基督是神的仆人--马可福音（25-28页）",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》纵览 79-84页（读到基督的赎罪工作为止）",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-11-220901-约翰福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-11-220901-%E7%BA%A6%E7%BF%B0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-11-220901-约翰福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-11-220901-%E7%BA%A6%E7%BF%B0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "路加福音（上）导读",
+          "url": "/Mentor/%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "路加福音（下）导读",
+          "url": "/Mentor/%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 9
+    },
+    {
+      "id": 11,
+      "start": "2026-07-12",
+      "end": "2026-07-18",
+      "title": [
+        "《基督是一切》36-40页",
+        "《救赎史剧》纵览 88-96页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》36-40页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》纵览 88-96页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-09-220818-路加福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-09-220818-路加福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 10
+    },
+    {
+      "id": 12,
+      "start": "2026-07-19",
+      "end": "2026-07-25",
+      "title": [
+        "《基督是一切》36-40页",
+        "《救赎史剧》纵览 88-96页"
+      ],
+      "readings": [
+        {
+          "title": "《基督是一切》36-40页",
+          "url": "/Book/%E5%9F%BA%E7%9D%A3%E6%98%AF%E4%B8%80%E5%88%87-%E6%B1%9F%E5%AE%88%E9%81%93.pdf",
+          "type": "pdf"
+        },
+        {
+          "title": "《救赎史剧》纵览 88-96页",
+          "url": "/Book/%E5%9C%A3%E7%BB%8F%E6%95%91%E8%B5%8E%E5%8F%B2%E5%89%A7%E7%BB%BC%E8%A7%88-2.pdf",
+          "type": "pdf"
+        }
+      ],
+      "video": "新约圣经-09-220818-路加福音(上)",
+      "book_enabled": true,
+      "video_enabled": true,
+      "verse_enabled": true,
+      "outline_enabled": true,
+      "verse": "",
+      "reciteText": "",
+      "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4",
+      "videos": [
+        {
+          "title": "新约圣经-09-220818-路加福音(上)",
+          "url": "/Newtestament/%5BB311%5D%E6%96%B0%E7%BA%A6%E5%9C%A3%E7%BB%8F-09-220818-%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3(%E4%B8%8A).mp4"
+        }
+      ],
+      "outlineImage": "",
+      "shares": [
+        {
+          "title": "路加福音（上）导读",
+          "url": "/Mentor/%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "路加福音（下）导读",
+          "url": "/Mentor/%E8%B7%AF%E5%8A%A0%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马可福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%8F%AF%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（上）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8A%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "马太福音（下）导读",
+          "url": "/Mentor/%E9%A9%AC%E5%A4%AA%E7%A6%8F%E9%9F%B3%EF%BC%88%E4%B8%8B%EF%BC%89%E5%AF%BC%E8%AF%BB.pdf"
+        },
+        {
+          "title": "圣经引言（上）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8A%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经引言（下）内容概要",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E5%BC%95%E8%A8%80%EF%BC%88%E4%B8%8B%EF%BC%89%E5%86%85%E5%AE%B9%E6%A6%82%E8%A6%81.pdf"
+        },
+        {
+          "title": "圣经纵览的目的与价值",
+          "url": "/Mentor/%E5%9C%A3%E7%BB%8F%E7%BA%B5%E8%A7%88%E7%9A%84%E7%9B%AE%E7%9A%84%E4%B8%8E%E4%BB%B7%E5%80%BC.pdf"
+        }
+      ],
+      "sort_order": 11
+    }
+  ],
+  "task_sections": {
+    "daily": {
+      "label": "每日灵修",
+      "path": "/newtestament.md",
+      "icon": "☀️",
+      "devotion": {
+        "enabled": true,
+        "title": "每日灵修新约",
+        "button_label": "点击阅读",
+        "type": "markdown",
+        "path": "/newtestament.md",
+        "mode": "numbered",
+        "numbered_start_date": "2026-05-27",
+        "numbered_start": 43
+      },
+      "scripture": {
+        "enabled": true,
+        "label": "每日读经",
+        "book": "路加福音",
+        "book_id": "42",
+        "start_date": "2026-05-27",
+        "start_chapter": 1,
+        "max_chapters": 24,
+        "type": "iframe",
+        "url_template": "https://www.wordproject.org/bibles/gb/{book_id}/{chapter}.htm",
+        "sequence": [
+          {
+            "book": "路加福音",
+            "book_id": "42",
+            "chapters": 24
+          },
+          {
+            "book": "约翰福音",
+            "book_id": "43",
+            "chapters": 21
+          },
+          {
+            "book": "使徒行传",
+            "book_id": "44",
+            "chapters": 28
+          },
+          {
+            "book": "罗马书",
+            "book_id": "45",
+            "chapters": 16
+          },
+          {
+            "book": "哥林多前书",
+            "book_id": "46",
+            "chapters": 16
+          },
+          {
+            "book": "哥林多后书",
+            "book_id": "47",
+            "chapters": 13
+          },
+          {
+            "book": "加拉太书",
+            "book_id": "48",
+            "chapters": 6
+          },
+          {
+            "book": "以弗所书",
+            "book_id": "49",
+            "chapters": 6
+          },
+          {
+            "book": "腓立比书",
+            "book_id": "50",
+            "chapters": 4
+          },
+          {
+            "book": "歌罗西书",
+            "book_id": "51",
+            "chapters": 4
+          },
+          {
+            "book": "帖撒罗尼迦前书",
+            "book_id": "52",
+            "chapters": 5
+          },
+          {
+            "book": "帖撒罗尼迦后书",
+            "book_id": "53",
+            "chapters": 3
+          },
+          {
+            "book": "提摩太前书",
+            "book_id": "54",
+            "chapters": 6
+          },
+          {
+            "book": "提摩太后书",
+            "book_id": "55",
+            "chapters": 4
+          },
+          {
+            "book": "提多书",
+            "book_id": "56",
+            "chapters": 3
+          },
+          {
+            "book": "腓利门书",
+            "book_id": "57",
+            "chapters": 1
+          },
+          {
+            "book": "希伯来书",
+            "book_id": "58",
+            "chapters": 13
+          },
+          {
+            "book": "雅各书",
+            "book_id": "59",
+            "chapters": 5
+          },
+          {
+            "book": "彼得前书",
+            "book_id": "60",
+            "chapters": 5
+          },
+          {
+            "book": "彼得后书",
+            "book_id": "61",
+            "chapters": 3
+          },
+          {
+            "book": "约翰一书",
+            "book_id": "62",
+            "chapters": 5
+          },
+          {
+            "book": "约翰二书",
+            "book_id": "63",
+            "chapters": 1
+          },
+          {
+            "book": "约翰三书",
+            "book_id": "64",
+            "chapters": 1
+          },
+          {
+            "book": "犹大书",
+            "book_id": "65",
+            "chapters": 1
+          },
+          {
+            "book": "启示录",
+            "book_id": "66",
+            "chapters": 22
+          }
+        ]
+      },
+      "items": []
+    },
+    "weekly": {
+      "label": "周课任务",
+      "reading_path": "/weekly_task.md",
+      "icon": "📚",
+      "book_label": "选读",
+      "book_enabled": true,
+      "video_label": "必看视频",
+      "video_enabled": true,
+      "verse_label": "背经",
+      "verse_enabled": true,
+      "outline_label": "提纲背诵",
+      "outline_enabled": true,
+      "read_badge": "点击阅读",
+      "items": [],
+      "devotion": {},
+      "scripture": {}
+    },
+    "share": {
+      "label": "课代表分享",
+      "icon": "📄",
+      "devotion": {},
+      "scripture": {},
+      "items": []
+    },
+    "buttons": {
+      "future": "⏳",
+      "daily": "灵修",
+      "daily_retro": "补灵修",
+      "book1": "基督",
+      "book1_retro": "补基督",
+      "book2": "救赎",
+      "book2_retro": "补救赎",
+      "video": "视频",
+      "video_retro": "补视频",
+      "verse": "背经",
+      "verse_retro": "补背经"
+    }
+  },
+  "mounted_files": {
+    "videos": {
+      "label": "Newtestament 视频",
+      "dir": "Newtestament",
+      "publicPath": "/Newtestament",
+      "extensions": [
+        ".mp4",
+        ".webm",
+        ".mov",
+        ".m4v"
+      ]
+    },
+    "passages": {
+      "label": "读物 PDF",
+      "dir": "Passage",
+      "publicPath": "/Passage",
+      "extensions": [
+        ".pdf"
+      ]
+    },
+    "handouts": {
+      "label": "讲义 PDF",
+      "dir": "PPT",
+      "publicPath": "/PPT",
+      "extensions": [
+        ".pdf"
+      ]
+    },
+    "shares": {
+      "label": "资料分享 PDF",
+      "dir": "Mentor",
+      "publicPath": "/Mentor",
+      "extensions": [
+        ".pdf"
+      ]
+    },
+    "outlines": {
+      "label": "提纲图片",
+      "dir": ".",
+      "publicPath": "",
+      "extensions": [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp"
+      ]
+    },
+    "documents": {
+      "label": "Markdown 文件",
+      "dir": ".",
+      "publicPath": "",
+      "extensions": [
+        ".md"
+      ]
+    }
+  }
+}
