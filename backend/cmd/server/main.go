@@ -220,6 +220,8 @@ func (a *app) routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/assets/{id}/range", a.auth(a.handleDownloadAssetRange))
 	mux.HandleFunc("POST /api/admin/assets/upload", a.auth(a.requireRole(roleGroupLeader, a.handleAdminUploadAsset)))
 	mux.HandleFunc("GET /api/admin/resource-library", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminResourceLibrary)))
+	mux.HandleFunc("POST /api/admin/resource-folders", a.auth(a.requireRole(roleGroupLeader, a.handleAdminCreateResourceFolder)))
+	mux.HandleFunc("PUT /api/admin/resource-folders", a.auth(a.requireRole(roleGroupLeader, a.handleAdminRenameResourceFolder)))
 	mux.HandleFunc("GET /api/admin/learning-config", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminLearningConfig)))
 	mux.HandleFunc("PUT /api/admin/learning-config", a.auth(a.requireRole(roleGroupLeader, a.handleAdminSaveLearningConfig)))
 	mux.HandleFunc("GET /api/content/pdf-range", a.auth(a.handleStaticPDFRange))
@@ -1206,6 +1208,7 @@ func (a *app) handleAdminUploadAsset(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) handleAdminResourceLibrary(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
 	u := mustUser(r)
 	groupID := requireGroupID(w, u)
 	if groupID == 0 {
@@ -1214,11 +1217,140 @@ func (a *app) handleAdminResourceLibrary(w http.ResponseWriter, r *http.Request)
 	sections := []map[string]any{
 		a.scanStaticLibrarySection("markdown", "Markdown 读物", "", "/", []string{".md"}),
 		a.scanStaticLibrarySection("book", "PDF 读物", "Book", "/Book", []string{".pdf"}),
+		a.scanStaticLibrarySection("passage", "课程读物", "Passage", "/Passage", []string{".pdf"}),
 		a.scanStaticLibrarySection("handout", "讲义 PDF", "PPT", "/PPT", []string{".pdf"}),
+		a.scanStaticLibrarySection("mentor", "导师资料", "Mentor", "/Mentor", []string{".pdf", ".md", ".png", ".jpg", ".jpeg", ".webp", ".mp4"}),
 	}
 	uploaded, _ := a.uploadedLibrarySections(groupID)
 	sections = append(sections, uploaded...)
 	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
+}
+
+func managedResourceRoot(contentRoot, key string) (string, string, error) {
+	var directory string
+	switch strings.ToLower(strings.TrimSpace(key)) {
+	case "book":
+		directory = "Book"
+	case "passage":
+		directory = "Passage"
+	case "ppt", "handout":
+		directory = "PPT"
+	case "mentor":
+		directory = "Mentor"
+	default:
+		return "", "", errors.New("unsupported_resource_root")
+	}
+	return filepath.Join(contentRoot, directory), directory, nil
+}
+
+func cleanResourceFolderPath(value string, allowEmpty bool) (string, error) {
+	value = strings.TrimSpace(strings.ReplaceAll(value, "\\", "/"))
+	value = strings.Trim(value, "/")
+	if value == "" {
+		if allowEmpty {
+			return "", nil
+		}
+		return "", errors.New("folder_required")
+	}
+	clean := filepath.Clean(filepath.FromSlash(value))
+	if clean == "." || filepath.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, ".."+string(os.PathSeparator)) {
+		return "", errors.New("invalid_folder_path")
+	}
+	return clean, nil
+}
+
+func cleanResourceFolderName(value string) (string, error) {
+	name := strings.TrimSpace(value)
+	if name == "" || name == "." || name == ".." || len([]rune(name)) > 100 || strings.ContainsAny(name, "/\\\x00") {
+		return "", errors.New("invalid_folder_name")
+	}
+	return name, nil
+}
+
+func (a *app) handleAdminCreateResourceFolder(w http.ResponseWriter, r *http.Request) {
+	u := mustUser(r)
+	groupID := requireGroupID(w, u)
+	if groupID == 0 {
+		return
+	}
+	var req struct {
+		Root   string `json:"root"`
+		Parent string `json:"parent"`
+		Name   string `json:"name"`
+	}
+	if !readJSON(w, r, &req) {
+		return
+	}
+	root, rootName, err := managedResourceRoot(a.contentRoot, req.Root)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	parent, err := cleanResourceFolderPath(req.Parent, true)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	name, err := cleanResourceFolderName(req.Name)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	target := filepath.Join(root, parent, name)
+	if err := os.MkdirAll(target, 0o755); err != nil {
+		writeError(w, http.StatusInternalServerError, "folder_create_failed")
+		return
+	}
+	a.audit(groupID, u.ID, "create_resource_folder", "resource_folder", 0, nil, map[string]any{"root": rootName, "path": filepath.ToSlash(filepath.Join(parent, name))}, r)
+	writeJSON(w, http.StatusCreated, map[string]any{"ok": true, "root": rootName, "path": filepath.ToSlash(filepath.Join(parent, name))})
+}
+
+func (a *app) handleAdminRenameResourceFolder(w http.ResponseWriter, r *http.Request) {
+	u := mustUser(r)
+	groupID := requireGroupID(w, u)
+	if groupID == 0 {
+		return
+	}
+	var req struct {
+		Root string `json:"root"`
+		Path string `json:"path"`
+		Name string `json:"name"`
+	}
+	if !readJSON(w, r, &req) {
+		return
+	}
+	root, rootName, err := managedResourceRoot(a.contentRoot, req.Root)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	oldPath, err := cleanResourceFolderPath(req.Path, false)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	name, err := cleanResourceFolderName(req.Name)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	source := filepath.Join(root, oldPath)
+	targetPath := filepath.Join(filepath.Dir(oldPath), name)
+	target := filepath.Join(root, targetPath)
+	if _, err := os.Stat(source); err != nil {
+		writeError(w, http.StatusNotFound, "folder_not_found")
+		return
+	}
+	if _, err := os.Stat(target); err == nil {
+		writeError(w, http.StatusConflict, "folder_exists")
+		return
+	}
+	if err := os.Rename(source, target); err != nil {
+		writeError(w, http.StatusInternalServerError, "folder_rename_failed")
+		return
+	}
+	a.audit(groupID, u.ID, "rename_resource_folder", "resource_folder", 0, map[string]any{"root": rootName, "path": filepath.ToSlash(oldPath)}, map[string]any{"root": rootName, "path": filepath.ToSlash(targetPath)}, r)
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "root": rootName, "path": filepath.ToSlash(targetPath)})
 }
 
 func (a *app) handleAdminLearningConfig(w http.ResponseWriter, r *http.Request) {
@@ -3025,23 +3157,30 @@ func (a *app) scanStaticLibrarySection(key, label, subdir, publicPrefix string, 
 	if subdir != "" {
 		root = filepath.Join(root, subdir)
 	}
-	entries, err := os.ReadDir(root)
-	if err != nil {
-		return map[string]any{"key": key, "label": label, "items": []map[string]any{}, "count": 0}
-	}
 	allowed := map[string]bool{}
 	for _, ext := range extensions {
 		allowed[strings.ToLower(ext)] = true
 	}
-	items := make([]map[string]any, 0, len(entries))
-	for _, entry := range entries {
+	items := []map[string]any{}
+	folders := []map[string]any{}
+	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return nil
+		}
+		relative, err := filepath.Rel(root, path)
+		if err != nil || relative == "." {
+			return nil
+		}
 		if entry.IsDir() {
-			continue
+			if subdir != "" {
+				folders = append(folders, map[string]any{"path": filepath.ToSlash(relative), "label": entry.Name()})
+			}
+			return nil
 		}
 		name := entry.Name()
 		ext := strings.ToLower(filepath.Ext(name))
 		if len(allowed) > 0 && !allowed[ext] {
-			continue
+			return nil
 		}
 		title := strings.TrimSuffix(name, ext)
 		if strings.HasPrefix(title, "[B311]") {
@@ -3052,23 +3191,35 @@ func (a *app) scanStaticLibrarySection(key, label, subdir, publicPrefix string, 
 			urlPath = "/" + strings.TrimPrefix(urlPath, "/")
 		}
 		if urlPath == "/" {
-			urlPath = "/" + encodeURLPath(name)
+			urlPath = "/" + encodeURLPath(filepath.ToSlash(relative))
 		} else {
-			urlPath = strings.TrimRight(urlPath, "/") + "/" + encodeURLPath(name)
+			urlPath = strings.TrimRight(urlPath, "/") + "/" + encodeURLPath(filepath.ToSlash(relative))
+		}
+		folder := filepath.ToSlash(filepath.Dir(relative))
+		if folder == "." {
+			folder = ""
 		}
 		items = append(items, map[string]any{
 			"title":         title,
 			"original_name": name,
+			"relative_path": filepath.ToSlash(relative),
+			"folder":        folder,
+			"root":          subdir,
 			"url":           urlPath,
 			"category":      key,
 			"source":        "static",
 			"type":          inferTaskBindingType("", "", name),
 		})
+		return nil
+	})
+	if err != nil {
+		return map[string]any{"key": key, "label": label, "managed_root": subdir, "items": []map[string]any{}, "folders": []map[string]any{}, "count": 0}
 	}
 	sort.Slice(items, func(i, j int) bool {
-		return asString(items[i]["title"]) < asString(items[j]["title"])
+		return asString(items[i]["relative_path"]) < asString(items[j]["relative_path"])
 	})
-	return map[string]any{"key": key, "label": label, "items": items, "count": len(items)}
+	sort.Slice(folders, func(i, j int) bool { return asString(folders[i]["path"]) < asString(folders[j]["path"]) })
+	return map[string]any{"key": key, "label": label, "managed_root": subdir, "items": items, "folders": folders, "count": len(items)}
 }
 
 func encodeURLPath(path string) string {

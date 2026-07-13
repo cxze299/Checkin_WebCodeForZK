@@ -30,11 +30,25 @@
 .legacy-preview p { grid-column: 1/-1; margin: 4px 0 0; color: #b45309; font-size: 13px; line-height: 1.6; }
 .legacy-preview .success-copy { color: #15803d; }
 .ios-form-success { padding: 12px 14px; border-radius: 13px; background: rgba(52,199,89,.12); color: #15803d; font-size: 13px; font-weight: 700; }
+.ios-library-tabs { display: flex; gap: 9px; overflow-x: auto; padding: 3px 2px 8px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+.ios-library-tabs button { flex: 0 0 auto; display: flex; gap: 9px; align-items: center; min-height: 44px; padding: 9px 15px; border-radius: 14px; background: rgba(255,255,255,.65); color: var(--ios-secondary); box-shadow: inset 0 0 0 1px var(--ios-border); scroll-snap-align: start; }
+.ios-library-tabs button.active { background: var(--ios-card-solid); color: var(--ios-blue); box-shadow: var(--ios-shadow),inset 0 0 0 1px rgba(10,132,255,.15); }
+.ios-library-tabs small { min-width: 24px; padding: 3px 7px; border-radius: 999px; background: var(--ios-blue-soft); color: var(--ios-blue); text-align: center; }
+.ios-file-browser { min-height: 420px; padding-bottom: 10px; }
+.file-browser-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 14px; }
+.file-browser-toolbar small { color: var(--ios-secondary); }.file-browser-toolbar h2 { margin: 3px 0 0; }
+.folder-create { display: grid; grid-template-columns: minmax(180px,260px) auto; gap: 8px; }
+.ios-folder-strip { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0 13px; border-bottom: 1px solid var(--ios-border); scrollbar-width: thin; }
+.ios-folder-strip button { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; min-height: 38px; padding: 8px 12px; border-radius: 12px; background: rgba(246,248,252,.9); color: var(--ios-secondary); box-shadow: none; }
+.ios-folder-strip button.active { background: var(--ios-blue); color: #fff; }
+.folder-current { display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 7px 2px; color: var(--ios-secondary); font-size: 13px; }
+.ios-scroll-resource-list { max-height: min(58vh,640px); overflow-y: auto; padding-right: 5px; scrollbar-gutter: stable; scrollbar-width: thin; }
 
 @media (max-width: 620px) {
   .legacy-preview { grid-template-columns: 1fr; }
   .legacy-preview p { grid-column: auto; }
   .legacy-actions { align-items: stretch; flex-direction: column; }
+  .file-browser-toolbar { align-items: stretch; flex-direction: column; }.folder-create { grid-template-columns: 1fr; }.ios-file-browser { min-height: 360px; }.ios-scroll-resource-list { max-height: 56vh; }
 }
 
 body { background: var(--ios-bg); color: var(--ios-text); }

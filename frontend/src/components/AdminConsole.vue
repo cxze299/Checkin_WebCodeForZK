@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import AppIcon from './AppIcon.vue';
 import { useAppStateStore } from '../stores/appState';
@@ -29,6 +29,9 @@ const backupInput = ref(null);
 const legacyConfigInput = ref(null);
 const legacyRecordsInput = ref(null);
 const legacyPreview = ref(null);
+const activeLibraryKey = ref('');
+const activeLibraryFolder = ref('');
+const newFolderName = ref('');
 
 const settings = computed(() => learningConfig.value || {});
 const daily = computed(() => settings.value.task_sections?.daily || {});
@@ -37,8 +40,21 @@ const scripture = computed(() => daily.value.scripture || {});
 const libraryItems = computed(() => resourceLibrary.value.flatMap((section) => section.items || []));
 const readingOptions = computed(() => libraryItems.value.filter((item) => ['markdown', 'pdf'].includes(item.type)));
 const outlineOptions = computed(() => libraryItems.value.filter((item) => item.type === 'image'));
+const activeLibrarySection = computed(() => resourceLibrary.value.find((section) => section.key === activeLibraryKey.value) || resourceLibrary.value[0] || null);
+const visibleLibraryItems = computed(() => {
+  const items = activeLibrarySection.value?.items || [];
+  if (!activeLibraryFolder.value) return items;
+  return items.filter((item) => item.folder === activeLibraryFolder.value);
+});
 const currentWeek = computed(() => weeks.value.find((week) => weekStatus(week) === '进行中') || weeks.value[0]);
 const completedProfiles = computed(() => members.value.filter((item) => item.username).length);
+
+watch(resourceLibrary, (sections) => {
+  if (!sections?.some((section) => section.key === activeLibraryKey.value)) activeLibraryKey.value = sections?.[0]?.key || '';
+}, { immediate: true });
+watch(activeLibrarySection, (section) => {
+  if (activeLibraryFolder.value && !(section?.folders || []).some((folder) => folder.path === activeLibraryFolder.value)) activeLibraryFolder.value = '';
+});
 
 const sections = computed(() => [
   { id: 'overview', label: '管理概览', icon: 'chart' },
@@ -79,6 +95,34 @@ async function loadRoster() {
 }
 
 async function uploadResource() { await uploadLibraryFile(uploadInput.value, uploadCategory.value); }
+
+function chooseLibrarySection(key) { activeLibraryKey.value = key; activeLibraryFolder.value = ''; }
+async function syncNASResources() {
+  try { await loadAdminData(true); toast('NAS 资源目录已重新扫描'); }
+  catch (error) { toast(`同步失败：${error.message}`); }
+}
+async function createResourceFolder() {
+  const section = activeLibrarySection.value;
+  if (!section?.managed_root) return toast('请选择 Book、Passage、PPT 或 Mentor 分类');
+  if (!newFolderName.value.trim()) return toast('请输入文件夹名称');
+  try {
+    const data = await api('/admin/resource-folders', { method: 'POST', body: JSON.stringify({ root: section.managed_root, parent: activeLibraryFolder.value, name: newFolderName.value }) });
+    newFolderName.value = ''; await loadAdminData(true); activeLibraryFolder.value = data.path || '';
+    toast('文件夹已创建，可以在 NAS 中向该目录上传文件');
+  } catch (error) { toast(`创建失败：${error.message}`); }
+}
+async function renameResourceFolder() {
+  const section = activeLibrarySection.value;
+  if (!section?.managed_root || !activeLibraryFolder.value) return;
+  const currentName = activeLibraryFolder.value.split('/').pop();
+  const name = window.prompt('新的文件夹名称', currentName);
+  if (!name || name === currentName) return;
+  try {
+    const data = await api('/admin/resource-folders', { method: 'PUT', body: JSON.stringify({ root: section.managed_root, path: activeLibraryFolder.value, name }) });
+    await loadAdminData(true); activeLibraryFolder.value = data.path || '';
+    toast('文件夹已重命名');
+  } catch (error) { toast(`重命名失败：${error.message}`); }
+}
 
 async function previewRoster() {
   const file = rosterInput.value?.files?.[0]; if (!file) return toast('请先选择 Excel 文件');
@@ -304,9 +348,15 @@ onMounted(() => {
       </section>
 
       <section v-else-if="adminSection === 'library'" class="ios-admin-page">
-        <header class="ios-page-heading"><div><small>LIBRARY</small><h1>学习资源</h1><p>上传一次，即可在周任务中重复使用。</p></div></header>
+        <header class="ios-page-heading heading-with-action"><div><small>LIBRARY</small><h1>学习资源</h1><p>从 NAS 同步目录，在网页中预览并选入周任务。</p></div><button class="ios-secondary-button" type="button" @click="syncNASResources">同步 NAS</button></header>
         <article class="ios-upload-panel"><span class="upload-illustration"><AppIcon name="upload" :size="28" /></span><div><b>上传新资源</b><small>支持 PDF、Markdown、图片等学习资料</small></div><select v-model="uploadCategory"><option value="book">PDF 读物</option><option value="markdown">Markdown</option><option value="handout">讲义</option><option value="outline">提纲图片</option></select><input ref="uploadInput" type="file" /><button :disabled="!canEditLearning" type="button" @click="uploadResource">上传</button></article>
-        <div class="ios-resource-sections"><section v-for="section in resourceLibrary" :key="section.key || section.label" class="ios-panel"><div class="panel-heading"><div><h2>{{ section.label }}</h2><small>{{ section.count || 0 }} 项</small></div></div><div v-if="section.items?.length" class="ios-resource-list"><div v-for="item in section.items" :key="item.id || item.url" class="ios-resource-row"><button class="resource-preview" type="button" @click="previewLibraryItem(item)"><span><AppIcon name="file" /></span><div><b>{{ item.title || item.original_name }}</b><small>{{ item.original_name || '点击预览' }}</small></div></button><button class="ios-resource-use" type="button" @click="selectResourceForTask(item)">选入任务</button></div></div><div v-else class="ios-empty compact">暂无资源</div></section></div>
+        <div class="ios-library-tabs"><button v-for="section in resourceLibrary" :key="section.key || section.label" :class="{ active: activeLibrarySection?.key === section.key }" type="button" @click="chooseLibrarySection(section.key)"><span>{{ section.label }}</span><small>{{ section.count || 0 }}</small></button></div>
+        <section v-if="activeLibrarySection" class="ios-panel ios-file-browser">
+          <div class="file-browser-toolbar"><div><small>当前分类</small><h2>{{ activeLibrarySection.label }}</h2></div><div v-if="activeLibrarySection.managed_root" class="folder-create"><input v-model="newFolderName" :disabled="!canEditLearning" placeholder="新文件夹名称" @keydown.enter="createResourceFolder" /><button class="ios-secondary-button" :disabled="!canEditLearning" type="button" @click="createResourceFolder">新建文件夹</button></div></div>
+          <div v-if="activeLibrarySection.managed_root" class="ios-folder-strip"><button :class="{ active: !activeLibraryFolder }" type="button" @click="activeLibraryFolder = ''">全部文件</button><button v-for="folder in activeLibrarySection.folders || []" :key="folder.path" :class="{ active: activeLibraryFolder === folder.path }" type="button" @click="activeLibraryFolder = folder.path"><AppIcon name="library" :size="15" />{{ folder.path }}</button></div>
+          <div v-if="activeLibraryFolder" class="folder-current"><span>当前文件夹：<b>{{ activeLibraryFolder }}</b></span><button class="ios-text-button" :disabled="!canEditLearning" type="button" @click="renameResourceFolder">重命名</button></div>
+          <div v-if="visibleLibraryItems.length" class="ios-resource-list ios-scroll-resource-list"><div v-for="item in visibleLibraryItems" :key="item.id || item.url" class="ios-resource-row"><button class="resource-preview" type="button" @click="previewLibraryItem(item)"><span><AppIcon name="file" /></span><div><b>{{ item.title || item.original_name }}</b><small><template v-if="item.folder">{{ item.folder }} / </template>{{ item.original_name || '点击预览' }}</small></div></button><button class="ios-resource-use" type="button" @click="selectResourceForTask(item)">选入任务</button></div></div><div v-else class="ios-empty compact">当前文件夹暂无可用资源</div>
+        </section>
       </section>
 
       <section v-else-if="adminSection === 'roster' && user?.is_super_admin" class="ios-admin-page">
