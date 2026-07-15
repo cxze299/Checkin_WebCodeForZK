@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useDashboardStore } from '../stores/dashboard';
-import { openMemberCalendar, setSelectedDate, shiftSelectedDate, toggleCheckin } from '../legacy-app';
+import { openMemberCalendar, setSelectedDate, shiftSelectedDate, toast, toggleCheckin } from '../legacy-app';
 
 const store = useDashboardStore();
 const {
@@ -37,6 +37,23 @@ const legend = [
 ];
 
 const rankingMax = computed(() => Math.max(1, ...ranking.value.map((item) => item.total || 0)));
+const hasTasks = computed(() => taskCount.value > 0 && progressCards.value.length > 0);
+const selectedDayLabel = computed(() => {
+  if (isToday.value) return '今日';
+  const [, month, day] = String(selectedDate.value || '').split('-');
+  return month && day ? `${Number(month)}月${Number(day)}日` : '所选日期';
+});
+const pendingTaskKeys = ref(new Set());
+const exporting = ref(false);
+
+function taskKey(member, item) {
+  const task = item.taskForMember || item.task || {};
+  return `${member.user_id}:${task.type || ''}:${task.part || ''}:${task.detail || item.title || ''}`;
+}
+
+function taskPending(member, item) {
+  return pendingTaskKeys.value.has(taskKey(member, item));
+}
 
 function segmentHeight(count, total) {
   if (!count || !total) return 0;
@@ -48,10 +65,40 @@ function stackHeight(total) {
 }
 
 function memberTaskTitle(member, state) {
-  return member.isSelf ? `${state.title}：点击打卡或取消` : `${state.title}：${state.done ? '已完成' : '未完成'}`;
+  if (!member.isSelf) return `${member.name}的${state.title}：${state.done ? '已完成' : '未完成'}`;
+  if (taskPending(member, state)) return `${state.title}：正在处理`;
+  return `${state.title}：${state.done ? '点击撤销完成' : '点击打卡'}`;
+}
+
+async function runMemberToggle(member, item) {
+  if (!member.isSelf) return;
+  const key = taskKey(member, item);
+  if (pendingTaskKeys.value.has(key)) return;
+  if (item.done && !window.confirm(`确认撤销“${item.title}”的完成记录吗？`)) return;
+  pendingTaskKeys.value = new Set([...pendingTaskKeys.value, key]);
+  try {
+    await toggleCheckin(item.taskForMember, member);
+  } finally {
+    const next = new Set(pendingTaskKeys.value);
+    next.delete(key);
+    pendingTaskKeys.value = next;
+  }
+}
+
+function escapeXML(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
 }
 
 async function exportRankingChart() {
+  if (exporting.value) return;
+  exporting.value = true;
+  let svgUrl = '';
+  try {
   const width = 1120;
   const height = 720;
   const left = 80;
@@ -88,7 +135,7 @@ async function exportRankingChart() {
         <rect x="${x}" y="${top + chartHeight - offset}" width="${barWidth}" height="${segmentHeightPx}" rx="8" fill="${colors[part.key]}" />
       `;
     }).join('');
-    const label = String(item.member_name || item.display_name || '?').slice(0, 4);
+    const label = escapeXML(String(item.member_name || item.display_name || '?').slice(0, 4));
     return `
       <g>
         <rect x="${x}" y="${top}" width="${barWidth}" height="${chartHeight}" rx="12" fill="rgba(15,23,42,0.05)" />
@@ -111,15 +158,15 @@ async function exportRankingChart() {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
       <rect width="100%" height="100%" rx="32" fill="#ffffff"/>
-      <text x="${left}" y="40" font-size="28" font-weight="700" fill="#111827">香柏木数据统计中心</text>
-      <text x="${left}" y="80" font-size="18" fill="#6b7280">${monthLabel.value} 分项总榜</text>
+      <text x="${left}" y="40" font-size="28" font-weight="700" fill="#111827">${escapeXML(groupName.value || '当前小组')}数据统计中心</text>
+      <text x="${left}" y="80" font-size="18" fill="#6b7280">${escapeXML(monthLabel.value)} 分项总榜</text>
       ${legendSvg}
       ${gridSvg}
       ${barSvg}
     </svg>
   `;
   const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-  const svgUrl = URL.createObjectURL(svgBlob);
+  svgUrl = URL.createObjectURL(svgBlob);
   const image = new Image();
   image.decoding = 'async';
   image.src = svgUrl;
@@ -136,6 +183,7 @@ async function exportRankingChart() {
   ctx.fillRect(0, 0, width, height);
   ctx.drawImage(image, 0, 0, width, height);
   URL.revokeObjectURL(svgUrl);
+  svgUrl = '';
   const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!pngBlob) return;
   const url = URL.createObjectURL(pngBlob);
@@ -146,70 +194,77 @@ async function exportRankingChart() {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    toast(`导出失败：${error.message || '无法生成图片'}`);
+  } finally {
+    if (svgUrl) URL.revokeObjectURL(svgUrl);
+    exporting.value = false;
+  }
 }
 </script>
 
 <template>
   <Teleport v-if="visible" to="#vue-dashboard">
-    <div class="grid">
+    <div class="grid dashboard-page">
       <section class="today-hero dashboard-hero">
         <div class="today-copy">
           <div class="eyebrow">{{ groupName }}</div>
           <h2>小组打卡情况与统计</h2>
           <p>{{ weekText }}</p>
         </div>
-        <div class="date-controls">
-          <button class="secondary" type="button" @click="shiftSelectedDate(-1)">‹</button>
+        <div class="date-controls dashboard-date-controls" aria-label="选择统计日期">
+          <button class="secondary" type="button" aria-label="查看前一天" @click="shiftSelectedDate(-1)">‹</button>
           <input
             type="date"
             :value="selectedDate"
             :max="maxDate"
+            aria-label="统计日期"
             @change="setSelectedDate($event.target.value)"
           />
-          <button class="secondary" type="button" :disabled="isToday" @click="shiftSelectedDate(1)">›</button>
+          <button class="secondary" type="button" :disabled="isToday" aria-label="查看后一天" @click="shiftSelectedDate(1)">›</button>
           <button v-if="!isToday" class="ghost" type="button" @click="setSelectedDate(maxDate)">回到今天</button>
         </div>
-        <div class="today-score">
-          <strong>{{ overallPercent }}%</strong>
-          <span>小组完成率</span>
+        <div class="today-score" role="status" :aria-label="hasTasks ? `小组完成率 ${overallPercent}%` : '所选日期暂无任务'">
+          <strong>{{ hasTasks ? `${overallPercent}%` : '—' }}</strong>
+          <span>{{ hasTasks ? '小组完成率' : '暂无任务' }}</span>
         </div>
       </section>
 
       <div class="grid cols-4 dashboard-strip">
         <div class="card stat compact-stat">
           <span class="stat-title">小组完成率</span>
-          <strong>{{ overallPercent }}%</strong>
-          <span class="stat-note">{{ doneSlots }}/{{ totalSlots }}</span>
+          <strong>{{ hasTasks ? `${overallPercent}%` : '—' }}</strong>
+          <span class="stat-note">{{ hasTasks ? `${doneSlots}/${totalSlots}` : '无需统计' }}</span>
         </div>
         <div class="card stat compact-stat">
-          <span class="stat-title">今日成员</span>
+          <span class="stat-title">小组成员</span>
           <strong>{{ memberCount }}</strong>
           <span class="stat-note">当前小组</span>
         </div>
         <div class="card stat compact-stat">
           <span class="stat-title">已完成项</span>
           <strong>{{ doneSlots }}</strong>
-          <span class="stat-note">全组任务</span>
+          <span class="stat-note">{{ hasTasks ? `${selectedDayLabel}全组任务` : `${selectedDayLabel}暂无任务` }}</span>
         </div>
         <div class="card stat compact-stat">
           <span class="stat-title">我的任务</span>
           <strong>{{ completed }}/{{ taskCount }}</strong>
-          <span class="stat-note">{{ completed === taskCount ? '全部完成' : '继续完成' }}</span>
+          <span class="stat-note">{{ !taskCount ? '暂无任务' : (completed === taskCount ? '全部完成' : '继续完成') }}</span>
         </div>
       </div>
 
       <section>
         <div class="section-title">
-          <h2>当前组打卡情况</h2>
+          <h2>{{ selectedDayLabel }}小组打卡情况</h2>
         </div>
-        <div class="group-dashboard">
+        <div v-if="hasTasks" class="group-dashboard">
           <div class="task-progress-row">
             <div v-for="card in progressCards" :key="`${card.task.type}:${card.task.part || ''}:${card.title}`" class="task-progress-card">
               <div class="task-progress-head">
                 <span>{{ card.icon }}</span>
                 <b>{{ card.title }}</b>
               </div>
-              <div class="progress-track">
+              <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="card.percent" :aria-label="`${card.title}小组完成率 ${card.percent}%`">
                 <span :style="{ width: `${card.percent}%` }"></span>
               </div>
               <small>{{ card.count }}/{{ card.total }}</small>
@@ -219,7 +274,7 @@ async function exportRankingChart() {
           <div class="member-checkin-grid">
             <div v-for="member in members" :key="member.user_id" class="member-check-card">
               <div class="member-main">
-                <button class="avatar avatar-button" type="button" @click="openMemberCalendar(member)">
+                <button class="avatar avatar-button" type="button" :aria-label="`查看${member.name}的打卡月历`" @click="openMemberCalendar(member)">
                   <img v-if="member.avatar_url" :src="member.avatar_url" :alt="member.name" />
                   <span v-else>{{ member.avatar }}</span>
                 </button>
@@ -233,10 +288,14 @@ async function exportRankingChart() {
                   v-for="item in member.taskStates"
                   :key="`${member.user_id}:${item.task.type}:${item.task.part || ''}:${item.title}`"
                   class="member-task-chip"
-                  :class="{ done: item.done, clickable: member.isSelf }"
+                  :class="{ done: item.done, clickable: member.isSelf, pending: taskPending(member, item) }"
                   :title="memberTaskTitle(member, item)"
+                  :aria-label="memberTaskTitle(member, item)"
+                  :aria-pressed="item.done"
+                  :aria-busy="taskPending(member, item)"
+                  :disabled="!member.isSelf || taskPending(member, item)"
                   type="button"
-                  @click="member.isSelf && toggleCheckin(item.taskForMember, member)"
+                  @click="runMemberToggle(member, item)"
                 >
                   <span class="member-task-code">{{ item.shortLabel || item.icon }}</span>
                 </button>
@@ -244,21 +303,22 @@ async function exportRankingChart() {
             </div>
           </div>
         </div>
+        <div v-else class="empty dashboard-empty"><b>{{ selectedDayLabel }}没有安排任务</b><span>该日期无需统计或补卡；如有疑问，请联系组长确认。</span></div>
       </section>
 
       <section class="stats-center">
         <div class="stats-center-head">
           <div>
             <div class="eyebrow">Statistics Center</div>
-            <h2>📊 香柏木数据统计中心</h2>
-            <p class="muted">{{ monthLabel }}分项总榜按灵修、书籍、视频累计打卡次数排序。</p>
+            <h2>📊 {{ groupName || '当前小组' }}数据统计中心</h2>
+            <p class="muted">{{ monthLabel }}分项总榜按灵修、书籍、视频和背经累计打卡次数排序。</p>
           </div>
           <div class="stats-center-tags">
-            <button class="secondary" type="button" @click="exportRankingChart">导出柱状图 PNG</button>
+            <button class="secondary" type="button" :disabled="exporting || !ranking.length" @click="exportRankingChart">{{ exporting ? '正在生成…' : '导出柱状图 PNG' }}</button>
             <span class="stats-tag active">🏆 分项总榜</span>
             <span class="stats-tag">🗓 统计范围 {{ monthLabel }}</span>
             <span class="stats-tag">🔥 活跃成员 {{ activeCount }}人</span>
-            <span class="stats-tag">🎨 灵修 / 书籍 / 视频</span>
+            <span class="stats-tag">🎨 灵修 / 书籍 / 视频 / 背经</span>
           </div>
         </div>
 
@@ -280,7 +340,7 @@ async function exportRankingChart() {
           </div>
         </div>
 
-        <div class="bar-chart-card">
+        <div v-if="ranking.length" class="bar-chart-card">
           <div class="bar-chart-meta">
             <strong>分项总榜</strong>
             <div class="bar-legend">
@@ -290,7 +350,7 @@ async function exportRankingChart() {
               </span>
             </div>
           </div>
-          <div class="bar-chart">
+          <div class="bar-chart" role="img" :aria-label="`${groupName || '当前小组'}${monthLabel}打卡分项总榜`">
             <div v-for="member in ranking" :key="member.user_id || member.member_name" class="bar-item">
               <div class="bar-track">
                 <div v-if="member.total" class="bar-stack" :style="{ height: `${stackHeight(member.total)}%` }">
@@ -326,7 +386,39 @@ async function exportRankingChart() {
             </div>
           </div>
         </div>
+        <div v-else class="empty dashboard-empty"><b>{{ monthLabel }}暂无排行数据</b><span>成员完成打卡后，月度分项统计会显示在这里。</span></div>
       </section>
     </div>
   </Teleport>
 </template>
+
+<style scoped>
+.member-task-chip.pending {
+  cursor: wait;
+}
+
+.member-task-chip:disabled:not(.pending) {
+  opacity: 1;
+}
+
+.dashboard-empty {
+  min-height: 160px;
+}
+
+@media (max-width: 620px) {
+  .dashboard-date-controls {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    width: 100%;
+  }
+
+  .dashboard-date-controls input {
+    min-width: 0;
+  }
+
+  .dashboard-date-controls .ghost {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+</style>

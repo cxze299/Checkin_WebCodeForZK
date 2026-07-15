@@ -18,6 +18,9 @@ const paths = {
   lock: ['M6 10h12v11H6z', 'M8 10V7a4 4 0 0 1 8 0v3'],
   check: ['m5 12 4 4L19 6'],
   file: ['M6 2h8l4 4v16H6z', 'M14 2v5h5'],
+  play: ['M8 5v14l11-7Z'],
+  refresh: ['M20 6v5h-5', 'M4 18v-5h5', 'M6.1 9a7 7 0 0 1 11.8-2.6L20 11', 'M4 13l2.1 4.6A7 7 0 0 0 18 15'],
+  warning: ['M12 3 2.8 20h18.4Z', 'M12 9v4', 'M12 17h.01'],
   circle: ['M12 12h.01'],
 };
 </script>

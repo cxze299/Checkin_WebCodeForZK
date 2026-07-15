@@ -4,7 +4,16 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/deploy/docker-compose.separated.yml}"
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-agp}"
+ENV_FILE="${ENV_FILE:-$ROOT_DIR/.env}"
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+fi
 MYSQL_DATABASE="${MYSQL_DATABASE:-agp}"
+MYSQL_USER="${MYSQL_USER:-agp}"
+MYSQL_PASSWORD="${MYSQL_PASSWORD:-}"
 
 GROUP_CODE="${GROUP_CODE:-}"
 GROUP_NAME="${GROUP_NAME:-}"
@@ -50,7 +59,7 @@ require_cmd() {
 }
 
 compose() {
-  docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" "$@"
+  docker compose --env-file "$ENV_FILE" -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" "$@"
 }
 
 abs_path() {
@@ -102,13 +111,14 @@ cleanup() {
 
 ensure_mysql() {
   compose ps mysql >/dev/null
-  compose exec -T mysql mysqladmin ping -h 127.0.0.1 -uagp -pagp >/dev/null
+  [ -n "$MYSQL_PASSWORD" ] || { echo "MYSQL_PASSWORD 未在 .env 中设置" >&2; exit 1; }
+  compose exec -T mysql mysqladmin ping -h 127.0.0.1 -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" >/dev/null
 }
 
 run_cli() {
   local dry_run="$1"
   local network_name="${COMPOSE_PROJECT_NAME}_default"
-  local dsn="agp:agp@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true&multiStatements=false&charset=utf8mb4,utf8"
+  local dsn="${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true&multiStatements=false&charset=utf8mb4,utf8"
   local args=(
     "go" "run" "./cmd/migrate-json"
     "--dsn" "$dsn"

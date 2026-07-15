@@ -3,6 +3,8 @@ import { defineStore } from 'pinia';
 export const useAppStateStore = defineStore('appState', {
   state: () => ({
     booted: false,
+    networkBusy: false,
+    online: typeof navigator === 'undefined' ? true : navigator.onLine,
     authenticated: false,
     user: null,
     tab: 'home',
@@ -16,6 +18,8 @@ export const useAppStateStore = defineStore('appState', {
     showGroupPicker: false,
     toast: '',
     resources: [],
+    publicLibrary: [],
+    resourceLoading: false,
     members: [],
     canAdmin: false,
     canEditLearning: false,
@@ -29,7 +33,9 @@ export const useAppStateStore = defineStore('appState', {
   actions: {
     setSnapshot(snapshot) {
       Object.assign(this, {
-        booted: true,
+        booted: Boolean(snapshot?.booted),
+        networkBusy: Boolean(snapshot?.networkBusy),
+        online: snapshot?.online !== false,
         authenticated: Boolean(snapshot?.authenticated),
         user: snapshot?.user || null,
         tab: snapshot?.tab || 'home',
@@ -43,6 +49,8 @@ export const useAppStateStore = defineStore('appState', {
         showGroupPicker: Boolean(snapshot?.showGroupPicker),
         toast: snapshot?.toast || '',
         resources: Array.isArray(snapshot?.resources) ? snapshot.resources : [],
+        publicLibrary: Array.isArray(snapshot?.publicLibrary) ? snapshot.publicLibrary : [],
+        resourceLoading: Boolean(snapshot?.resourceLoading),
         members: Array.isArray(snapshot?.members) ? snapshot.members : [],
         canAdmin: Boolean(snapshot?.canAdmin),
         canEditLearning: Boolean(snapshot?.canEditLearning),

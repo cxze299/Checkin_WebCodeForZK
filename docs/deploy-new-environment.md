@@ -9,7 +9,7 @@
 脚本入口：
 
 ```bash
-./scripts/deploy-oneclick.sh
+sudo bash ./scripts/deploy-oneclick.sh
 ```
 
 ## 前置条件
@@ -27,14 +27,10 @@
 
 ```bash
 cd /path/to/agp
-
-export AGP_JWT_SECRET='替换为长随机字符串'
-export BOOTSTRAP_SUPERADMIN_USERNAME='admin'
-export BOOTSTRAP_SUPERADMIN_PASSWORD='替换为强密码'
-export BOOTSTRAP_SUPERADMIN_DISPLAY_NAME='超级管理员'
-
-./scripts/deploy-oneclick.sh
+sudo bash ./scripts/deploy-oneclick.sh
 ```
+
+首次执行会创建权限为 `600` 的 `.env`，并自动生成数据库密码、JWT 密钥和超级管理员密码。也可以先复制 `.env.example` 到 `.env`，在本地修改后上传；不要把真实 `.env` 提交到 Git。
 
 脚本会自动：
 
@@ -50,10 +46,6 @@ export BOOTSTRAP_SUPERADMIN_DISPLAY_NAME='超级管理员'
 ```bash
 cd /path/to/agp
 
-export AGP_JWT_SECRET='替换为长随机字符串'
-export BOOTSTRAP_SUPERADMIN_USERNAME='admin'
-export BOOTSTRAP_SUPERADMIN_PASSWORD='替换为强密码'
-
 export PRIMARY_GROUP_CODE='agape-a'
 export PRIMARY_GROUP_NAME='AGAPE A组'
 export PRIMARY_GROUP_DEFAULT_PASSWORD='Abc12345'
@@ -61,7 +53,7 @@ export PRIMARY_CONFIG_PATH='/absolute/path/to/config.json'
 export PRIMARY_RECORDS_PATH='/absolute/path/to/records.json'
 export PRIMARY_NAME_MAP='/absolute/path/to/name-map.json'
 
-./scripts/deploy-oneclick.sh
+sudo -E bash ./scripts/deploy-oneclick.sh
 ```
 
 脚本会额外执行：
@@ -74,7 +66,7 @@ export PRIMARY_NAME_MAP='/absolute/path/to/name-map.json'
 
 ```bash
 export PRIMARY_DRY_RUN_ONLY=true
-./scripts/deploy-oneclick.sh
+sudo -E bash ./scripts/deploy-oneclick.sh
 ```
 
 ## 常用环境变量
@@ -83,15 +75,15 @@ export PRIMARY_DRY_RUN_ONLY=true
 
 ```bash
 COMPOSE_PROJECT_NAME=agp
-AGP_WEB_PORT=5112
+AGP_WEB_PORT=2973
 AGP_MYSQL_PORT=3307
 MYSQL_DATABASE=agp
 MYSQL_USER=agp
-MYSQL_PASSWORD=agp
-MYSQL_ROOT_PASSWORD=agp-root
-AGP_JWT_SECRET=...
+MYSQL_PASSWORD=随机值（必填）
+MYSQL_ROOT_PASSWORD=随机值（必填）
+AGP_JWT_SECRET=至少32位随机值（必填）
 BOOTSTRAP_SUPERADMIN_USERNAME=admin
-BOOTSTRAP_SUPERADMIN_PASSWORD=...
+BOOTSTRAP_SUPERADMIN_PASSWORD=至少12位强密码（必填）
 BOOTSTRAP_SUPERADMIN_DISPLAY_NAME=超级管理员
 ```
 
@@ -122,7 +114,7 @@ RUN_PRIMARY_MIGRATION=auto
 
 - 前端访问地址
 - MySQL 访问端口
-- 超级管理员账号密码
+- 超级管理员账号，以及真实密钥所在的 `.env` 路径（不会把密码打印到日志）
 - 首组迁移默认密码
 - 迁移报告目录
 
@@ -133,4 +125,3 @@ RUN_PRIMARY_MIGRATION=auto
 3. 确认组编码、组名、成员账号映射无误
 4. 再执行正式导入
 5. 登录后台验证成员、周任务、学习内容和打卡记录
-

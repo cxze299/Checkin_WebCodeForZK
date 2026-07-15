@@ -49,7 +49,6 @@
 │   ├── migrate-other-groups.md
 │   └── implementation-notes.md
 ├── Book/
-├── Newtestament/
 ├── PPT/
 └── config.json                  # 旧数据迁移输入之一
 ```
@@ -58,16 +57,19 @@
 
 ### 1. 直接启动当前平台
 
-在项目根目录执行：
+先生成环境文件并填写所有 `CHANGE_ME` 项，再启动服务：
 
 ```bash
-docker compose -f deploy/docker-compose.separated.yml up -d --build
+cp .env.example .env
+chmod 600 .env
+# 使用 DSM 文本编辑器或本地编辑后上传 .env
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml up -d --build
 ```
 
 默认访问地址：
 
 ```text
-http://127.0.0.1:5112
+http://NAS_IP:2973
 ```
 
 默认 MySQL 端口：
@@ -76,20 +78,16 @@ http://127.0.0.1:5112
 127.0.0.1:3307
 ```
 
-默认首个超级管理员：
+首个超级管理员账号默认为 `admin`，密码必须在 `.env` 中通过
+`BOOTSTRAP_SUPERADMIN_PASSWORD` 设置；项目不再提供可用于生产环境的默认密码。
 
-```text
-账号：admin
-密码：ChangeMe123
-```
+必须设置的密钥：
 
-生产环境必须覆盖：
-
-```bash
-export AGP_JWT_SECRET='替换为长随机字符串'
-export BOOTSTRAP_SUPERADMIN_USERNAME='admin'
-export BOOTSTRAP_SUPERADMIN_PASSWORD='替换为强密码'
-export BOOTSTRAP_SUPERADMIN_DISPLAY_NAME='超级管理员'
+```dotenv
+MYSQL_PASSWORD=替换为随机数据库密码
+MYSQL_ROOT_PASSWORD=替换为随机 root 密码
+AGP_JWT_SECRET=替换为至少32位的随机字符串
+BOOTSTRAP_SUPERADMIN_PASSWORD=替换为至少12位的强密码
 ```
 
 ### 2. 本地检查
@@ -104,7 +102,7 @@ npm install
 npm run build
 
 cd ..
-docker compose -f deploy/docker-compose.separated.yml config
+docker compose --env-file .env -f deploy/docker-compose.separated.yml config
 ```
 
 ## 新环境一键部署
@@ -112,7 +110,7 @@ docker compose -f deploy/docker-compose.separated.yml config
 如果你要在一台新的服务器、NAS 或 Docker 主机上直接部署：
 
 ```bash
-./scripts/deploy-oneclick.sh
+sudo bash ./scripts/deploy-oneclick.sh
 ```
 
 这个脚本会：
@@ -124,7 +122,7 @@ docker compose -f deploy/docker-compose.separated.yml config
 
 详细说明见：
 
-- [docs/deploy-new-environment.md](file:///Users/bytedance/program/agp/docs/deploy-new-environment.md)
+- [docs/deploy-new-environment.md](docs/deploy-new-environment.md)
 
 ## 旧数据迁移
 
@@ -151,15 +149,15 @@ RECORDS_PATH='/absolute/path/to/records.json' \
 NAME_MAP_PATH='/absolute/path/to/name-map.json' \
 GROUP_DEFAULT_PASSWORD='Abc12345' \
 EXECUTE_IMPORT=true \
-./scripts/migrate-group.sh
+sudo -E bash ./scripts/migrate-group.sh
 ```
 
 默认建议先只做 dry-run，检查迁移报告后再导入。
 
 详细说明见：
 
-- [docs/migrate-other-groups.md](file:///Users/bytedance/program/agp/docs/migrate-other-groups.md)
-- [docs/ops-commands.md](file:///Users/bytedance/program/agp/docs/ops-commands.md)
+- [docs/migrate-other-groups.md](docs/migrate-other-groups.md)
+- [docs/ops-commands.md](docs/ops-commands.md)
 
 ## 运行与运维
 
@@ -167,34 +165,35 @@ EXECUTE_IMPORT=true \
 
 ```bash
 # 启动
-docker compose -f deploy/docker-compose.separated.yml up -d --build
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml up -d --build
 
 # 查看状态
-docker compose -f deploy/docker-compose.separated.yml ps
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml ps
 
 # 查看日志
-docker compose -f deploy/docker-compose.separated.yml logs -f
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml logs -f
 
 # 停止
-docker compose -f deploy/docker-compose.separated.yml down
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml down
 ```
 
 MySQL 进入方式：
 
 ```bash
-docker exec -it agp-mysql mysql -uagp -pagp agp
+set -a; . ./.env; set +a
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" -it agp-mysql mysql -u"$MYSQL_USER" "$MYSQL_DATABASE"
 ```
 
 数据库备份：
 
 ```bash
 mkdir -p data/backups/mysql
-docker exec agp-mysql mysqldump -uagp -pagp agp > data/backups/mysql/agp-$(date +%F).sql
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" agp-mysql mysqldump -u"$MYSQL_USER" "$MYSQL_DATABASE" > data/backups/mysql/agp-$(date +%F).sql
 ```
 
 更多 SQL、迁移与维护命令见：
 
-- [docs/ops-commands.md](file:///Users/bytedance/program/agp/docs/ops-commands.md)
+- [docs/ops-commands.md](docs/ops-commands.md)
 
 ## 当前实现规则
 
@@ -208,10 +207,10 @@ docker exec agp-mysql mysqldump -uagp -pagp agp > data/backups/mysql/agp-$(date 
 
 ## 说明文档
 
-- [docs/implementation-notes.md](file:///Users/bytedance/program/agp/docs/implementation-notes.md)：实现说明
-- [docs/deploy-new-environment.md](file:///Users/bytedance/program/agp/docs/deploy-new-environment.md)：新环境部署
-- [docs/migrate-other-groups.md](file:///Users/bytedance/program/agp/docs/migrate-other-groups.md)：分组迁移方案
-- [docs/ops-commands.md](file:///Users/bytedance/program/agp/docs/ops-commands.md)：运维命令速查
+- [docs/implementation-notes.md](docs/implementation-notes.md)：实现说明
+- [docs/deploy-new-environment.md](docs/deploy-new-environment.md)：新环境部署
+- [docs/migrate-other-groups.md](docs/migrate-other-groups.md)：分组迁移方案
+- [docs/ops-commands.md](docs/ops-commands.md)：运维命令速查
 
 ## 迁移输入说明
 

@@ -20,79 +20,107 @@ docs/migrate-other-groups.md
 在项目根目录执行：
 
 ```bash
-cd /Users/bytedance/program/agp
+cd /volume2/docker/discipleship
 
 # 构建并启动 MySQL、后端、前端
-docker compose -f deploy/docker-compose.separated.yml up -d --build
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml up -d --build
 
 # 查看运行状态
-docker compose -f deploy/docker-compose.separated.yml ps
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml ps
 
 # 查看全部服务日志
-docker compose -f deploy/docker-compose.separated.yml logs -f
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml logs -f
 
 # 只查看后端日志
-docker compose -f deploy/docker-compose.separated.yml logs -f backend
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml logs -f backend
 
 # 只查看 MySQL 日志
-docker compose -f deploy/docker-compose.separated.yml logs -f mysql
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml logs -f mysql
 
 # 重启后端
-docker compose -f deploy/docker-compose.separated.yml restart backend
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml restart backend
 
 # 停止服务，保留数据卷目录 data/mysql 和 data/assets
-docker compose -f deploy/docker-compose.separated.yml down
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml down
 ```
 
 默认访问地址：
 
 ```text
-http://127.0.0.1:5112
+http://NAS_IP:2973
 ```
 
-可通过环境变量覆盖前端端口：
+## NAS 升级与 502 排查
+
+升级现有部署时，先备份数据库，再强制重建后端和前端镜像，避免 NAS 继续使用旧构建缓存：
 
 ```bash
-AGP_WEB_PORT=8088 docker compose -f deploy/docker-compose.separated.yml up -d --build
+cd /volume2/docker/discipleship
+set -a; . ./.env; set +a
+mkdir -p data/backups/mysql
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" agp-mysql mysqldump -u"$MYSQL_USER" "$MYSQL_DATABASE" > data/backups/mysql/agp-before-upgrade-$(date +%F-%H%M%S).sql
+sudo git pull
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml build --no-cache backend frontend
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml up -d
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml ps
+```
+
+遇到 HTTP 502 时，先查看后端而不是删除数据库目录：
+
+```bash
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml logs --tail=200 backend mysql
+curl -fsS http://127.0.0.1:2973/api/health
+```
+
+当前版本的迁移器可以继续完成曾被 `Duplicate column name` 中断的迁移。若日志仍反复出现旧错误，通常表示后端镜像没有重建，请执行上面的 `build --no-cache backend`。升级会使旧登录令牌失效，用户重新登录一次即可。不要为修复 502 执行 `rm -rf data/mysql`；这会删除现有账号和打卡记录。
+
+可在 `.env` 中把 `AGP_WEB_PORT` 改为其他端口，然后重建前端：
+
+```bash
+# .env
+AGP_WEB_PORT=8088
+
+# 终端
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml up -d --build
 ```
 
 ## MySQL 连接
 
-默认配置来自 `deploy/docker-compose.separated.yml`：
+数据库名、用户和密码来自 `.env`。先在当前终端安全载入：
 
-```text
-数据库: agp
-用户: agp
-密码: agp
-容器: agp-mysql
-宿主机端口: 127.0.0.1:3307
+```bash
+set -a
+. ./.env
+set +a
 ```
+
+容器名为 `agp-mysql`，宿主机端口默认为 `127.0.0.1:3307`。
 
 小组表名为 `study_groups`。
 
 进入 MySQL：
 
 ```bash
-docker exec -it agp-mysql mysql -uagp -pagp agp
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" -it agp-mysql mysql -u"$MYSQL_USER" "$MYSQL_DATABASE"
 ```
 
 使用 root 进入：
 
 ```bash
-docker exec -it agp-mysql mysql -uroot -pagp-root agp
+sudo docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" -it agp-mysql mysql -uroot "$MYSQL_DATABASE"
 ```
 
 在宿主机直接执行一条 SQL：
 
 ```bash
-docker exec -i agp-mysql mysql -uagp -pagp agp -e "SHOW TABLES;"
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" -i agp-mysql mysql -u"$MYSQL_USER" "$MYSQL_DATABASE" -e "SHOW TABLES;"
 ```
 
 导出数据库备份：
 
 ```bash
 mkdir -p data/backups/mysql
-docker exec agp-mysql mysqldump -uagp -pagp agp > data/backups/mysql/agp-$(date +%F).sql
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" agp-mysql mysqldump -u"$MYSQL_USER" "$MYSQL_DATABASE" > data/backups/mysql/agp-$(date +%F).sql
 ```
 
 ## 查询指定小组数据
@@ -289,25 +317,25 @@ LIMIT 100;
 检查后端健康：
 
 ```bash
-curl -s http://127.0.0.1:5112/api/health
+curl -fsS http://127.0.0.1:2973/api/health
 ```
 
 查看后端实际环境变量：
 
 ```bash
-docker exec agp-backend env | grep '^AGP_'
+sudo docker exec agp-backend env | grep '^AGP_'
 ```
 
 查看 MySQL 表：
 
 ```bash
-docker exec -i agp-mysql mysql -uagp -pagp agp -e "SHOW TABLES;"
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" -i agp-mysql mysql -u"$MYSQL_USER" "$MYSQL_DATABASE" -e "SHOW TABLES;"
 ```
 
 查看打卡表分区：
 
 ```bash
-docker exec -i agp-mysql mysql -uagp -pagp agp -e "
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" -i agp-mysql mysql -u"$MYSQL_USER" "$MYSQL_DATABASE" -e "
 SELECT PARTITION_NAME, PARTITION_DESCRIPTION, TABLE_ROWS
 FROM information_schema.PARTITIONS
 WHERE TABLE_SCHEMA = DATABASE()

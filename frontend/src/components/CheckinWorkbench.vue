@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCheckinWorkbenchStore } from '../stores/checkinWorkbench';
 import { openTaskContent, setSelectedDate, shiftSelectedDate, toggleCheckin } from '../legacy-app';
@@ -22,18 +22,34 @@ const {
 
 const progressPercent = computed(() => total.value ? Math.round((completed.value / total.value) * 100) : 0);
 const allDone = computed(() => total.value > 0 && completed.value === total.value);
+const pendingTaskKeys = ref(new Set());
+const completionTitle = computed(() => isToday.value ? '今天的任务已全部完成' : `${selectedDateLabel.value}的任务已全部完成`);
+const completionNote = computed(() => isToday.value ? '感谢你的坚持，明天继续同行。' : '这一天的学习记录已经补齐。');
+const recordsTitle = computed(() => isToday.value ? '今日完成记录' : `${selectedDateLabel.value}完成记录`);
+const emptyTitle = computed(() => isToday.value ? '今天还没有安排任务' : `${selectedDateLabel.value}没有安排任务`);
+const emptyNote = computed(() => isToday.value ? '可以稍后再来，或联系组长确认今天的学习计划。' : '该日期无需补卡；如有疑问，请联系组长确认。');
+
+function taskKey(task) {
+  return `${task.type || ''}:${task.part || ''}:${task.detail || task.title || ''}`;
+}
+
+function taskPending(task) {
+  return pendingTaskKeys.value.has(taskKey(task));
+}
 
 function taskLocked(task) {
   return Boolean(isFuture.value && !task.ownRecord);
 }
 
 function taskStatus(task) {
+  if (taskPending(task)) return '处理中';
   if (task.ownRecord) return '已完成';
   if (taskLocked(task)) return '未开始';
   return isToday.value ? '待打卡' : '待补卡';
 }
 
 function actionText(task) {
+  if (taskPending(task)) return task.ownRecord ? '正在撤销…' : '正在保存…';
   if (task.ownRecord) return '撤销完成';
   if (taskLocked(task)) return '未开始';
   return isToday.value ? '立即打卡' : '补卡';
@@ -50,8 +66,17 @@ function taskTypeLabel(type) {
 }
 
 async function runToggle(task) {
+  const key = taskKey(task);
+  if (pendingTaskKeys.value.has(key)) return;
   if (task.ownRecord && !window.confirm(`确认撤销“${task.title}”的完成记录吗？`)) return;
-  await toggleCheckin(task);
+  pendingTaskKeys.value = new Set([...pendingTaskKeys.value, key]);
+  try {
+    await toggleCheckin(task);
+  } finally {
+    const next = new Set(pendingTaskKeys.value);
+    next.delete(key);
+    pendingTaskKeys.value = next;
+  }
 }
 
 function taskSubtitle(task) {
@@ -61,36 +86,44 @@ function taskSubtitle(task) {
 
 <template>
   <Teleport v-if="visible" to="#vue-checkin-workbench">
-    <div class="grid">
+    <div class="grid checkin-workbench-page">
       <section class="today-hero">
         <div class="today-copy">
           <div class="eyebrow">{{ selectedDateLabel }}</div>
           <h2>{{ title }}</h2>
           <p>{{ weekText }}</p>
         </div>
-        <div class="date-controls">
-          <button class="secondary" type="button" @click="shiftSelectedDate(-1)">‹</button>
+        <div class="date-controls workbench-date-controls" aria-label="选择打卡日期">
+          <button class="secondary" type="button" aria-label="查看前一天" @click="shiftSelectedDate(-1)">‹</button>
           <input
             type="date"
             :value="selectedDate"
             :max="maxDate"
+            aria-label="打卡日期"
             @change="setSelectedDate($event.target.value)"
           />
-          <button class="secondary" type="button" :disabled="isToday" @click="shiftSelectedDate(1)">›</button>
+          <button class="secondary" type="button" :disabled="isToday" aria-label="查看后一天" @click="shiftSelectedDate(1)">›</button>
           <button v-if="!isToday" class="ghost" type="button" @click="setSelectedDate(maxDate)">回到今天</button>
         </div>
         <div class="today-score">
-          <strong>{{ completed }}/{{ total }}</strong>
+          <strong>{{ total ? `${completed}/${total}` : '—' }}</strong>
           <span>我的完成</span>
         </div>
-        <div class="personal-progress" :aria-label="`完成进度 ${progressPercent}%`">
+        <div
+          class="personal-progress"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-valuenow="progressPercent"
+          :aria-label="`我的任务完成进度 ${progressPercent}%`"
+        >
           <span :style="{ width: `${progressPercent}%` }"></span>
         </div>
       </section>
 
-      <div v-if="allDone" class="completion-banner">
-        <span class="completion-icon">✓</span>
-        <div><b>今天的任务已全部完成</b><p>感谢你的坚持，明天继续同行。</p></div>
+      <div v-if="allDone" class="completion-banner" role="status">
+        <span class="completion-icon" aria-hidden="true">✓</span>
+        <div><b>{{ completionTitle }}</b><p>{{ completionNote }}</p></div>
       </div>
 
       <div v-if="tasks.length" class="task-board">
@@ -98,7 +131,8 @@ function taskSubtitle(task) {
           v-for="task in tasks"
           :key="`${task.type}:${task.part || ''}:${task.title}`"
           class="task-option"
-          :class="{ done: task.ownRecord }"
+          :class="{ done: task.ownRecord, pending: taskPending(task) }"
+          :aria-busy="taskPending(task)"
         >
           <div class="task-head">
             <span class="task-icon">{{ task.ownRecord ? '✓' : task.icon }}</span>
@@ -137,7 +171,8 @@ function taskSubtitle(task) {
             <button
               :class="task.ownRecord ? 'ghost' : 'ok'"
               type="button"
-              :disabled="taskLocked(task)"
+              :disabled="taskLocked(task) || taskPending(task)"
+              :aria-label="`${actionText(task)}：${task.title}`"
               @click="runToggle(task)"
             >
               {{ actionText(task) }}
@@ -145,13 +180,13 @@ function taskSubtitle(task) {
           </div>
         </article>
       </div>
-      <div v-else class="empty task-empty"><b>这一天还没有安排任务</b><span>可以先休息，或联系组长确认学习计划。</span></div>
+      <div v-else class="empty task-empty"><b>{{ emptyTitle }}</b><span>{{ emptyNote }}</span></div>
 
       <section>
         <div class="section-title">
-          <h2>当天完成记录</h2>
+          <h2>{{ recordsTitle }}</h2>
         </div>
-        <div v-if="!ownItems.length" class="empty">暂无记录</div>
+        <div v-if="!ownItems.length" class="empty">该日期暂无完成记录</div>
         <div v-else class="my-checkin-list">
           <div v-for="item in ownItems" :key="item.id" class="my-checkin-item">
             <span class="checkin-ok">✓</span>
@@ -163,3 +198,26 @@ function taskSubtitle(task) {
     </div>
   </Teleport>
 </template>
+
+<style scoped>
+.task-option.pending {
+  opacity: 0.78;
+}
+
+@media (max-width: 620px) {
+  .workbench-date-controls {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    width: 100%;
+  }
+
+  .workbench-date-controls input {
+    min-width: 0;
+  }
+
+  .workbench-date-controls .ghost {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+</style>

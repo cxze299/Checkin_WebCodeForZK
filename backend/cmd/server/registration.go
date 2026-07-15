@@ -3,10 +3,12 @@ package main
 import (
 	"crypto/sha256"
 	"database/sql"
+	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"image/jpeg"
 	_ "image/png"
 	"io"
@@ -21,6 +23,12 @@ import (
 	"github.com/mozillazg/go-pinyin"
 	"github.com/xuri/excelize/v2"
 	"golang.org/x/image/draw"
+)
+
+const (
+	maxAvatarFileBytes              = int64(6 << 20)
+	maxAvatarMultipartOverheadBytes = int64(1 << 20)
+	maxJPEGMetadataScanBytes        = int64(1 << 20)
 )
 
 type rosterRow struct {
@@ -379,8 +387,16 @@ func (a *app) handleRegister(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 500, "register_failed")
 		return
 	}
-	u, _ := a.loadCurrentUser(uid, req.GroupID)
-	token, _ := a.signToken(tokenClaims{UserID: uid, CurrentGroupID: req.GroupID})
+	u, err := a.loadCurrentUser(uid, req.GroupID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "register_failed")
+		return
+	}
+	token, err := a.signToken(newTokenClaims(uid, req.GroupID, u.AuthVersion))
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "token_failed")
+		return
+	}
 	writeJSON(w, 201, map[string]any{"token": token, "user": u, "username": username})
 }
 
@@ -414,23 +430,52 @@ func (a *app) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
 	u := mustUser(r)
-	r.Body = http.MaxBytesReader(w, r.Body, 6<<20)
-	if err := r.ParseMultipartForm(6 << 20); err != nil {
+	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarFileBytes+maxAvatarMultipartOverheadBytes)
+	if err := r.ParseMultipartForm(maxAvatarFileBytes); err != nil {
 		writeError(w, 400, "avatar_too_large")
 		return
 	}
-	file, _, err := r.FormFile("avatar")
+	if r.MultipartForm != nil {
+		defer r.MultipartForm.RemoveAll()
+	}
+	file, header, err := r.FormFile("avatar")
 	if err != nil {
 		writeError(w, 400, "avatar_required")
 		return
 	}
 	defer file.Close()
+	if !validAvatarFileSize(header.Size) {
+		writeError(w, 400, "avatar_too_large")
+		return
+	}
+	config, format, err := image.DecodeConfig(file)
+	if err != nil || validateAvatarDimensions(config.Width, config.Height) != nil {
+		writeError(w, 400, "invalid_avatar")
+		return
+	}
+	if _, err = file.Seek(0, io.SeekStart); err != nil {
+		writeError(w, 400, "invalid_avatar")
+		return
+	}
+	orientation := 1
+	if format == "jpeg" {
+		orientation = readJPEGEXIFOrientation(file)
+		if _, err = file.Seek(0, io.SeekStart); err != nil {
+			writeError(w, 400, "invalid_avatar")
+			return
+		}
+	}
 	img, _, err := image.Decode(file)
 	if err != nil {
 		writeError(w, 400, "invalid_avatar")
 		return
 	}
+	img = applyEXIFOrientation(img, orientation)
 	b := img.Bounds()
+	if err := validateAvatarDimensions(b.Dx(), b.Dy()); err != nil {
+		writeError(w, 400, "invalid_avatar")
+		return
+	}
 	side := b.Dx()
 	if b.Dy() < side {
 		side = b.Dy()
@@ -444,30 +489,265 @@ func (a *app) handleUploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	name := fmt.Sprintf("%d-%d.jpg", u.ID, time.Now().UnixNano())
-	out, err := os.Create(filepath.Join(dir, name))
+	finalPath := filepath.Join(dir, name)
+	out, err := os.CreateTemp(dir, ".avatar-*.jpg")
 	if err != nil {
 		writeError(w, 500, "avatar_failed")
 		return
 	}
-	err = jpeg.Encode(out, dst, &jpeg.Options{Quality: 86})
-	out.Close()
+	tempPath := out.Name()
+	defer os.Remove(tempPath)
+	encodeErr := jpeg.Encode(out, dst, &jpeg.Options{Quality: 86})
+	closeErr := out.Close()
+	if encodeErr != nil || closeErr != nil {
+		writeError(w, 500, "avatar_failed")
+		return
+	}
+	if err := os.Rename(tempPath, finalPath); err != nil {
+		writeError(w, 500, "avatar_failed")
+		return
+	}
+	keepFinal := false
+	defer func() {
+		if !keepFinal {
+			_ = os.Remove(finalPath)
+		}
+	}()
+	tx, err := a.db.Begin()
 	if err != nil {
 		writeError(w, 500, "avatar_failed")
 		return
 	}
-	_, err = a.db.Exec("UPDATE users SET avatar_path=?,profile_updated_at=?,updated_at=? WHERE id=?", name, nowSQL(), nowSQL(), u.ID)
-	if err != nil {
+	defer tx.Rollback()
+	var oldPath string
+	if err = tx.QueryRow("SELECT avatar_path FROM users WHERE id=? FOR UPDATE", u.ID).Scan(&oldPath); err != nil {
 		writeError(w, 500, "avatar_failed")
 		return
+	}
+	if _, err = tx.Exec("UPDATE users SET avatar_path=?,profile_updated_at=?,updated_at=? WHERE id=?", name, nowSQL(), nowSQL(), u.ID); err != nil {
+		writeError(w, 500, "avatar_failed")
+		return
+	}
+	if err = tx.Commit(); err != nil {
+		writeError(w, 500, "avatar_failed")
+		return
+	}
+	keepFinal = true
+	if oldName := avatarFilename(oldPath); oldName != "" && oldName != name {
+		_ = os.Remove(filepath.Join(dir, oldName))
 	}
 	writeJSON(w, 200, map[string]any{"avatar_url": "/api/avatars/" + name})
 }
 
+func validateAvatarDimensions(width, height int) error {
+	if width <= 0 || height <= 0 || width > maxAvatarSide || height > maxAvatarSide {
+		return errors.New("invalid_avatar_dimensions")
+	}
+	if int64(width)*int64(height) > maxAvatarPixels {
+		return errors.New("avatar_too_many_pixels")
+	}
+	return nil
+}
+
+func validAvatarFileSize(size int64) bool {
+	return size >= 0 && size <= maxAvatarFileBytes
+}
+
+func readJPEGEXIFOrientation(r io.Reader) int {
+	var signature [2]byte
+	if _, err := io.ReadFull(r, signature[:]); err != nil || signature != [2]byte{0xff, 0xd8} {
+		return 1
+	}
+	scanned := int64(len(signature))
+	var one [1]byte
+	for scanned < maxJPEGMetadataScanBytes {
+		if _, err := io.ReadFull(r, one[:]); err != nil {
+			return 1
+		}
+		scanned++
+		if one[0] != 0xff {
+			continue
+		}
+		for {
+			if _, err := io.ReadFull(r, one[:]); err != nil {
+				return 1
+			}
+			scanned++
+			if one[0] != 0xff {
+				break
+			}
+		}
+		marker := one[0]
+		if marker == 0x00 || marker == 0xd8 || marker == 0x01 || (marker >= 0xd0 && marker <= 0xd7) {
+			continue
+		}
+		if marker == 0xd9 || marker == 0xda {
+			return 1
+		}
+		var lengthBytes [2]byte
+		if _, err := io.ReadFull(r, lengthBytes[:]); err != nil {
+			return 1
+		}
+		scanned += int64(len(lengthBytes))
+		segmentLength := int(binary.BigEndian.Uint16(lengthBytes[:]))
+		if segmentLength < 2 {
+			return 1
+		}
+		payloadLength := segmentLength - 2
+		if scanned+int64(payloadLength) > maxJPEGMetadataScanBytes {
+			return 1
+		}
+		if marker == 0xe1 {
+			payload := make([]byte, payloadLength)
+			if _, err := io.ReadFull(r, payload); err != nil {
+				return 1
+			}
+			scanned += int64(payloadLength)
+			if orientation, ok := parseEXIFOrientation(payload); ok {
+				return orientation
+			}
+			continue
+		}
+		if _, err := io.CopyN(io.Discard, r, int64(payloadLength)); err != nil {
+			return 1
+		}
+		scanned += int64(payloadLength)
+	}
+	return 1
+}
+
+func parseEXIFOrientation(payload []byte) (int, bool) {
+	if len(payload) < 14 || string(payload[:6]) != "Exif\x00\x00" {
+		return 1, false
+	}
+	tiff := payload[6:]
+	var order binary.ByteOrder
+	switch string(tiff[:2]) {
+	case "II":
+		order = binary.LittleEndian
+	case "MM":
+		order = binary.BigEndian
+	default:
+		return 1, false
+	}
+	if order.Uint16(tiff[2:4]) != 42 {
+		return 1, false
+	}
+	ifdOffset := order.Uint32(tiff[4:8])
+	if ifdOffset > uint32(len(tiff)-2) {
+		return 1, false
+	}
+	entryCountOffset := int(ifdOffset)
+	entryCount := int(order.Uint16(tiff[entryCountOffset : entryCountOffset+2]))
+	entriesOffset := entryCountOffset + 2
+	if entryCount > (len(tiff)-entriesOffset)/12 {
+		return 1, false
+	}
+	for index := 0; index < entryCount; index++ {
+		entry := tiff[entriesOffset+index*12 : entriesOffset+(index+1)*12]
+		if order.Uint16(entry[0:2]) != 0x0112 {
+			continue
+		}
+		if order.Uint16(entry[2:4]) != 3 || order.Uint32(entry[4:8]) != 1 {
+			return 1, false
+		}
+		orientation := int(order.Uint16(entry[8:10]))
+		return orientation, orientation >= 1 && orientation <= 8
+	}
+	return 1, false
+}
+
+type exifOrientedImage struct {
+	source      image.Image
+	orientation int
+	bounds      image.Rectangle
+}
+
+func applyEXIFOrientation(source image.Image, orientation int) image.Image {
+	if source == nil || orientation < 2 || orientation > 8 {
+		return source
+	}
+	sourceBounds := source.Bounds()
+	width, height := sourceBounds.Dx(), sourceBounds.Dy()
+	orientedBounds := image.Rect(0, 0, width, height)
+	if orientation >= 5 {
+		orientedBounds = image.Rect(0, 0, height, width)
+	}
+	return &exifOrientedImage{source: source, orientation: orientation, bounds: orientedBounds}
+}
+
+func (img *exifOrientedImage) ColorModel() color.Model {
+	return img.source.ColorModel()
+}
+
+func (img *exifOrientedImage) Bounds() image.Rectangle {
+	return img.bounds
+}
+
+func (img *exifOrientedImage) At(x, y int) color.Color {
+	if !image.Pt(x, y).In(img.bounds) {
+		return color.RGBA{}
+	}
+	sourceBounds := img.source.Bounds()
+	width, height := sourceBounds.Dx(), sourceBounds.Dy()
+	var sourceX, sourceY int
+	switch img.orientation {
+	case 2:
+		sourceX, sourceY = width-1-x, y
+	case 3:
+		sourceX, sourceY = width-1-x, height-1-y
+	case 4:
+		sourceX, sourceY = x, height-1-y
+	case 5:
+		sourceX, sourceY = y, x
+	case 6:
+		sourceX, sourceY = y, height-1-x
+	case 7:
+		sourceX, sourceY = width-1-y, height-1-x
+	case 8:
+		sourceX, sourceY = width-1-y, x
+	default:
+		sourceX, sourceY = x, y
+	}
+	return img.source.At(sourceBounds.Min.X+sourceX, sourceBounds.Min.Y+sourceY)
+}
+
+func avatarFilename(value string) string {
+	value = strings.TrimSpace(value)
+	base := filepath.Base(value)
+	if value != base || base == "" || base == "." || base == ".." || strings.ContainsAny(base, "/\\\x00") {
+		return ""
+	}
+	return base
+}
+
+func isVersionedAvatarFilename(name string) bool {
+	stem, ok := strings.CutSuffix(name, ".jpg")
+	if !ok {
+		return false
+	}
+	userID, timestamp, ok := strings.Cut(stem, "-")
+	if !ok || strings.Contains(timestamp, "-") || userID == "" || timestamp == "" {
+		return false
+	}
+	for _, part := range []string{userID, timestamp} {
+		for _, char := range part {
+			if char < '0' || char > '9' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (a *app) handleAvatar(w http.ResponseWriter, r *http.Request) {
-	name := filepath.Base(r.PathValue("name"))
-	if name == "." || strings.ContainsAny(name, "/\\") {
+	name := avatarFilename(r.PathValue("name"))
+	if name == "" {
 		http.NotFound(w, r)
 		return
+	}
+	if isVersionedAvatarFilename(name) {
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 	}
 	http.ServeFile(w, r, filepath.Join(a.assetsRoot, "avatars", name))
 }

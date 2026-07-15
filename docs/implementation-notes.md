@@ -32,33 +32,29 @@
 ## 运行方式
 
 ```bash
-docker compose -f deploy/docker-compose.separated.yml up -d --build
+cp .env.example .env
+# 填写所有 CHANGE_ME 项后：
+sudo docker compose --env-file .env -f deploy/docker-compose.separated.yml up -d --build
 ```
 
 默认访问端口：
 
 ```text
-http://127.0.0.1:5112
+http://NAS_IP:2973
 ```
 
-默认首个超级管理员：
+首个超级管理员账号默认为 `admin`，但项目不提供默认生产密码。部署前必须在 `.env` 中设置：
 
-```text
-账号：admin
-密码：ChangeMe123
-```
-
-生产部署前必须通过环境变量覆盖：
-
-```bash
-export AGP_JWT_SECRET='替换为长随机字符串'
-export BOOTSTRAP_SUPERADMIN_USERNAME='你的超级管理员账号'
-export BOOTSTRAP_SUPERADMIN_PASSWORD='你的强密码'
+```dotenv
+MYSQL_PASSWORD=随机数据库密码
+MYSQL_ROOT_PASSWORD=随机 root 密码
+AGP_JWT_SECRET=至少32位随机字符串
+BOOTSTRAP_SUPERADMIN_PASSWORD=至少12位强密码
 ```
 
 ## 已实现的核心规则
 
-- 每个账号只有一个实际登录密码，登录只需要 `username + password`。
+- 每个账号只有一个实际登录密码，可使用邮箱或用户名登录。
 - 未认证状态下不展示用户所属小组，避免通过用户名枚举小组归属。
 - 小组默认密码只用于新建本组用户初始化密码，以及按规则批量重置成员密码。
 - 组长修改本组默认密码时：
@@ -82,7 +78,7 @@ npm install
 npm run build
 
 cd ..
-docker compose -f deploy/docker-compose.separated.yml config
+docker compose --env-file .env -f deploy/docker-compose.separated.yml config
 ```
 
 ## 后续建议

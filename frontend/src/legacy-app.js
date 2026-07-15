@@ -4,6 +4,9 @@ import { useDashboardStore } from './stores/dashboard';
 import { useAppStateStore } from './stores/appState';
 
 const state = {
+  booted: false,
+  requestCount: 0,
+  online: typeof navigator === 'undefined' ? true : navigator.onLine,
   token: localStorage.getItem('agp_token') || '',
   user: null,
   tab: 'home',
@@ -21,12 +24,24 @@ const state = {
   members: [],
   weeks: [],
   assets: [],
+  publicLibrary: [],
+  publicLibraryGroupID: 0,
+  resourceLoading: false,
+  loadedGroupID: 0,
+  loadedRankingMonth: '',
   resourceLibrary: null,
   adminDataGroupID: 0,
   adminLoading: false,
   weekDraft: null,
   toast: '',
+  loadGeneration: 0,
+  publicLibraryLoadGeneration: 0,
+  adminLoadGeneration: 0,
 };
+
+let toastTimer = 0;
+let onlineHandler = null;
+let offlineHandler = null;
 
 function viewerStore() {
   return useContentViewerStore();
@@ -63,6 +78,9 @@ function visibleNavItems() {
 function appSnapshot() {
   const groups = state.user?.study_groups || [];
   return {
+    booted: state.booted,
+    networkBusy: state.requestCount > 0,
+    online: state.online,
     authenticated: Boolean(state.token && state.user),
     user: state.user,
     tab: state.tab,
@@ -76,6 +94,8 @@ function appSnapshot() {
     showGroupPicker: Boolean(state.token && state.user && !state.user.current_group_id && groups.length > 1 && state.tab !== 'admin'),
     toast: state.toast,
     resources: state.assets || [],
+    publicLibrary: clonePlain(state.publicLibrary || []),
+    resourceLoading: state.resourceLoading,
     members: state.members || [],
     canAdmin: canAdminAccess(),
     canEditLearning: canEditLearning(),
@@ -128,7 +148,7 @@ function dashboardSnapshot() {
   const doneSlots = matrix.doneSlots;
   const overallPercent = Math.round((doneSlots / totalSlots) * 100);
   const completed = tasks.filter((task) => task.ownRecord).length;
-  const monthLabel = formatMonthLabel(state.monthlyRanking?.month || currentMonthString());
+  const monthLabel = formatMonthLabel(state.monthlyRanking?.month || state.selectedDate.slice(0, 7) || currentMonthString());
   const ranking = monthlyRankingItems();
   const leader = ranking[0];
   const activeCount = ranking.filter((item) => item.total > 0).length;
@@ -236,14 +256,65 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
+const apiErrorMessages = {
+  unauthorized: '登录已过期，请重新登录',
+  forbidden: '你没有执行此操作的权限',
+  password_change_required: '首次登录需要先修改密码',
+  too_many_attempts: '尝试次数过多，请稍后再试',
+  checkin_save_failed: '该任务可能已经打卡，请刷新后确认',
+  invalid_task: '任务已变更或不属于当前周，请刷新',
+  invalid_week: '当前日期不在该周计划中',
+  week_overlap: '日期与已有周计划重叠',
+  week_date_range_invalid: '结束日期不能早于开始日期',
+  week_title_required: '请填写周任务名称',
+  invalid_resource_url: '资源链接必须是站内路径或 HTTP/HTTPS 地址',
+  upload_too_large: '文件过大，单个文件最大 512MB',
+  unsupported_file_type: '不支持该文件类型',
+  resource_library_failed: 'NAS 资源目录读取失败',
+  internal_error: '服务暂时异常，请稍后重试',
+};
+
+export function friendlyAPIMessage(code, fallback = '') {
+  return apiErrorMessages[code] || fallback || code || '请求失败';
+}
+
 export async function api(path, options = {}) {
   const headers = { ...(options.headers || {}) };
   if (state.token) headers.Authorization = `Bearer ${state.token}`;
-  if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-  const res = await fetch(`/api${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-  return data;
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  if (options.body && !isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  const controller = options.signal ? null : new AbortController();
+  const timeout = controller ? setTimeout(() => controller.abort(), Number(options.timeout || 25000)) : 0;
+  state.requestCount += 1;
+  render();
+  try {
+    const res = await fetch(`/api${path}`, { ...options, headers, signal: options.signal || controller?.signal });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const code = data.error || `HTTP_${res.status}`;
+      const error = new Error(friendlyAPIMessage(code, `请求失败（${res.status}）`));
+      error.code = code;
+      error.status = res.status;
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      const timeoutError = new Error('请求超时，请检查 NAS 网络后重试');
+      timeoutError.code = 'request_timeout';
+      throw timeoutError;
+    }
+    if (error instanceof TypeError) {
+      const networkError = new Error('无法连接服务，请检查网络或 NAS 运行状态');
+      networkError.code = 'network_error';
+      throw networkError;
+    }
+    throw error;
+  } finally {
+    if (timeout) clearTimeout(timeout);
+    state.requestCount = Math.max(0, state.requestCount - 1);
+    render();
+  }
 }
 
 function authHeaders(headers = {}) {
@@ -291,15 +362,13 @@ export async function importStudyWeeksExcel(fileInput) {
   }
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch('/api/admin/imports/study-weeks', {
+  const data = await api('/admin/imports/study-weeks', {
     method: 'POST',
-    headers: authHeaders(),
     body: formData,
+    timeout: 15 * 60 * 1000,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   fileInput.value = '';
-  await Promise.all([loadAll(), loadAdminData(true)]);
+  await Promise.all([loadAll({ forceGroupData: true }), loadAdminData(true)]);
   toast(`门训任务已导入，共 ${data.weeks || 0} 周`);
 }
 
@@ -314,9 +383,10 @@ export async function importLocalBackupJSON(fileInput) {
   await api('/admin/imports/local-backup', {
     method: 'POST',
     body: JSON.stringify(payload),
+    timeout: 15 * 60 * 1000,
   });
   fileInput.value = '';
-  await Promise.all([loadAll(), loadAdminData(true)]);
+  await Promise.all([loadAll({ forceGroupData: true }), loadAdminData(true)]);
   toast('本地备份 JSON 已导入');
 }
 
@@ -335,37 +405,57 @@ async function loadSiteConfig() {
 export function toast(message) {
   state.toast = message;
   render();
-  setTimeout(() => {
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
     state.toast = '';
     render();
-  }, 2600);
+  }, 4200);
 }
 
-async function loadAll() {
+function clearGroupScopedState() {
+  state.publicLibraryLoadGeneration += 1;
+  state.adminLoadGeneration += 1;
+  state.bootstrap = null;
+  state.learningConfig = null;
+  state.summary = {};
+  state.monthlyRanking = null;
+  state.members = [];
+  state.checkins = [];
+  state.weeks = [];
+  state.assets = [];
+  state.publicLibrary = [];
+  state.publicLibraryGroupID = 0;
+  state.resourceLoading = false;
+  state.resourceLibrary = null;
+  state.weekDraft = null;
+  state.adminDataGroupID = 0;
+  state.adminLoading = false;
+  state.loadedGroupID = 0;
+  state.loadedRankingMonth = '';
+}
+
+async function loadAll({ throwOnError = false, forceGroupData = false } = {}) {
   if (!state.token) return;
+  const generation = ++state.loadGeneration;
   try {
     await loadSiteConfig();
     const me = await api('/auth/me');
+    if (generation !== state.loadGeneration) return;
     state.user = me.user;
     if (state.tab === 'admin' && !canAdminAccess()) {
       state.tab = 'home';
+    }
+    if (state.user.must_change_password) {
+      clearGroupScopedState();
+      render();
+      return;
     }
     if (!state.user.current_group_id && state.user.study_groups?.length === 1) {
       await switchGroup(state.user.study_groups[0].id);
       return;
     }
     if (!state.user.current_group_id) {
-      state.bootstrap = null;
-      state.learningConfig = null;
-      state.summary = {};
-      state.monthlyRanking = null;
-      state.members = [];
-      state.checkins = [];
-      state.weeks = [];
-      state.assets = [];
-      state.resourceLibrary = null;
-      state.weekDraft = null;
-      state.adminDataGroupID = 0;
+      clearGroupScopedState();
       return;
     }
     if (state.adminDataGroupID && state.adminDataGroupID !== state.user.current_group_id) {
@@ -374,29 +464,41 @@ async function loadAll() {
       state.adminDataGroupID = 0;
     }
     const selectedDate = state.selectedDate || todayString();
-    const month = currentMonthString();
-    const [bootstrap, summary, monthlyRanking, checkins, weeks, assets] = await Promise.all([
+    const groupID = Number(state.user.current_group_id || 0);
+    const month = selectedDate.slice(0, 7);
+    const groupChanged = forceGroupData || state.loadedGroupID !== groupID;
+    if (forceGroupData) {
+      state.monthlyRanking = null;
+      state.loadedRankingMonth = '';
+    }
+    const needsRanking = state.tab === 'dashboard' && state.loadedRankingMonth !== month;
+    const [bootstrap, checkins, weeks, assets, monthlyRanking] = await Promise.all([
       api(`/app/bootstrap?date=${selectedDate}`),
-      api(`/dashboard/summary?from=${selectedDate}&to=${selectedDate}`),
-      api(`/dashboard/monthly-ranking?month=${month}`),
       api(`/checkins?from=${selectedDate}&to=${selectedDate}&page_size=200`),
-      api('/study-weeks'),
-      api('/assets').catch(() => ({ assets: [] })),
+      groupChanged ? api('/study-weeks') : Promise.resolve({ weeks: state.weeks }),
+      groupChanged ? api('/assets').catch(() => ({ assets: [] })) : Promise.resolve({ assets: state.assets }),
+      needsRanking ? api(`/dashboard/monthly-ranking?month=${month}`) : Promise.resolve(state.monthlyRanking),
     ]);
+    if (generation !== state.loadGeneration || selectedDate !== state.selectedDate || groupID !== Number(state.user?.current_group_id || 0)) return;
     state.bootstrap = bootstrap;
     state.learningConfig = bootstrap.learning_config || null;
-    state.summary = summary.summary || {};
-    state.monthlyRanking = monthlyRanking;
+    if (monthlyRanking) {
+      state.monthlyRanking = monthlyRanking;
+      state.loadedRankingMonth = month;
+    }
     state.members = bootstrap.members || [];
     state.checkins = checkins.items || [];
     state.weeks = weeks.weeks || [];
     state.assets = assets.assets || [];
+    state.loadedGroupID = groupID;
   } catch (error) {
-    if (String(error.message).includes('unauthorized')) {
+    if (error.code === 'unauthorized') {
       logout();
+      toast('登录已过期，请重新登录');
       return;
     }
     toast(error.message);
+    if (throwOnError) throw error;
   }
 }
 
@@ -414,25 +516,58 @@ async function setDefaultGroup(groupID) {
   }
 }
 
-export async function switchGroup(groupID) {
-  const result = await api('/auth/switch-group', {
-    method: 'POST',
-    body: JSON.stringify({ group_id: Number(groupID) }),
-  });
-  state.token = result.token;
-  localStorage.setItem('agp_token', state.token);
-  await loadAll();
+export async function loadPublicLibrary(force = false) {
+  const groupID = Number(state.user?.current_group_id || 0);
+  if (!groupID || state.resourceLoading) return;
+  if (!force && state.publicLibraryGroupID === groupID) return;
+  const token = state.token;
+  const generation = ++state.publicLibraryLoadGeneration;
+  state.resourceLoading = true;
   render();
+  try {
+    const data = await api('/resource-library');
+    if (generation !== state.publicLibraryLoadGeneration || token !== state.token || groupID !== Number(state.user?.current_group_id || 0)) return;
+    state.publicLibrary = data.sections || [];
+    state.publicLibraryGroupID = groupID;
+  } catch (error) {
+    if (generation !== state.publicLibraryLoadGeneration || token !== state.token) return;
+    toast(error.message);
+    throw error;
+  } finally {
+    if (generation === state.publicLibraryLoadGeneration) {
+      state.resourceLoading = false;
+      render();
+    }
+  }
+}
+
+export async function switchGroup(groupID) {
+  try {
+    const result = await api('/auth/switch-group', {
+      method: 'POST',
+      body: JSON.stringify({ group_id: Number(groupID) }),
+    });
+    state.token = result.token;
+    localStorage.setItem('agp_token', state.token);
+    clearGroupScopedState();
+    await loadAll({ forceGroupData: true });
+    if (state.tab === 'resources') await loadPublicLibrary(true).catch(() => {});
+    if (state.tab === 'admin' && canAdminAccess()) await loadAdminData(true);
+    render();
+  } catch (error) {
+    toast(error.message);
+    throw error;
+  }
 }
 
 export async function setDefaultGroupAction(groupID) {
   return setDefaultGroup(groupID);
 }
 
-export async function login(username, password) {
+export async function login(identifier, password) {
   const data = await api('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ identifier, password }),
   });
   state.token = data.token;
   localStorage.setItem('agp_token', state.token);
@@ -464,7 +599,12 @@ export function setTab(tab) {
     return;
   }
   state.tab = tab;
+  if (tab === 'dashboard' && state.loadedRankingMonth !== state.selectedDate.slice(0, 7)) {
+    state.monthlyRanking = null;
+  }
   render();
+  if (tab === 'dashboard') loadAll();
+  if (tab === 'resources') loadPublicLibrary();
 }
 
 export function toggleSidebar() {
@@ -490,7 +630,7 @@ export function setAdminSection(section) {
 }
 
 export async function reloadApp() {
-  await loadAll();
+  await loadAll({ forceGroupData: true });
   render();
 }
 
@@ -670,13 +810,19 @@ function dateControls() {
 
 export async function setSelectedDate(date) {
   if (!date) return;
+  const previousDate = state.selectedDate;
   if (date > todayString()) {
     toast('不能选择未来日期');
     state.selectedDate = todayString();
   } else {
     state.selectedDate = date;
   }
-  await loadAll();
+  render();
+  try {
+    await loadAll({ throwOnError: true });
+  } catch (_) {
+    state.selectedDate = previousDate;
+  }
   render();
 }
 
@@ -1093,11 +1239,14 @@ export async function toggleCheckin(task, member) {
           detail: task.detail || task.title,
           logical_date: state.selectedDate,
           week_id: Number(state.bootstrap?.current_week?.id || 0),
+          task_id: Number(task.taskID || 0),
           is_retro: !isTodaySelected(),
         }),
       });
       toast('打卡成功');
     }
+    state.monthlyRanking = null;
+    state.loadedRankingMonth = '';
     await loadAll();
     render();
   } catch (error) {
@@ -1107,11 +1256,11 @@ export async function toggleCheckin(task, member) {
 
 function currentTaskOptions() {
   const week = state.bootstrap?.current_week || {};
-  const configPlan = currentWeekConfigPlan();
   const serverTasks = state.bootstrap?.current_tasks || [];
   const bookTasks = serverTasks.filter((task) => task.task_type === 'weekly_book');
-  const videoTask = serverTasks.find((task) => task.task_type === 'weekly_video');
+  const videoTasks = serverTasks.filter((task) => task.task_type === 'weekly_video');
   const verseTask = serverTasks.find((task) => task.task_type === 'weekly_verse');
+  const outlineTask = serverTasks.find((task) => task.task_type === 'weekly_outline');
   const dailyLinks = [getDailyDevotionPlan(), getDailyScripturePlan()].filter(Boolean);
   const dailyLabel = dailyTaskLabel();
   const tasks = [
@@ -1126,9 +1275,10 @@ function currentTaskOptions() {
       contentLinks: dailyLinks,
     },
   ];
-  for (const book of buildWeeklyBookEntries(bookTasks, week.title, configPlan)) {
+  for (const book of buildWeeklyBookEntries(bookTasks)) {
     tasks.push({
       type: 'weekly_book',
+      taskID: book.taskID,
       title: book.title,
       icon: shortTaskIcon(book.title),
       part: book.title,
@@ -1138,26 +1288,35 @@ function currentTaskOptions() {
       contentLinks: book.contentLinks,
     });
   }
-  tasks.push({
-    type: 'weekly_video',
-    title: currentWeeklyVideoLinks(videoTask, configPlan)[0]?.title || videoTask?.title || '本周视频',
-    icon: '视频',
-    part: '',
-    detail: currentWeeklyVideoLinks(videoTask, configPlan)[0]?.title || videoTask?.title || '本周视频',
-    summary: '必看视频',
-    contentURL: currentWeeklyVideoLinks(videoTask, configPlan)[0]?.url || '',
-    contentLinks: currentWeeklyVideoLinks(videoTask, configPlan),
-  });
-  tasks.push({
-    type: 'weekly_verse',
-    title: week.verse_ref || verseTask?.title || '本周背经',
-    icon: '背经',
-    part: '',
-    detail: week.verse_ref || verseTask?.title || '本周背经',
-    summary: '背经与默想',
-    contentURL: '',
-    contentLinks: [],
-  });
+  for (const videoTask of videoTasks) {
+    const links = currentWeeklyVideoLinks(videoTask);
+    const title = videoTask.title || links[0]?.title || '本周视频';
+    tasks.push({
+      type: 'weekly_video',
+      taskID: Number(videoTask.id || 0),
+      title,
+      icon: '视频',
+      part: title,
+      detail: title,
+      summary: links.length ? '观看后完成打卡' : '本周视频',
+      contentURL: links[0]?.url || '',
+      contentLinks: links,
+    });
+  }
+  if (verseTask) {
+    const outlineLinks = outlineTask ? bestAssetLinksForTitle(outlineTask.title, outlineTask) : [];
+    tasks.push({
+      type: 'weekly_verse',
+      taskID: Number(verseTask.id || 0),
+      title: week.verse_ref || verseTask.title || '本周背经',
+      icon: '背经',
+      part: '',
+      detail: week.verse_ref || verseTask.title || '本周背经',
+      summary: week.recite_text ? String(week.recite_text).slice(0, 72) : '背经与默想',
+      contentURL: outlineLinks[0]?.url || '',
+      contentLinks: outlineLinks,
+    });
+  }
   const ownRecords = state.checkins.filter((item) => item.user_id === state.user?.id && item.logical_date === state.selectedDate);
   return tasks.map((task) => ({
     ...task,
@@ -1310,55 +1469,46 @@ function bestAssetLinksForTitle(title, task) {
       type: inferResourceType(asset.original_name || asset.title, 'iframe'),
       pageRange: extractPdfPageRange(title),
     }));
-  if (matched.length) return matched;
+  const directURL = String(task?.content || '').trim();
+  const direct = directURL ? [{
+    label: '打开内容',
+    title: title || task?.title || '学习内容',
+    url: directURL,
+    type: inferResourceType(directURL, 'pdf'),
+    pageRange: extractPdfPageRange(title || task?.title || ''),
+  }] : [];
+  if (direct.length || matched.length) return [...direct, ...matched];
   const first = firstTaskAssetLink(task, title);
   if (first && splitBookTitles(task?.title || '').length <= 1) return [first];
   const staticLinks = staticContentLinksByTitle(title);
   return staticLinks.length ? staticLinks : [];
 }
 
-function buildWeeklyBookEntries(bookTasks, weekTitle, configPlan = null) {
-  const configuredReadings = normalizeWeekReadings(configPlan);
-  if (configuredReadings.length) {
-    return configuredReadings.map((reading) => ({
-      title: reading.title,
-      contentLinks: reading.url
-        ? [{ label: '读物内容', title: reading.title, url: reading.url, type: reading.type || 'pdf', pageRange: extractPdfPageRange(reading.title) }]
-        : bestAssetLinksForTitle(reading.title, bookTasks[0]),
-    }));
-  }
-  if (!bookTasks.length) {
-    return splitBookTitles(weekTitle).map((title) => ({
+function buildWeeklyBookEntries(bookTasks) {
+  return bookTasks.map((task) => {
+    const title = task.title || '周读物';
+    return {
+      taskID: Number(task.id || 0),
       title,
-      contentLinks: staticContentLinksByTitle(title),
-    }));
-  }
-  const entries = [];
-  for (const task of bookTasks) {
-    const titles = splitBookTitles(task.title || weekTitle);
-    for (const title of titles) {
-      entries.push({
-        title,
-        contentLinks: bestAssetLinksForTitle(title, task),
-      });
-    }
-  }
-  return entries;
+      contentLinks: bestAssetLinksForTitle(title, task),
+    };
+  });
 }
 
-function currentWeeklyVideoLinks(videoTask, configPlan = null) {
-  const configVideos = normalizeWeekVideos(configPlan).map((item) => ({
-    label: item.title || '视频内容',
-    title: item.title || '本周视频',
-    url: item.url,
+function currentWeeklyVideoLinks(videoTask) {
+  const directURL = String(videoTask?.content || '').trim();
+  const directLinks = directURL ? [{
+    label: videoTask?.title || '视频内容',
+    title: videoTask?.title || '本周视频',
+    url: externalNewTestamentVideoURL(videoTask?.title, directURL),
     type: 'video',
-  })).filter((item) => item.url);
+  }] : [];
   const rawAssetLink = firstTaskAssetLink(videoTask, videoTask?.title || '本周视频');
   const assetLink = rawAssetLink ? {
     ...rawAssetLink,
     url: externalNewTestamentVideoURL(rawAssetLink.title || videoTask?.title, rawAssetLink.url),
   } : null;
-  const links = [...configVideos, ...(assetLink ? [assetLink] : [])];
+  const links = [...directLinks, ...(assetLink ? [assetLink] : [])];
   return links.filter((item, index, arr) => item.url && arr.findIndex((other) => other.url === item.url) === index);
 }
 
@@ -1474,6 +1624,7 @@ function getDailyScripturePlan(date = state.selectedDate) {
 
 function checkinMatchesTask(item, task) {
   if (item.task_type !== task.type) return false;
+  if (task.taskID && item.task_id) return Number(item.task_id) === Number(task.taskID);
   if (task.part) return item.part === task.part || item.detail === task.detail;
   return !item.part || item.part === task.part;
 }
@@ -1728,25 +1879,37 @@ function resourcesView() {
     : el('div', { class: 'empty', text: '暂无资源，请在管理后台登记资料。' }));
 }
 
-export async function loadAdminData(force = false) {
-  if (!state.user?.current_group_id) return;
-  if (!force && state.adminDataGroupID === state.user.current_group_id && state.resourceLibrary) return;
+export async function loadAdminData(force = false, throwOnError = false) {
+  const groupID = Number(state.user?.current_group_id || 0);
+  if (!groupID) return;
+  if (!force && state.adminDataGroupID === groupID && state.resourceLibrary) return;
+  const token = state.token;
+  const generation = ++state.adminLoadGeneration;
   state.adminLoading = true;
   render();
   try {
     const [learning, library] = await Promise.all([
-      api('/admin/learning-config').catch(() => ({ settings: state.learningConfig || {} })),
-      api('/admin/resource-library').catch(() => ({ sections: [] })),
+      api('/admin/learning-config'),
+      api('/admin/resource-library'),
     ]);
+    if (generation !== state.adminLoadGeneration || token !== state.token || groupID !== Number(state.user?.current_group_id || 0)) return;
     state.learningConfig = learning.settings || state.learningConfig || {};
     state.resourceLibrary = library.sections || [];
-    state.adminDataGroupID = state.user.current_group_id;
-    if (!state.weekDraft) state.weekDraft = weekDraftFromWeek(state.weeks[0]);
+    state.adminDataGroupID = groupID;
+    if (!state.weekDraft) {
+      const today = todayString();
+      const target = state.weeks.find((week) => week.start <= today && week.end >= today) || state.weeks[0];
+      state.weekDraft = weekDraftFromWeek(target);
+    }
   } catch (error) {
+    if (generation !== state.adminLoadGeneration || token !== state.token) return;
     toast(error.message);
+    if (throwOnError) throw error;
   } finally {
-    state.adminLoading = false;
-    render();
+    if (generation === state.adminLoadGeneration) {
+      state.adminLoading = false;
+      render();
+    }
   }
 }
 
@@ -1985,7 +2148,7 @@ export async function saveWeekDraft() {
     const method = draft.id ? 'PUT' : 'POST';
     const result = await api(endpoint, { method, body: JSON.stringify(payload) });
     toast('当前周任务已保存');
-    await loadAll();
+    await loadAll({ forceGroupData: true });
     const savedID = Number(result.id || draft.id || 0);
     const savedWeek = (state.weeks || []).find((item) => Number(item.id) === savedID);
     state.weekDraft = weekDraftFromWeek(savedWeek || { ...draft, id: savedID });
@@ -2006,7 +2169,7 @@ export async function deleteWeekDraft() {
   try {
     await api(`/admin/study-weeks/${draft.id}`, { method: 'DELETE' });
     toast('当前周任务已删除');
-    await loadAll();
+    await loadAll({ forceGroupData: true });
     state.weekDraft = weekDraftFromWeek(state.weeks[0]);
     render();
   } catch (error) {
@@ -2024,23 +2187,23 @@ export async function uploadLibraryFile(fileInput, category) {
   form.append('category', category);
   form.append('file', file);
   try {
-    const res = await fetch('/api/admin/assets/upload', {
+    await api('/admin/assets/upload', {
       method: 'POST',
-      headers: state.token ? { Authorization: `Bearer ${state.token}` } : {},
       body: form,
+      timeout: 15 * 60 * 1000,
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     toast('文件已上传到资源库');
     fileInput.value = '';
-    await Promise.all([loadAll(), loadAdminData(true)]);
+    state.publicLibrary = [];
+    state.publicLibraryGroupID = 0;
+    await Promise.all([loadAll({ forceGroupData: true }), loadAdminData(true)]);
   } catch (error) {
     toast(error.message);
   }
 }
 
 export function previewLibraryItem(item) {
-  openContentTarget({
+  return openContentTarget({
     title: item.title || item.original_name || '资源预览',
     url: item.url,
     type: item.type || inferResourceType(item.url),
@@ -2436,10 +2599,21 @@ export async function removeMember(member) {
 }
 
 export function logout() {
+  if (state.viewer?.revokeURL) URL.revokeObjectURL(state.viewer.revokeURL);
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = 0;
   localStorage.removeItem('agp_token');
+  state.loadGeneration += 1;
   state.token = '';
   state.user = null;
-  state.bootstrap = null;
+  state.tab = 'home';
+  state.adminSection = 'overview';
+  state.selectedDate = todayString();
+  state.calendar = null;
+  state.viewer = null;
+  state.toast = '';
+  clearGroupScopedState();
+  syncViewerStore();
   render();
 }
 
@@ -2449,12 +2623,25 @@ function render() {
   syncDashboardStore();
 }
 
-export function initializeApp() {
+export async function initializeApp() {
+  state.booted = false;
   render();
-  return loadAll().then(render);
+  onlineHandler = () => { state.online = true; toast('网络已恢复'); loadAll(); };
+  offlineHandler = () => { state.online = false; render(); };
+  window.addEventListener('online', onlineHandler);
+  window.addEventListener('offline', offlineHandler);
+  try {
+    await loadAll({ throwOnError: true, forceGroupData: true });
+  } finally {
+    state.booted = true;
+    render();
+  }
 }
 
 export function disposeApp() {
+  if (onlineHandler) window.removeEventListener('online', onlineHandler);
+  if (offlineHandler) window.removeEventListener('offline', offlineHandler);
+  if (toastTimer) clearTimeout(toastTimer);
   state.calendar = null;
   state.viewer = null;
   syncViewerStore();

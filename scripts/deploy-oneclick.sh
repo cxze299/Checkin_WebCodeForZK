@@ -4,12 +4,20 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/deploy/docker-compose.separated.yml}"
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-agp}"
+ENV_FILE="${ENV_FILE:-$ROOT_DIR/.env}"
+
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+fi
 
 MYSQL_DATABASE="${MYSQL_DATABASE:-agp}"
 MYSQL_USER="${MYSQL_USER:-agp}"
-MYSQL_PASSWORD="${MYSQL_PASSWORD:-agp}"
-MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-agp-root}"
-AGP_WEB_PORT="${AGP_WEB_PORT:-5112}"
+MYSQL_PASSWORD="${MYSQL_PASSWORD:-}"
+MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-}"
+AGP_WEB_PORT="${AGP_WEB_PORT:-2973}"
 AGP_MYSQL_PORT="${AGP_MYSQL_PORT:-3307}"
 BOOTSTRAP_SUPERADMIN_USERNAME="${BOOTSTRAP_SUPERADMIN_USERNAME:-admin}"
 BOOTSTRAP_SUPERADMIN_DISPLAY_NAME="${BOOTSTRAP_SUPERADMIN_DISPLAY_NAME:-超级管理员}"
@@ -31,11 +39,15 @@ MIGRATION_RECORDS_IN_CONTAINER=""
 MIGRATION_NAME_MAP_IN_CONTAINER=""
 
 rand_hex() {
-  LC_ALL=C tr -dc 'a-f0-9' </dev/urandom | head -c "${1:-32}"
+  local length="${1:-32}"
+  local bytes=$(((length + 1) / 2))
+  local value
+  value="$(od -An -N "$bytes" -tx1 /dev/urandom | tr -d '[:space:]')"
+  printf '%s' "${value:0:length}"
 }
 
 rand_password() {
-  LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c "${1:-16}"
+  rand_hex "${1:-24}"
 }
 
 log() {
@@ -50,7 +62,21 @@ require_cmd() {
 }
 
 compose() {
-  docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" "$@"
+  docker compose --env-file "$ENV_FILE" -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" "$@"
+}
+
+upsert_env_var() {
+  local key="$1"
+  local value="$2"
+  local tmp="${ENV_FILE}.tmp.$$"
+  awk -v key="$key" -v value="$value" '
+    BEGIN { found = 0 }
+    index($0, key "=") == 1 { print key "=" value; found = 1; next }
+    { print }
+    END { if (!found) print key "=" value }
+  ' "$ENV_FILE" >"$tmp"
+  chmod 600 "$tmp"
+  mv "$tmp" "$ENV_FILE"
 }
 
 wait_for_mysql() {
@@ -100,7 +126,7 @@ cleanup() {
 
 run_migrate_json() {
   local dry_run="$1"
-  local dsn="agp:agp@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true&multiStatements=false&charset=utf8mb4,utf8"
+  local dsn="${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true&multiStatements=false&charset=utf8mb4,utf8"
   local network_name="${COMPOSE_PROJECT_NAME}_default"
   local args=(
     "go" "run" "./cmd/migrate-json"
@@ -142,18 +168,40 @@ should_run_primary_migration() {
 }
 
 require_cmd docker
+require_cmd awk
+require_cmd od
 mkdir -p "$ROOT_DIR/data/mysql" "$ROOT_DIR/data/assets" "$ROOT_DIR/data/backups/mysql" "$MIGRATION_REPORT_DIR"
 trap cleanup EXIT
 
-if [ -z "${AGP_JWT_SECRET:-}" ]; then
+if [ -z "$MYSQL_PASSWORD" ] || [[ "$MYSQL_PASSWORD" == CHANGE_ME* ]]; then
+  MYSQL_PASSWORD="$(rand_password 24)"
+fi
+if [ -z "$MYSQL_ROOT_PASSWORD" ] || [[ "$MYSQL_ROOT_PASSWORD" == CHANGE_ME* ]]; then
+  MYSQL_ROOT_PASSWORD="$(rand_password 24)"
+fi
+
+if [ -z "${AGP_JWT_SECRET:-}" ] || [ "${#AGP_JWT_SECRET}" -lt 32 ] || [[ "$AGP_JWT_SECRET" == *CHANGE_ME* ]] || [ "$AGP_JWT_SECRET" = "please-change-this-to-a-long-random-string" ]; then
   AGP_JWT_SECRET="$(rand_hex 48)"
   export AGP_JWT_SECRET
 fi
 
-if [ -z "${BOOTSTRAP_SUPERADMIN_PASSWORD:-}" ]; then
-  BOOTSTRAP_SUPERADMIN_PASSWORD="$(rand_password 16)"
+if [ -z "${BOOTSTRAP_SUPERADMIN_PASSWORD:-}" ] || [ "${#BOOTSTRAP_SUPERADMIN_PASSWORD}" -lt 12 ] || [[ "$BOOTSTRAP_SUPERADMIN_PASSWORD" == *CHANGE_ME* ]] || [ "$BOOTSTRAP_SUPERADMIN_PASSWORD" = "ChangeMe123" ]; then
+  BOOTSTRAP_SUPERADMIN_PASSWORD="$(rand_password 24)"
   export BOOTSTRAP_SUPERADMIN_PASSWORD
 fi
+
+touch "$ENV_FILE"
+chmod 600 "$ENV_FILE"
+upsert_env_var MYSQL_DATABASE "$MYSQL_DATABASE"
+upsert_env_var MYSQL_USER "$MYSQL_USER"
+upsert_env_var MYSQL_PASSWORD "$MYSQL_PASSWORD"
+upsert_env_var MYSQL_ROOT_PASSWORD "$MYSQL_ROOT_PASSWORD"
+upsert_env_var AGP_JWT_SECRET "$AGP_JWT_SECRET"
+upsert_env_var BOOTSTRAP_SUPERADMIN_USERNAME "$BOOTSTRAP_SUPERADMIN_USERNAME"
+upsert_env_var BOOTSTRAP_SUPERADMIN_PASSWORD "$BOOTSTRAP_SUPERADMIN_PASSWORD"
+upsert_env_var BOOTSTRAP_SUPERADMIN_DISPLAY_NAME "$BOOTSTRAP_SUPERADMIN_DISPLAY_NAME"
+upsert_env_var AGP_WEB_PORT "$AGP_WEB_PORT"
+upsert_env_var AGP_MYSQL_PORT "$AGP_MYSQL_PORT"
 
 if should_run_primary_migration; then
   if [ -z "$PRIMARY_GROUP_DEFAULT_PASSWORD" ]; then
@@ -205,12 +253,7 @@ cat <<EOF
 超级管理员:
   用户名: ${BOOTSTRAP_SUPERADMIN_USERNAME}
   显示名: ${BOOTSTRAP_SUPERADMIN_DISPLAY_NAME}
-  密码: ${BOOTSTRAP_SUPERADMIN_PASSWORD}
-
-数据库:
-  DB: ${MYSQL_DATABASE}
-  User: ${MYSQL_USER}
-  Password: ${MYSQL_PASSWORD}
+  密码及数据库密钥已安全写入: ${ENV_FILE}
 
 EOF
 

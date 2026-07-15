@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/hmac"
@@ -18,13 +19,17 @@ import (
 	"log"
 	"math"
 	"mime"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 	"unicode"
 
@@ -34,10 +39,18 @@ import (
 )
 
 const (
-	roleMember      = "member"
-	roleGroupAdmin  = "group_admin"
-	roleGroupLeader = "group_leader"
-	appTZName       = "Asia/Shanghai"
+	roleMember               = "member"
+	roleGroupAdmin           = "group_admin"
+	roleGroupLeader          = "group_leader"
+	appTZName                = "Asia/Shanghai"
+	tokenTTL                 = 30 * 24 * time.Hour
+	maxUploadBytes           = int64(512 << 20)
+	maxBackupBytes           = int64(64 << 20)
+	maxStudyWeeksImportBytes = int64(32 << 20)
+	loginFailureTTL          = 30 * time.Minute
+	loginFailureCap          = 5000
+	maxAvatarSide            = 8192
+	maxAvatarPixels          = int64(24_000_000)
 )
 
 type app struct {
@@ -75,6 +88,7 @@ type currentUser struct {
 	IsSuperAdmin       bool     `json:"is_super_admin"`
 	DefaultGroupID     uint64   `json:"default_group_id"`
 	MustChangePassword bool     `json:"must_change_password"`
+	AuthVersion        uint64   `json:"-"`
 	CurrentGroupID     uint64   `json:"current_group_id"`
 	Groups             []group  `json:"study_groups"`
 	Roles              []string `json:"roles"`
@@ -113,11 +127,18 @@ type studyWeekInput struct {
 type tokenClaims struct {
 	UserID         uint64 `json:"uid"`
 	CurrentGroupID uint64 `json:"gid,omitempty"`
+	AuthVersion    uint64 `json:"ver"`
 	ExpiresAt      int64  `json:"exp"`
 }
 
 func main() {
 	cfg := loadConfig()
+	if len(cfg.JWTSecret) < 32 || strings.Contains(strings.ToUpper(cfg.JWTSecret), "CHANGE_ME") || cfg.JWTSecret == "dev-secret-change-me" || cfg.JWTSecret == "please-change-this-to-a-long-random-string" {
+		log.Fatal("AGP_JWT_SECRET must be a random value of at least 32 characters")
+	}
+	if len(cfg.BootstrapPassword) < 12 || strings.Contains(strings.ToUpper(cfg.BootstrapPassword), "CHANGE_ME") || cfg.BootstrapPassword == "ChangeMe123" {
+		log.Fatal("BOOTSTRAP_SUPERADMIN_PASSWORD must be set to at least 12 characters")
+	}
 	db, err := sql.Open("mysql", cfg.DSN)
 	if err != nil {
 		log.Fatal(err)
@@ -128,6 +149,7 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
 	loc, err := time.LoadLocation(appTZName)
 	if err != nil {
@@ -158,8 +180,36 @@ func main() {
 
 	mux := http.NewServeMux()
 	a.routes(mux)
+	server := &http.Server{
+		Addr:              cfg.Addr,
+		Handler:           withRecovery(withCommonHeaders(mux)),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       15 * time.Minute,
+		WriteTimeout:      15 * time.Minute,
+		IdleTimeout:       2 * time.Minute,
+		MaxHeaderBytes:    1 << 20,
+	}
+	serverErrors := make(chan error, 1)
+	go func() {
+		serverErrors <- server.ListenAndServe()
+	}()
+
+	shutdownSignals := make(chan os.Signal, 1)
+	signal.Notify(shutdownSignals, syscall.SIGINT, syscall.SIGTERM)
 	log.Printf("AGP backend listening on %s", cfg.Addr)
-	log.Fatal(http.ListenAndServe(cfg.Addr, withCommonHeaders(mux)))
+	select {
+	case sig := <-shutdownSignals:
+		log.Printf("received %s, shutting down", sig)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("graceful shutdown failed: %v", err)
+		}
+	case err := <-serverErrors:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	}
 }
 
 func loadConfig() config {
@@ -216,12 +266,13 @@ func (a *app) routes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /api/admin/checkins/{id}", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminDeleteCheckin)))
 
 	mux.HandleFunc("GET /api/assets", a.auth(a.handleListAssets))
+	mux.HandleFunc("GET /api/resource-library", a.auth(a.handleResourceLibrary))
 	mux.HandleFunc("GET /api/assets/{id}/download", a.auth(a.handleDownloadAsset))
 	mux.HandleFunc("GET /api/assets/{id}/range", a.auth(a.handleDownloadAssetRange))
 	mux.HandleFunc("POST /api/admin/assets/upload", a.auth(a.requireRole(roleGroupLeader, a.handleAdminUploadAsset)))
 	mux.HandleFunc("GET /api/admin/resource-library", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminResourceLibrary)))
-	mux.HandleFunc("POST /api/admin/resource-folders", a.auth(a.requireRole(roleGroupLeader, a.handleAdminCreateResourceFolder)))
-	mux.HandleFunc("PUT /api/admin/resource-folders", a.auth(a.requireRole(roleGroupLeader, a.handleAdminRenameResourceFolder)))
+	mux.HandleFunc("POST /api/admin/resource-folders", a.auth(a.requireSuper(a.handleAdminCreateResourceFolder)))
+	mux.HandleFunc("PUT /api/admin/resource-folders", a.auth(a.requireSuper(a.handleAdminRenameResourceFolder)))
 	mux.HandleFunc("GET /api/admin/learning-config", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminLearningConfig)))
 	mux.HandleFunc("PUT /api/admin/learning-config", a.auth(a.requireRole(roleGroupLeader, a.handleAdminSaveLearningConfig)))
 	mux.HandleFunc("GET /api/content/pdf-range", a.auth(a.handleStaticPDFRange))
@@ -257,10 +308,25 @@ func (a *app) routes(mux *http.ServeMux) {
 func withCommonHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func withRecovery(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if recovered := recover(); recovered != nil {
+				log.Printf("panic serving %s %s: %v", r.Method, r.URL.Path, recovered)
+				writeError(w, http.StatusInternalServerError, "internal_error")
+			}
+		}()
 		next.ServeHTTP(w, r)
 	})
 }
@@ -375,7 +441,14 @@ func (a *app) bootstrapSuperAdmin(cfg config) error {
 }
 
 func (a *app) handleHealth(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+	w.Header().Set("Cache-Control", "no-store")
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	if err := a.db.PingContext(ctx); err != nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]any{"ok": false, "database": "unavailable"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "database": "ready"})
 }
 
 func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -401,10 +474,11 @@ func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {
 		IsSuperAdmin       bool
 		DefaultGroupID     sql.NullInt64
 		MustChangePassword bool
+		AuthVersion        uint64
 		Status             int
 	}
-	err := a.db.QueryRow(`SELECT id, username, display_name, password_hash, is_super_admin, default_group_id, must_change_password, status FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1`, username, username).
-		Scan(&user.ID, &user.Username, &user.DisplayName, &user.PasswordHash, &user.IsSuperAdmin, &user.DefaultGroupID, &user.MustChangePassword, &user.Status)
+	err := a.db.QueryRow(`SELECT id, username, display_name, password_hash, is_super_admin, default_group_id, must_change_password, auth_version, status FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1`, username, username).
+		Scan(&user.ID, &user.Username, &user.DisplayName, &user.PasswordHash, &user.IsSuperAdmin, &user.DefaultGroupID, &user.MustChangePassword, &user.AuthVersion, &user.Status)
 	if err != nil || user.Status != 1 || !verifyPassword(req.Password, user.PasswordHash) {
 		a.loginLimiter.fail(remote, username)
 		writeError(w, http.StatusUnauthorized, "invalid_username_or_password")
@@ -418,7 +492,7 @@ func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {
 	} else if len(groups) == 1 {
 		currentGroupID = groups[0].ID
 	}
-	token, err := a.signToken(tokenClaims{UserID: user.ID, CurrentGroupID: currentGroupID})
+	token, err := a.signToken(newTokenClaims(user.ID, currentGroupID, user.AuthVersion))
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "token_failed")
 		return
@@ -451,7 +525,7 @@ func (a *app) handleSwitchGroup(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusForbidden, "forbidden")
 		return
 	}
-	token, err := a.signToken(tokenClaims{UserID: u.ID, CurrentGroupID: req.GroupID})
+	token, err := a.signToken(newTokenClaims(u.ID, req.GroupID, u.AuthVersion))
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "token_failed")
 		return
@@ -515,7 +589,7 @@ func (a *app) handleChangePassword(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "password_failed")
 		return
 	}
-	_, err = a.db.Exec("UPDATE users SET password_hash = ?, must_change_password = 0, updated_at = ? WHERE id = ?", hash, nowSQL(), u.ID)
+	_, err = a.db.Exec("UPDATE users SET password_hash = ?, must_change_password = 0, auth_version=auth_version+1, updated_at = ? WHERE id = ?", hash, nowSQL(), u.ID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "password_save_failed")
 		return
@@ -805,6 +879,10 @@ func (a *app) handleAdminDeleteStudyWeek(w http.ResponseWriter, r *http.Request)
 		writeError(w, http.StatusInternalServerError, "week_delete_failed")
 		return
 	}
+	if _, err := tx.Exec(`UPDATE checkin_records SET week_id=NULL WHERE group_id=? AND week_id=?`, groupID, weekID); err != nil {
+		writeError(w, http.StatusInternalServerError, "week_delete_failed")
+		return
+	}
 	if _, err := tx.Exec(`DELETE FROM study_weeks WHERE id=? AND group_id=?`, weekID, groupID); err != nil {
 		writeError(w, http.StatusInternalServerError, "week_delete_failed")
 		return
@@ -827,8 +905,17 @@ func (a *app) saveStudyWeek(w http.ResponseWriter, r *http.Request, id uint64) {
 	if !readJSON(w, r, &req) {
 		return
 	}
-	if strings.TrimSpace(req.StartDate) == "" || strings.TrimSpace(req.EndDate) == "" {
-		writeError(w, http.StatusBadRequest, "week_dates_required")
+	if err := validateStudyWeekInput(req); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	var overlap int
+	if err := a.db.QueryRow(`SELECT COUNT(1) FROM study_weeks WHERE group_id=? AND id<>? AND NOT (end_date < ? OR start_date > ?)`, groupID, id, req.StartDate, req.EndDate).Scan(&overlap); err != nil {
+		writeError(w, http.StatusInternalServerError, "week_validate_failed")
+		return
+	}
+	if overlap > 0 {
+		writeError(w, http.StatusConflict, "week_overlap")
 		return
 	}
 	tx, err := a.db.Begin()
@@ -848,8 +935,14 @@ func (a *app) saveStudyWeek(w http.ResponseWriter, r *http.Request, id uint64) {
 		id64, _ := res.LastInsertId()
 		id = uint64(id64)
 	} else {
-		if _, err := tx.Exec(`UPDATE study_weeks SET start_date=?,end_date=?,title=?,verse_ref=?,recite_text=?,book_enabled=?,video_enabled=?,verse_enabled=?,outline_enabled=?,updated_at=? WHERE id=? AND group_id=?`, req.StartDate, req.EndDate, req.Title, req.VerseRef, req.ReciteText, req.BookEnabled, req.VideoEnabled, req.VerseEnabled, req.OutlineEnabled, now, id, groupID); err != nil {
+		result, err := tx.Exec(`UPDATE study_weeks SET start_date=?,end_date=?,title=?,verse_ref=?,recite_text=?,book_enabled=?,video_enabled=?,verse_enabled=?,outline_enabled=?,updated_at=? WHERE id=? AND group_id=?`, req.StartDate, req.EndDate, req.Title, req.VerseRef, req.ReciteText, req.BookEnabled, req.VideoEnabled, req.VerseEnabled, req.OutlineEnabled, now, id, groupID)
+		if err != nil {
 			writeError(w, http.StatusInternalServerError, "week_save_failed")
+			return
+		}
+		affected, _ := result.RowsAffected()
+		if affected == 0 {
+			writeError(w, http.StatusNotFound, "week_not_found")
 			return
 		}
 	}
@@ -863,6 +956,72 @@ func (a *app) saveStudyWeek(w http.ResponseWriter, r *http.Request, id uint64) {
 	}
 	a.audit(groupID, u.ID, "save_study_week", "study_weeks", id, nil, map[string]any{"title": req.Title}, r)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "id": id})
+}
+
+func validateStudyWeekInput(req studyWeekInput) error {
+	start, err := time.Parse("2006-01-02", strings.TrimSpace(req.StartDate))
+	if err != nil {
+		return errors.New("week_dates_required")
+	}
+	end, err := time.Parse("2006-01-02", strings.TrimSpace(req.EndDate))
+	if err != nil || end.Before(start) {
+		return errors.New("week_date_range_invalid")
+	}
+	if strings.TrimSpace(req.Title) == "" || len([]rune(strings.TrimSpace(req.Title))) > 200 {
+		return errors.New("week_title_required")
+	}
+	for _, binding := range append(append([]weekTaskBinding{}, req.Readings...), req.Videos...) {
+		if !validResourceURL(binding.URL) {
+			return errors.New("invalid_resource_url")
+		}
+	}
+	if !validResourceURL(req.Outline.URL) {
+		return errors.New("invalid_resource_url")
+	}
+	return nil
+}
+
+func validateStudyWeekImport(weeks []studyWeekInput) error {
+	type weekRange struct {
+		start time.Time
+		end   time.Time
+	}
+	ranges := make([]weekRange, 0, len(weeks))
+	for _, week := range weeks {
+		if err := validateStudyWeekInput(week); err != nil {
+			return err
+		}
+		start, _ := time.Parse("2006-01-02", strings.TrimSpace(week.StartDate))
+		end, _ := time.Parse("2006-01-02", strings.TrimSpace(week.EndDate))
+		ranges = append(ranges, weekRange{start: start, end: end})
+	}
+	sort.Slice(ranges, func(i, j int) bool {
+		return ranges[i].start.Before(ranges[j].start)
+	})
+	for index := 1; index < len(ranges); index++ {
+		if !ranges[index].start.After(ranges[index-1].end) {
+			return errors.New("week_overlap")
+		}
+	}
+	return nil
+}
+
+func validResourceURL(value string) bool {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return true
+	}
+	if strings.HasPrefix(value, "//") || strings.HasPrefix(value, `\\`) {
+		return false
+	}
+	if strings.HasPrefix(value, "/") {
+		return !strings.ContainsAny(value, "\\\r\n")
+	}
+	parsed, err := url.Parse(value)
+	return err == nil &&
+		(parsed.Scheme == "http" || parsed.Scheme == "https") &&
+		parsed.Host != "" &&
+		!strings.ContainsAny(value, "\r\n")
 }
 
 func (a *app) handleCreateCheckin(w http.ResponseWriter, r *http.Request) {
@@ -884,21 +1043,59 @@ func (a *app) handleCreateCheckin(w http.ResponseWriter, r *http.Request) {
 	if !readJSON(w, r, &req) {
 		return
 	}
-	if req.TaskType == "" {
+	req.TaskType = strings.ToLower(strings.TrimSpace(req.TaskType))
+	if !validCheckinTaskType(req.TaskType) {
 		writeError(w, http.StatusBadRequest, "task_type_required")
 		return
 	}
 	if req.LogicalDate == "" {
 		req.LogicalDate = time.Now().In(a.location).Format("2006-01-02")
 	}
+	logicalDate, err := time.ParseInLocation("2006-01-02", req.LogicalDate, a.location)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid_date")
+		return
+	}
 	today := time.Now().In(a.location).Format("2006-01-02")
 	if req.LogicalDate > today {
 		writeError(w, http.StatusBadRequest, "future_checkin_not_allowed")
 		return
 	}
+	switch req.TaskType {
+	case "weekly_book", "weekly_video", "weekly_verse":
+		if req.WeekID == 0 || req.TaskID == 0 {
+			writeError(w, http.StatusBadRequest, "invalid_task")
+			return
+		}
+		var canonicalTitle string
+		err := a.db.QueryRow(`SELECT st.title
+			FROM study_tasks st JOIN study_weeks sw ON sw.id=st.week_id AND sw.group_id=st.group_id
+			WHERE st.id=? AND st.week_id=? AND st.group_id=? AND st.task_type=? AND st.enabled=1
+			  AND ? BETWEEN sw.start_date AND sw.end_date`, req.TaskID, req.WeekID, groupID, req.TaskType, logicalDate.Format("2006-01-02")).Scan(&canonicalTitle)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "invalid_task")
+			return
+		}
+		req.Detail = canonicalTitle
+		if req.TaskType == "weekly_book" || req.TaskType == "weekly_video" {
+			req.Part = canonicalTitle
+		} else {
+			req.Part = ""
+		}
+	case "daily_devotion":
+		req.TaskID = 0
+		req.Part = ""
+		if req.WeekID > 0 {
+			var weekExists int
+			if err := a.db.QueryRow(`SELECT COUNT(1) FROM study_weeks WHERE id=? AND group_id=? AND ? BETWEEN start_date AND end_date`, req.WeekID, groupID, logicalDate.Format("2006-01-02")).Scan(&weekExists); err != nil || weekExists == 0 {
+				writeError(w, http.StatusBadRequest, "invalid_week")
+				return
+			}
+		}
+	}
 	now := nowSQL()
 	res, err := a.db.Exec(`INSERT INTO checkin_records (group_id,user_id,task_id,week_id,logical_date,checkin_time,task_type,status,is_retro,detail,note,part,source,created_by,created_at,updated_at)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, groupID, u.ID, nullableID(req.TaskID), nullableID(req.WeekID), req.LogicalDate, now, req.TaskType, "done", req.IsRetro, req.Detail, req.Note, truncate(req.Part, 64), "web", u.ID, now, now)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, groupID, u.ID, nullableID(req.TaskID), nullableID(req.WeekID), req.LogicalDate, now, req.TaskType, "done", req.LogicalDate != today, truncate(req.Detail, 1000), truncate(req.Note, 4000), truncate(req.Part, 64), "web", u.ID, now, now)
 	if err != nil {
 		writeError(w, http.StatusConflict, "checkin_save_failed")
 		return
@@ -914,12 +1111,30 @@ func (a *app) handleDeleteOwnCheckin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, _ := strconv.ParseUint(r.PathValue("id"), 10, 64)
-	_, err := a.db.Exec(`UPDATE checkin_records SET deleted_at=?, active_key=id, updated_at=? WHERE id=? AND group_id=? AND user_id=? AND deleted_at IS NULL`, nowSQL(), nowSQL(), id, groupID, u.ID)
+	if id == 0 {
+		writeError(w, http.StatusBadRequest, "checkin_id_required")
+		return
+	}
+	result, err := a.db.Exec(`UPDATE checkin_records SET deleted_at=?, active_key=id, updated_at=? WHERE id=? AND group_id=? AND user_id=? AND deleted_at IS NULL`, nowSQL(), nowSQL(), id, groupID, u.ID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "delete_failed")
 		return
 	}
+	affected, _ := result.RowsAffected()
+	if affected == 0 {
+		writeError(w, http.StatusNotFound, "checkin_not_found")
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+}
+
+func validCheckinTaskType(taskType string) bool {
+	switch taskType {
+	case "daily_devotion", "weekly_book", "weekly_video", "weekly_verse":
+		return true
+	default:
+		return false
+	}
 }
 
 func (a *app) handleAdminDeleteCheckin(w http.ResponseWriter, r *http.Request) {
@@ -947,6 +1162,11 @@ func (a *app) handleListCheckins(w http.ResponseWriter, r *http.Request) {
 	from := queryDate(r, "from", time.Now().In(a.location).AddDate(0, 0, -30))
 	to := queryDate(r, "to", time.Now().In(a.location))
 	userID, _ := strconv.ParseUint(r.URL.Query().Get("user_id"), 10, 64)
+	canViewDetails := u.IsSuperAdmin || hasRole(u.Roles, roleGroupAdmin) || hasRole(u.Roles, roleGroupLeader)
+	if userID > 0 && userID != u.ID && !canViewDetails {
+		writeError(w, http.StatusForbidden, "forbidden")
+		return
+	}
 	limit := clampInt(queryInt(r, "page_size", 50), 1, 200)
 	args := []any{groupID, from, to}
 	where := "group_id=? AND logical_date BETWEEN ? AND ? AND deleted_at IS NULL"
@@ -955,7 +1175,7 @@ func (a *app) handleListCheckins(w http.ResponseWriter, r *http.Request) {
 		args = append(args, userID)
 	}
 	args = append(args, limit)
-	rows, err := a.db.Query(`SELECT id,user_id,logical_date,checkin_time,task_type,part,detail,note FROM checkin_records WHERE `+where+` ORDER BY logical_date DESC, id DESC LIMIT ?`, args...)
+	rows, err := a.db.Query(`SELECT id,user_id,task_id,logical_date,checkin_time,task_type,part,detail,note FROM checkin_records WHERE `+where+` ORDER BY logical_date DESC, id DESC LIMIT ?`, args...)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "checkins_failed")
 		return
@@ -964,11 +1184,25 @@ func (a *app) handleListCheckins(w http.ResponseWriter, r *http.Request) {
 	var items []map[string]any
 	for rows.Next() {
 		var id, uid uint64
+		var taskID sql.NullInt64
 		var d, ts time.Time
 		var tt, part, detail string
 		var note sql.NullString
-		_ = rows.Scan(&id, &uid, &d, &ts, &tt, &part, &detail, &note)
-		items = append(items, map[string]any{"id": id, "user_id": uid, "logical_date": d.Format("2006-01-02"), "checkin_time": ts.Format(time.RFC3339), "task_type": tt, "part": part, "detail": detail, "note": note.String})
+		if err := rows.Scan(&id, &uid, &taskID, &d, &ts, &tt, &part, &detail, &note); err != nil {
+			writeError(w, http.StatusInternalServerError, "checkins_failed")
+			return
+		}
+		item := map[string]any{"id": id, "user_id": uid, "task_id": nullableUint64(taskID), "logical_date": d.Format("2006-01-02"), "checkin_time": ts.Format(time.RFC3339), "task_type": tt, "part": part, "detail": detail, "note": note.String}
+		if uid != u.ID && !canViewDetails {
+			item["id"] = uint64(0)
+			item["detail"] = ""
+			item["note"] = ""
+		}
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		writeError(w, http.StatusInternalServerError, "checkins_failed")
+		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
 }
@@ -1146,13 +1380,18 @@ func (a *app) handleAdminUploadAsset(w http.ResponseWriter, r *http.Request) {
 	if groupID == 0 {
 		return
 	}
-	if err := r.ParseMultipartForm(512 << 20); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid_upload_form")
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes+(1<<20))
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		writeError(w, http.StatusRequestEntityTooLarge, "upload_too_large")
 		return
 	}
-	category := strings.TrimSpace(r.FormValue("category"))
-	if category == "" {
-		category = "uploaded"
+	if r.MultipartForm != nil {
+		defer r.MultipartForm.RemoveAll()
+	}
+	category, err := normalizeAssetCategory(r.FormValue("category"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid_asset_category")
+		return
 	}
 	file, header, err := r.FormFile("file")
 	if err != nil {
@@ -1165,32 +1404,59 @@ func (a *app) handleAdminUploadAsset(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid_filename")
 		return
 	}
+	ext := strings.ToLower(filepath.Ext(safeName))
+	if !allowedUploadExtension(ext) {
+		writeError(w, http.StatusBadRequest, "unsupported_file_type")
+		return
+	}
+	buffered := bufio.NewReader(file)
+	head, _ := buffered.Peek(512)
+	detectedType := http.DetectContentType(head)
+	if !allowedUploadContentType(ext, detectedType) {
+		writeError(w, http.StatusBadRequest, "unsupported_file_type")
+		return
+	}
 	relativeDir := filepath.Join(strconv.FormatUint(groupID, 10), category)
-	if err := os.MkdirAll(filepath.Join(a.assetsRoot, relativeDir), 0o755); err != nil {
+	absoluteDir := filepath.Join(a.assetsRoot, relativeDir)
+	if err := os.MkdirAll(absoluteDir, 0o755); err != nil {
 		writeError(w, http.StatusInternalServerError, "asset_dir_failed")
 		return
 	}
 	relativePath := filepath.Join(relativeDir, fmt.Sprintf("%d-%s", time.Now().UnixNano(), safeName))
 	absolutePath := filepath.Join(a.assetsRoot, relativePath)
-	dst, err := os.Create(absolutePath)
+	dst, err := os.CreateTemp(absoluteDir, ".agp-upload-*")
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "asset_write_failed")
 		return
 	}
-	defer dst.Close()
+	tempPath := dst.Name()
+	defer os.Remove(tempPath)
 	hasher := sha256.New()
-	size, err := io.Copy(dst, io.TeeReader(file, hasher))
-	if err != nil {
+	size, copyErr := io.Copy(dst, io.TeeReader(buffered, hasher))
+	closeErr := dst.Close()
+	if copyErr != nil || closeErr != nil {
 		writeError(w, http.StatusInternalServerError, "asset_write_failed")
 		return
 	}
-	title := strings.TrimSuffix(header.Filename, filepath.Ext(header.Filename))
-	mt := mime.TypeByExtension(strings.ToLower(filepath.Ext(header.Filename)))
+	if size <= 0 || size > maxUploadBytes {
+		writeError(w, http.StatusRequestEntityTooLarge, "upload_too_large")
+		return
+	}
+	if err := os.Rename(tempPath, absolutePath); err != nil {
+		writeError(w, http.StatusInternalServerError, "asset_write_failed")
+		return
+	}
+	title := truncate(strings.TrimSuffix(header.Filename, filepath.Ext(header.Filename)), 255)
+	mt := mime.TypeByExtension(ext)
+	if mt == "" {
+		mt = detectedType
+	}
 	now := nowSQL()
 	res, err := a.db.Exec(`INSERT INTO assets (group_id,category,title,original_name,storage_path,mime_type,file_size,checksum_sha256,created_by,created_at,updated_at)
 		VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
 		groupID, category, title, header.Filename, filepath.ToSlash(relativePath), mt, size, hex.EncodeToString(hasher.Sum(nil)), u.ID, now, now)
 	if err != nil {
+		_ = os.Remove(absolutePath)
 		writeError(w, http.StatusInternalServerError, "asset_save_failed")
 		return
 	}
@@ -1214,6 +1480,33 @@ func (a *app) handleAdminResourceLibrary(w http.ResponseWriter, r *http.Request)
 	if groupID == 0 {
 		return
 	}
+	sections, err := a.resourceLibrarySections(groupID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "resource_library_failed")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
+}
+
+func (a *app) handleResourceLibrary(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	u := mustUser(r)
+	groupID := requireGroupID(w, u)
+	if groupID == 0 {
+		return
+	}
+	sections, err := a.resourceLibrarySections(groupID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "resource_library_failed")
+		return
+	}
+	for _, section := range sections {
+		delete(section, "managed_root")
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
+}
+
+func (a *app) resourceLibrarySections(groupID uint64) ([]map[string]any, error) {
 	sections := []map[string]any{
 		a.scanStaticLibrarySection("markdown", "Markdown 读物", "", "/", []string{".md"}),
 		a.scanStaticLibrarySection("book", "PDF 读物", "Book", "/Book", []string{".pdf"}),
@@ -1221,9 +1514,12 @@ func (a *app) handleAdminResourceLibrary(w http.ResponseWriter, r *http.Request)
 		a.scanStaticLibrarySection("handout", "讲义 PDF", "PPT", "/PPT", []string{".pdf"}),
 		a.scanStaticLibrarySection("mentor", "导师资料", "Mentor", "/Mentor", []string{".pdf", ".md", ".png", ".jpg", ".jpeg", ".webp", ".mp4"}),
 	}
-	uploaded, _ := a.uploadedLibrarySections(groupID)
+	uploaded, err := a.uploadedLibrarySections(groupID)
+	if err != nil {
+		return nil, err
+	}
 	sections = append(sections, uploaded...)
-	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
+	return sections, nil
 }
 
 func managedResourceRoot(contentRoot, key string) (string, string, error) {
@@ -1675,6 +1971,61 @@ type localBackupPayload struct {
 	Assets     []localBackupAsset    `json:"assets"`
 }
 
+func validateLocalBackupPayload(payload localBackupPayload) error {
+	if payload.Version != 1 {
+		return errors.New("backup_version_unsupported")
+	}
+	if len(payload.Settings) == 0 && len(payload.Members) == 0 && len(payload.Weeks) == 0 && len(payload.Checkins) == 0 && len(payload.Feedbacks) == 0 {
+		return errors.New("backup_empty")
+	}
+	if len(payload.Members) > 5000 || len(payload.Weeks) > 1000 || len(payload.Checkins) > 500000 || len(payload.Feedbacks) > 100000 {
+		return errors.New("backup_too_large")
+	}
+	usernames := make(map[string]struct{}, len(payload.Members))
+	for _, member := range payload.Members {
+		username := normalizeUsername(member.Username)
+		if username == "" {
+			return errors.New("backup_member_invalid")
+		}
+		if _, exists := usernames[username]; exists {
+			return errors.New("backup_member_duplicate")
+		}
+		usernames[username] = struct{}{}
+	}
+	for index, week := range payload.Weeks {
+		if err := validateStudyWeekInput(week); err != nil {
+			return err
+		}
+		for previous := 0; previous < index; previous++ {
+			other := payload.Weeks[previous]
+			if week.StartDate <= other.EndDate && week.EndDate >= other.StartDate {
+				return errors.New("week_overlap")
+			}
+		}
+	}
+	for _, checkin := range payload.Checkins {
+		if normalizeUsername(checkin.Username) == "" {
+			return errors.New("backup_checkin_member_invalid")
+		}
+		if _, err := time.Parse("2006-01-02", strings.TrimSpace(checkin.LogicalDate)); err != nil {
+			return errors.New("backup_checkin_date_invalid")
+		}
+		if !validImportedCheckinTaskType(strings.ToLower(strings.TrimSpace(checkin.TaskType))) {
+			return errors.New("backup_checkin_type_invalid")
+		}
+	}
+	return nil
+}
+
+func validImportedCheckinTaskType(taskType string) bool {
+	switch taskType {
+	case "daily_devotion", "weekly_book", "weekly_video", "weekly_verse", "reflection", "recite_exam":
+		return true
+	default:
+		return false
+	}
+}
+
 func writeAttachmentHeaders(w http.ResponseWriter, filename, contentType string) {
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
@@ -1729,6 +2080,9 @@ func weekKey(startDate, endDate string) string {
 }
 
 func deleteAllStudyWeeksTx(tx *sql.Tx, groupID uint64) error {
+	if _, err := tx.Exec(`UPDATE checkin_records SET task_id=NULL,week_id=NULL WHERE group_id=?`, groupID); err != nil {
+		return err
+	}
 	if _, err := tx.Exec(`DELETE ta FROM task_assets ta
 		JOIN study_tasks st ON st.id=ta.task_id
 		WHERE st.group_id=?`, groupID); err != nil {
@@ -1990,9 +2344,18 @@ func (a *app) handleAdminImportStudyWeeksExcel(w http.ResponseWriter, r *http.Re
 	if groupID == 0 {
 		return
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxStudyWeeksImportBytes)
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		var maxBytesError *http.MaxBytesError
+		if errors.As(err, &maxBytesError) {
+			writeError(w, http.StatusRequestEntityTooLarge, "study_weeks_import_too_large")
+			return
+		}
 		writeError(w, http.StatusBadRequest, "invalid_import_form")
 		return
+	}
+	if r.MultipartForm != nil {
+		defer r.MultipartForm.RemoveAll()
 	}
 	file, _, err := r.FormFile("file")
 	if err != nil {
@@ -2091,6 +2454,20 @@ func (a *app) handleAdminImportStudyWeeksExcel(w http.ResponseWriter, r *http.Re
 			}
 		}
 	}
+	weeks := make([]studyWeekInput, 0, len(order))
+	for _, key := range order {
+		if week := weeksMap[key]; week != nil {
+			weeks = append(weeks, *week)
+		}
+	}
+	if err := validateStudyWeekImport(weeks); err != nil {
+		status := http.StatusBadRequest
+		if err.Error() == "week_overlap" {
+			status = http.StatusConflict
+		}
+		writeError(w, status, err.Error())
+		return
+	}
 	tx, err := a.db.Begin()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "tx_failed")
@@ -2102,11 +2479,8 @@ func (a *app) handleAdminImportStudyWeeksExcel(w http.ResponseWriter, r *http.Re
 		return
 	}
 	nowTime := time.Now().In(a.location)
-	for _, key := range order {
-		week := weeksMap[key]
-		if week == nil {
-			continue
-		}
+	for index := range weeks {
+		week := weeks[index]
 		res, err := tx.Exec(`INSERT INTO study_weeks (group_id,start_date,end_date,title,verse_ref,recite_text,book_enabled,video_enabled,verse_enabled,outline_enabled,created_at,updated_at)
 			VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
 			groupID, week.StartDate, week.EndDate, week.Title, week.VerseRef, week.ReciteText, week.BookEnabled, week.VideoEnabled, week.VerseEnabled, week.OutlineEnabled, nowTime, nowTime)
@@ -2115,7 +2489,7 @@ func (a *app) handleAdminImportStudyWeeksExcel(w http.ResponseWriter, r *http.Re
 			return
 		}
 		id64, _ := res.LastInsertId()
-		if err := replaceStudyWeekTasksTx(tx, groupID, uint64(id64), *week, nowTime); err != nil {
+		if err := replaceStudyWeekTasksTx(tx, groupID, uint64(id64), week, nowTime); err != nil {
 			writeError(w, http.StatusInternalServerError, "study_weeks_import_failed")
 			return
 		}
@@ -2124,8 +2498,8 @@ func (a *app) handleAdminImportStudyWeeksExcel(w http.ResponseWriter, r *http.Re
 		writeError(w, http.StatusInternalServerError, "study_weeks_import_failed")
 		return
 	}
-	a.audit(groupID, u.ID, "import_study_weeks_excel", "study_weeks", 0, nil, map[string]any{"weeks": len(order)}, r)
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "weeks": len(order)})
+	a.audit(groupID, u.ID, "import_study_weeks_excel", "study_weeks", 0, nil, map[string]any{"weeks": len(weeks)}, r)
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "weeks": len(weeks)})
 }
 
 func (a *app) handleAdminExportFeedbacksCSV(w http.ResponseWriter, r *http.Request) {
@@ -2371,9 +2745,12 @@ func (a *app) ensureGroupMemberUserTx(tx *sql.Tx, groupID uint64, member localBa
 		if err != nil {
 			return 0, err
 		}
+		if strings.TrimSpace(hash) == "" {
+			return 0, errors.New("group_default_password_missing")
+		}
 		now := nowSQL()
-		res, err := tx.Exec(`INSERT INTO users (username,display_name,name_pinyin,password_hash,created_by,created_at,updated_at)
-			VALUES (?,?,?,?,?,?,?)`, username, displayName, namePinyin, hash, actorID, now, now)
+		res, err := tx.Exec(`INSERT INTO users (username,display_name,name_pinyin,password_hash,must_change_password,created_by,created_at,updated_at)
+			VALUES (?,?,?,?,1,?,?,?)`, username, displayName, namePinyin, hash, actorID, now, now)
 		if err != nil {
 			return 0, err
 		}
@@ -2383,9 +2760,6 @@ func (a *app) ensureGroupMemberUserTx(tx *sql.Tx, groupID uint64, member localBa
 		return 0, err
 	}
 	if err := addMemberTx(tx, groupID, userID, displayName, actorID); err != nil {
-		return 0, err
-	}
-	if _, err := tx.Exec(`UPDATE users SET display_name=?, name_pinyin=?, updated_at=? WHERE id=?`, displayName, namePinyin, nowSQL(), userID); err != nil {
 		return 0, err
 	}
 	return userID, nil
@@ -2398,7 +2772,11 @@ func (a *app) handleAdminImportLocalBackupJSON(w http.ResponseWriter, r *http.Re
 		return
 	}
 	var payload localBackupPayload
-	if !readJSON(w, r, &payload) {
+	if !readJSONLimit(w, r, &payload, maxBackupBytes) {
+		return
+	}
+	if err := validateLocalBackupPayload(payload); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	tx, err := a.db.Begin()
@@ -2407,9 +2785,11 @@ func (a *app) handleAdminImportLocalBackupJSON(w http.ResponseWriter, r *http.Re
 		return
 	}
 	defer tx.Rollback()
-	if err := upsertGroupLearningConfigTx(tx, groupID, payload.Settings); err != nil {
-		writeError(w, http.StatusInternalServerError, "backup_import_failed")
-		return
+	if payload.Settings != nil {
+		if err := upsertGroupLearningConfigTx(tx, groupID, payload.Settings); err != nil {
+			writeError(w, http.StatusInternalServerError, "backup_import_failed")
+			return
+		}
 	}
 	roleAssignments := map[uint64][]string{}
 	for _, member := range payload.Members {
@@ -2420,14 +2800,15 @@ func (a *app) handleAdminImportLocalBackupJSON(w http.ResponseWriter, r *http.Re
 		}
 		roleAssignments[userID] = append([]string{}, member.Roles...)
 	}
-	if _, err := tx.Exec(`DELETE FROM user_group_roles WHERE group_id=? AND role IN (?,?)`, groupID, roleGroupAdmin, roleGroupLeader); err != nil {
+	// Group leaders are roster-controlled and must never be removed or granted by a group backup.
+	if _, err := tx.Exec(`DELETE FROM user_group_roles WHERE group_id=? AND role=?`, groupID, roleGroupAdmin); err != nil {
 		writeError(w, http.StatusInternalServerError, "backup_import_failed")
 		return
 	}
 	for userID, roles := range roleAssignments {
 		for _, role := range roles {
 			role = strings.TrimSpace(role)
-			if role != roleGroupAdmin && role != roleGroupLeader {
+			if role != roleGroupAdmin {
 				continue
 			}
 			if _, err := tx.Exec(`INSERT IGNORE INTO user_group_roles (group_id,user_id,role,created_at) VALUES (?,?,?,?)`, groupID, userID, role, nowSQL()); err != nil {
@@ -2467,17 +2848,28 @@ func (a *app) handleAdminImportLocalBackupJSON(w http.ResponseWriter, r *http.Re
 			userIDs[username] = userID
 		}
 	}
+	importedCheckins := 0
+	skippedCheckins := 0
 	for _, checkin := range payload.Checkins {
 		userID := userIDs[normalizeUsername(checkin.Username)]
 		if userID == 0 {
+			skippedCheckins++
 			continue
 		}
 		checkinTime := parseTimeOrNow(checkin.CheckinTime, nowTime)
-		if _, err := tx.Exec(`INSERT IGNORE INTO checkin_records (group_id,user_id,task_id,week_id,logical_date,checkin_time,task_type,status,is_retro,detail,note,part,source,created_by,created_at,updated_at)
+		taskType := strings.ToLower(strings.TrimSpace(checkin.TaskType))
+		result, err := tx.Exec(`INSERT IGNORE INTO checkin_records (group_id,user_id,task_id,week_id,logical_date,checkin_time,task_type,status,is_retro,detail,note,part,source,created_by,created_at,updated_at)
 			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-			groupID, userID, nil, nil, checkin.LogicalDate, checkinTime, checkin.TaskType, "done", checkin.IsRetro, checkin.Detail, checkin.Note, truncate(checkin.Part, 64), "import", u.ID, checkinTime, checkinTime); err != nil {
+			groupID, userID, nil, nil, checkin.LogicalDate, checkinTime, taskType, "done", checkin.IsRetro, truncate(checkin.Detail, 1000), truncate(checkin.Note, 4000), truncate(checkin.Part, 64), "import", u.ID, checkinTime, checkinTime)
+		if err != nil {
 			writeError(w, http.StatusInternalServerError, "backup_import_failed")
 			return
+		}
+		affected, _ := result.RowsAffected()
+		if affected == 0 {
+			skippedCheckins++
+		} else {
+			importedCheckins++
 		}
 	}
 	if _, err := tx.Exec(`DELETE FROM feedbacks WHERE group_id=?`, groupID); err != nil {
@@ -2503,10 +2895,11 @@ func (a *app) handleAdminImportLocalBackupJSON(w http.ResponseWriter, r *http.Re
 	a.audit(groupID, u.ID, "import_local_backup", "study_groups", groupID, nil, map[string]any{
 		"members":   len(payload.Members),
 		"weeks":     len(payload.Weeks),
-		"checkins":  len(payload.Checkins),
+		"checkins":  importedCheckins,
+		"skipped":   skippedCheckins,
 		"feedbacks": len(payload.Feedbacks),
 	}, r)
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "imported_checkins": importedCheckins, "skipped_checkins": skippedCheckins, "assets_metadata_skipped": len(payload.Assets)})
 }
 
 func (a *app) handleSuperListGroups(w http.ResponseWriter, r *http.Request) {
@@ -2662,7 +3055,7 @@ func (a *app) handleSuperResetAllPasswords(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	hash, _ := hashPassword(req.Password)
-	res, err := a.db.Exec("UPDATE users SET password_hash=?, must_change_password=1, updated_at=? WHERE is_super_admin=0", hash, nowSQL())
+	res, err := a.db.Exec("UPDATE users SET password_hash=?, must_change_password=1, auth_version=auth_version+1, updated_at=? WHERE is_super_admin=0", hash, nowSQL())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "reset_failed")
 		return
@@ -2728,8 +3121,12 @@ func (a *app) auth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		u, err := a.loadCurrentUser(claims.UserID, claims.CurrentGroupID)
-		if err != nil {
+		if err != nil || claims.AuthVersion == 0 || claims.AuthVersion != u.AuthVersion {
 			writeError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+		if u.MustChangePassword && r.URL.Path != "/api/auth/me" && r.URL.Path != "/api/auth/change-password" {
+			writeError(w, http.StatusForbidden, "password_change_required")
 			return
 		}
 		next(w, r.WithContext(context.WithValue(r.Context(), currentUserKey, u)))
@@ -2766,8 +3163,8 @@ func (a *app) loadCurrentUser(userID, currentGroupID uint64) (currentUser, error
 	var status int
 	var defaultGroupID sql.NullInt64
 	var avatarPath string
-	err := a.db.QueryRow("SELECT id, username, display_name, is_super_admin, default_group_id, must_change_password, status, email, avatar_path FROM users WHERE id=?", userID).
-		Scan(&u.ID, &u.Username, &u.DisplayName, &u.IsSuperAdmin, &defaultGroupID, &u.MustChangePassword, &status, &u.Email, &avatarPath)
+	err := a.db.QueryRow("SELECT id, username, display_name, is_super_admin, default_group_id, must_change_password, auth_version, status, email, avatar_path FROM users WHERE id=?", userID).
+		Scan(&u.ID, &u.Username, &u.DisplayName, &u.IsSuperAdmin, &defaultGroupID, &u.MustChangePassword, &u.AuthVersion, &status, &u.Email, &avatarPath)
 	if err != nil || status != 1 {
 		return u, errors.New("user_not_found")
 	}
@@ -3004,6 +3401,12 @@ func (a *app) taskAssets(groupID, taskID uint64) ([]map[string]any, error) {
 }
 
 func deleteStudyWeekTasksTx(tx *sql.Tx, groupID, weekID uint64) error {
+	if _, err := tx.Exec(`UPDATE checkin_records c
+		JOIN study_tasks st ON st.id=c.task_id AND st.group_id=c.group_id
+		SET c.task_id=NULL
+		WHERE st.group_id=? AND st.week_id=?`, groupID, weekID); err != nil {
+		return err
+	}
 	if _, err := tx.Exec(`DELETE ta FROM task_assets ta
 		JOIN study_tasks st ON st.id=ta.task_id
 		WHERE st.group_id=? AND st.week_id=?`, groupID, weekID); err != nil {
@@ -3050,7 +3453,7 @@ func replaceStudyWeekTasksTx(tx *sql.Tx, groupID, weekID uint64, req studyWeekIn
 					return err
 				}
 			}
-			break
+			order++
 		}
 	}
 	if req.VerseEnabled && strings.TrimSpace(req.VerseRef) != "" {
@@ -3115,6 +3518,50 @@ func sanitizeUploadName(name string) string {
 		}
 	}
 	return strings.TrimSpace(b.String())
+}
+
+func normalizeAssetCategory(value string) (string, error) {
+	category := strings.ToLower(strings.TrimSpace(value))
+	if category == "" {
+		category = "uploaded"
+	}
+	for _, allowed := range []string{"book", "markdown", "handout", "outline", "video", "mentor", "uploaded"} {
+		if category == allowed {
+			return category, nil
+		}
+	}
+	return "", errors.New("invalid_asset_category")
+}
+
+func allowedUploadExtension(ext string) bool {
+	switch strings.ToLower(ext) {
+	case ".pdf", ".md", ".markdown", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".m4v", ".mov":
+		return true
+	default:
+		return false
+	}
+}
+
+func allowedUploadContentType(ext, detected string) bool {
+	detected = strings.ToLower(strings.TrimSpace(strings.Split(detected, ";")[0]))
+	switch strings.ToLower(ext) {
+	case ".pdf":
+		return detected == "application/pdf"
+	case ".md", ".markdown":
+		return detected == "text/plain" || detected == "application/octet-stream"
+	case ".png":
+		return detected == "image/png"
+	case ".jpg", ".jpeg":
+		return detected == "image/jpeg"
+	case ".webp":
+		return detected == "image/webp" || detected == "application/octet-stream"
+	case ".gif":
+		return detected == "image/gif"
+	case ".mp4", ".m4v", ".mov":
+		return strings.HasPrefix(detected, "video/") || detected == "application/octet-stream"
+	default:
+		return false
+	}
 }
 
 func (a *app) groupLearningConfig(groupID uint64) (map[string]any, error) {
@@ -3297,9 +3744,9 @@ func (a *app) setGroupDefaultPassword(groupID uint64, password string, includeLe
 		return 0, err
 	}
 	query := `UPDATE users u
-		JOIN group_members m ON m.user_id=u.id AND m.group_id=?
+		JOIN group_members m ON m.user_id=u.id AND m.group_id=? AND m.status=1
 		LEFT JOIN user_group_roles r ON r.user_id=u.id AND r.group_id=? AND r.role=?
-		SET u.password_hash=?, u.must_change_password=1, u.updated_at=?
+		SET u.password_hash=?, u.must_change_password=1, u.auth_version=u.auth_version+1, u.updated_at=?
 		WHERE u.is_super_admin=0
 		  AND r.id IS NULL
 		  AND (SELECT COUNT(*) FROM group_members gm WHERE gm.user_id=u.id AND gm.status=1)=1`
@@ -3370,6 +3817,15 @@ func (a *app) signToken(c tokenClaims) (string, error) {
 	return body64 + "." + sig, nil
 }
 
+func newTokenClaims(userID, currentGroupID, authVersion uint64) tokenClaims {
+	return tokenClaims{
+		UserID:         userID,
+		CurrentGroupID: currentGroupID,
+		AuthVersion:    authVersion,
+		ExpiresAt:      time.Now().Add(tokenTTL).Unix(),
+	}
+}
+
 func (a *app) verifyToken(token string) (tokenClaims, error) {
 	var c tokenClaims
 	parts := strings.Split(token, ".")
@@ -3390,7 +3846,7 @@ func (a *app) verifyToken(token string) (tokenClaims, error) {
 	if err := json.Unmarshal(body, &c); err != nil {
 		return c, err
 	}
-	if c.ExpiresAt > 0 && c.ExpiresAt < time.Now().Unix() {
+	if c.UserID == 0 || c.AuthVersion == 0 || c.ExpiresAt <= time.Now().Unix() {
 		return c, errors.New("expired")
 	}
 	return c, nil
@@ -3455,12 +3911,14 @@ func pbkdf2Key(password, salt []byte, iter, keyLen int, h func() hash.Hash) []by
 }
 
 type loginLimiter struct {
+	mu       sync.Mutex
 	failures map[string]loginFailure
 }
 
 type loginFailure struct {
 	Count     int
 	BlockedTo time.Time
+	LastSeen  time.Time
 }
 
 func newLoginLimiter() *loginLimiter {
@@ -3472,28 +3930,76 @@ func (l *loginLimiter) key(ip, username string) string {
 }
 
 func (l *loginLimiter) blocked(ip, username string) bool {
-	item := l.failures[l.key(ip, username)]
-	return item.BlockedTo.After(time.Now())
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	key := l.key(ip, username)
+	item, ok := l.failures[key]
+	if !ok {
+		return false
+	}
+	now := time.Now()
+	if (!item.LastSeen.IsZero() && now.Sub(item.LastSeen) > loginFailureTTL) ||
+		(!item.BlockedTo.IsZero() && !item.BlockedTo.After(now)) {
+		delete(l.failures, key)
+		return false
+	}
+	return item.BlockedTo.After(now)
 }
 
 func (l *loginLimiter) fail(ip, username string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	key := l.key(ip, username)
 	item := l.failures[key]
+	now := time.Now()
 	item.Count++
+	item.LastSeen = now
 	if item.Count >= 8 {
-		item.BlockedTo = time.Now().Add(10 * time.Minute)
+		item.BlockedTo = now.Add(10 * time.Minute)
 	}
 	l.failures[key] = item
+	if len(l.failures) > loginFailureCap {
+		l.pruneLocked(now)
+	}
+}
+
+func (l *loginLimiter) pruneLocked(now time.Time) {
+	for key, failure := range l.failures {
+		if failure.LastSeen.IsZero() || now.Sub(failure.LastSeen) > loginFailureTTL ||
+			(!failure.BlockedTo.IsZero() && !failure.BlockedTo.After(now)) {
+			delete(l.failures, key)
+		}
+	}
+	for len(l.failures) > loginFailureCap {
+		oldestKey := ""
+		var oldest time.Time
+		for key, failure := range l.failures {
+			if oldestKey == "" || failure.LastSeen.Before(oldest) {
+				oldestKey = key
+				oldest = failure.LastSeen
+			}
+		}
+		if oldestKey == "" {
+			break
+		}
+		delete(l.failures, oldestKey)
+	}
 }
 
 func (l *loginLimiter) success(ip, username string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	delete(l.failures, l.key(ip, username))
 }
 
 func readJSON(w http.ResponseWriter, r *http.Request, v any) bool {
+	return readJSONLimit(w, r, v, 1<<20)
+}
+
+func readJSONLimit(w http.ResponseWriter, r *http.Request, v any, limit int64) bool {
 	defer r.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20))
-	if err != nil || json.Unmarshal(body, v) != nil {
+	body, err := io.ReadAll(io.LimitReader(r.Body, limit+1))
+	if err != nil || int64(len(body)) > limit || json.Unmarshal(body, v) != nil {
 		writeError(w, http.StatusBadRequest, "invalid_json")
 		return false
 	}
@@ -3583,7 +4089,10 @@ func clientIP(r *http.Request) string {
 	if v := strings.TrimSpace(r.Header.Get("X-Forwarded-For")); v != "" {
 		return strings.TrimSpace(strings.Split(v, ",")[0])
 	}
-	return strings.Split(r.RemoteAddr, ":")[0]
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		return host
+	}
+	return strings.TrimSpace(r.RemoteAddr)
 }
 
 func firstNonEmpty(values ...string) string {

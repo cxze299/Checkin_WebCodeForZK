@@ -9,18 +9,22 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-agp}
       MYSQL_USER: ${MYSQL_USER:-agp}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-agp}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-agp-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD must be set in .env}
       TZ: Asia/Shanghai
     ports:
       - "127.0.0.1:${AGP_MYSQL_PORT:-3307}:3306"
     volumes:
       - ../data/mysql:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${MYSQL_USER:-agp}", "-p${MYSQL_PASSWORD:-agp}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${MYSQL_USER:-agp}", "-p${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set in .env}"]
       interval: 10s
       timeout: 5s
       retries: 10
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
 
   backend:
     build:
@@ -33,14 +37,14 @@ services:
         condition: service_healthy
     environment:
       AGP_ADDR: ":8080"
-      AGP_DSN: "${MYSQL_USER:-agp}:${MYSQL_PASSWORD:-agp}@tcp(mysql:3306)/${MYSQL_DATABASE:-agp}?parseTime=true&multiStatements=false&charset=utf8mb4,utf8"
-      AGP_JWT_SECRET: "${AGP_JWT_SECRET:-please-change-this-to-a-long-random-string}"
+      AGP_DSN: "${MYSQL_USER:-agp}:${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set in .env}@tcp(mysql:3306)/${MYSQL_DATABASE:-agp}?parseTime=true&multiStatements=false&charset=utf8mb4,utf8"
+      AGP_JWT_SECRET: "${AGP_JWT_SECRET:?AGP_JWT_SECRET must be set in .env}"
       AGP_ASSETS_ROOT: "/data/agp/assets"
       AGP_CONTENT_ROOT: "/data/agp/content"
       AGP_MIGRATIONS_DIR: "/app/migrations"
       AGP_ROSTER_PATH: "/data/agp/roster.xlsx"
       BOOTSTRAP_SUPERADMIN_USERNAME: "${BOOTSTRAP_SUPERADMIN_USERNAME:-admin}"
-      BOOTSTRAP_SUPERADMIN_PASSWORD: "${BOOTSTRAP_SUPERADMIN_PASSWORD:-ChangeMe123}"
+      BOOTSTRAP_SUPERADMIN_PASSWORD: "${BOOTSTRAP_SUPERADMIN_PASSWORD:?BOOTSTRAP_SUPERADMIN_PASSWORD must be set in .env}"
       BOOTSTRAP_SUPERADMIN_DISPLAY_NAME: "${BOOTSTRAP_SUPERADMIN_DISPLAY_NAME:-超级管理员}"
     volumes:
       - ../data/assets:/data/agp/assets
@@ -53,6 +57,15 @@ services:
       - ../Kuangye.md:/data/agp/content/Kuangye.md:ro
       - ../README.md:/data/agp/content/README.md:ro
       - ../2026年度门训生命季_分组及组长.xlsx:/data/agp/roster.xlsx:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 10s
+      timeout: 4s
+      retries: 10
+      start_period: 20s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
 
   frontend:
     build:
@@ -61,7 +74,8 @@ services:
     container_name: agp-frontend
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
       - ../Book:/usr/share/nginx/html/Book:ro
       - ../Passage:/usr/share/nginx/html/Passage:ro
@@ -73,3 +87,6 @@ services:
       - ../README.md:/usr/share/nginx/html/README.md:ro
     ports:
       - "${AGP_WEB_PORT:-2973}:80"
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

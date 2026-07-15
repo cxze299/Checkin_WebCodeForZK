@@ -5,7 +5,7 @@
 独立脚本入口：
 
 ```bash
-./scripts/migrate-group.sh
+sudo -E bash ./scripts/migrate-group.sh
 ```
 
 它和首次部署脚本解耦，适合后续按组逐批迁移。
@@ -15,7 +15,7 @@
 先确保平台已经在目标环境运行：
 
 ```bash
-docker compose -p agp -f deploy/docker-compose.separated.yml ps
+sudo docker compose --env-file .env -p agp -f deploy/docker-compose.separated.yml ps
 ```
 
 至少要保证：
@@ -70,7 +70,7 @@ CONFIG_PATH='/migration-inputs/agape-b/config.json' \
 RECORDS_PATH='/migration-inputs/agape-b/records.json' \
 NAME_MAP_PATH='/migration-inputs/agape-b/name-map.json' \
 GROUP_DEFAULT_PASSWORD='Abc12345' \
-./scripts/migrate-group.sh
+sudo -E bash ./scripts/migrate-group.sh
 ```
 
 默认只执行 dry-run，不会写数据库。
@@ -100,7 +100,7 @@ RECORDS_PATH='/migration-inputs/agape-b/records.json' \
 NAME_MAP_PATH='/migration-inputs/agape-b/name-map.json' \
 GROUP_DEFAULT_PASSWORD='Abc12345' \
 EXECUTE_IMPORT=true \
-./scripts/migrate-group.sh
+sudo -E bash ./scripts/migrate-group.sh
 ```
 
 脚本会自动执行：
@@ -200,7 +200,8 @@ FAIL_ON_GENERATED_USERNAMES=true
 
 ```bash
 mkdir -p data/backups/mysql
-docker exec agp-mysql mysqldump -uagp -pagp agp > data/backups/mysql/agp-before-group-import-$(date +%F-%H%M%S).sql
+set -a; . ./.env; set +a
+sudo docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" agp-mysql mysqldump -u"$MYSQL_USER" "$MYSQL_DATABASE" > data/backups/mysql/agp-before-group-import-$(date +%F-%H%M%S).sql
 ```
 
 如果某个组导入结果不对，建议优先：
@@ -209,4 +210,3 @@ docker exec agp-mysql mysqldump -uagp -pagp agp > data/backups/mysql/agp-before-
 2. 保留迁移报告
 3. 基于备份回滚数据库
 4. 修正 `name-map.json` 或源数据后重新导入
-
