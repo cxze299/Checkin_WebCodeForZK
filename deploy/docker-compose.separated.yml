@@ -17,7 +17,7 @@ services:
     volumes:
       - ../data/mysql:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${MYSQL_USER:-agp}", "-p${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set in .env}"]
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_PASSWORD}\" mysql --protocol=TCP -h 127.0.0.1 -u\"$${MYSQL_USER}\" \"$${MYSQL_DATABASE}\" -Nse 'SELECT 1'"]
       interval: 10s
       timeout: 5s
       retries: 10

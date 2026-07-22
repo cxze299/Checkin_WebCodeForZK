@@ -83,10 +83,10 @@ wait_for_mysql() {
   log "等待 MySQL 就绪"
   local retries=60
   local count=0
-  until compose exec -T mysql mysqladmin ping -h 127.0.0.1 -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" >/dev/null 2>&1; do
+  until compose exec -T mysql mysql --protocol=TCP -h 127.0.0.1 -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -Nse 'SELECT 1' >/dev/null 2>&1; do
     count=$((count + 1))
     if [ "$count" -ge "$retries" ]; then
-      echo "MySQL 未在预期时间内就绪" >&2
+      echo "MySQL 未就绪或数据库账号密码与 data/mysql 中的现有密码不一致。请检查 .env；不要删除 data/mysql。" >&2
       exit 1
     fi
     sleep 2
@@ -183,17 +183,28 @@ should_run_primary_migration() {
   esac
 }
 
+mysql_data_initialized() {
+  [ -d "$ROOT_DIR/data/mysql/mysql" ] || [ -f "$ROOT_DIR/data/mysql/auto.cnf" ]
+}
+
 require_cmd docker
 require_cmd awk
 require_cmd od
 mkdir -p "$ROOT_DIR/data/mysql" "$ROOT_DIR/data/assets" "$ROOT_DIR/data/backups/mysql" "$MIGRATION_REPORT_DIR"
 trap cleanup EXIT
 
-if [ -z "$MYSQL_PASSWORD" ] || [[ "$MYSQL_PASSWORD" == CHANGE_ME* ]]; then
-  MYSQL_PASSWORD="$(rand_password 24)"
-fi
-if [ -z "$MYSQL_ROOT_PASSWORD" ] || [[ "$MYSQL_ROOT_PASSWORD" == CHANGE_ME* ]]; then
-  MYSQL_ROOT_PASSWORD="$(rand_password 24)"
+if mysql_data_initialized; then
+  if [ -z "$MYSQL_PASSWORD" ] || [[ "$MYSQL_PASSWORD" == CHANGE_ME* ]] || [ -z "$MYSQL_ROOT_PASSWORD" ] || [[ "$MYSQL_ROOT_PASSWORD" == CHANGE_ME* ]]; then
+    echo "检测到已有 MySQL 数据目录，但 .env 缺少数据库密码。请恢复初始化数据库时使用的 MYSQL_PASSWORD 和 MYSQL_ROOT_PASSWORD。" >&2
+    exit 1
+  fi
+else
+  if [ -z "$MYSQL_PASSWORD" ] || [[ "$MYSQL_PASSWORD" == CHANGE_ME* ]]; then
+    MYSQL_PASSWORD="$(rand_password 24)"
+  fi
+  if [ -z "$MYSQL_ROOT_PASSWORD" ] || [[ "$MYSQL_ROOT_PASSWORD" == CHANGE_ME* ]]; then
+    MYSQL_ROOT_PASSWORD="$(rand_password 24)"
+  fi
 fi
 
 if [ -z "${AGP_JWT_SECRET:-}" ] || [ "${#AGP_JWT_SECRET}" -lt 32 ] || [[ "$AGP_JWT_SECRET" == *CHANGE_ME* ]] || [ "$AGP_JWT_SECRET" = "please-change-this-to-a-long-random-string" ]; then

@@ -76,6 +76,8 @@ curl -fsS http://127.0.0.1:2973/api/health
 
 Nginx 已配置 Docker DNS 动态解析。后端重建时，前端不需要跟着手工重启；若刚重建的几秒内出现提示，等待健康检查通过即可。使用一键脚本时，它会在结束前等待 `agp-backend` 健康。
 
+如果日志出现 `Error 1045 (28000): Access denied for user 'agp'`，说明 `.env` 中的 `MYSQL_PASSWORD` 与已有 `data/mysql` 初始化时的密码不一致。MySQL 不会因为修改 Compose 环境变量而自动修改现有账号密码；请使用原来的 root 密码执行 `ALTER USER`，不要删除数据目录。
+
 可在 `.env` 中把 `AGP_WEB_PORT` 改为其他端口，然后重建前端：
 
 ```bash
