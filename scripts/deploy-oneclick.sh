@@ -93,6 +93,22 @@ wait_for_mysql() {
   done
 }
 
+wait_for_backend() {
+  local retries=90
+  local status
+  while [ "$retries" -gt 0 ]; do
+    status="$(docker inspect --format '{{.State.Health.Status}}' agp-backend 2>/dev/null || true)"
+    if [ "$status" = "healthy" ]; then
+      return 0
+    fi
+    sleep 2
+    retries=$((retries - 1))
+  done
+  echo "backend 健康检查超时，最近日志：" >&2
+  compose logs --tail=120 backend >&2 || true
+  return 1
+}
+
 abs_path() {
   local target="$1"
   if [ -d "$target" ]; then
@@ -228,6 +244,7 @@ export AGP_WEB_PORT AGP_MYSQL_PORT AGP_JWT_SECRET BOOTSTRAP_SUPERADMIN_USERNAME 
 log "启动 AGP 服务栈"
 compose up -d --build
 wait_for_mysql
+wait_for_backend
 
 if should_run_primary_migration; then
   log "执行首个小组 dry-run 迁移"

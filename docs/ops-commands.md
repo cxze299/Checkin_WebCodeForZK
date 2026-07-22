@@ -74,6 +74,8 @@ curl -fsS http://127.0.0.1:2973/api/health
 
 当前版本的迁移器可以继续完成曾被 `Duplicate column name` 中断的迁移。若日志仍反复出现旧错误，通常表示后端镜像没有重建，请执行上面的 `build --no-cache backend`。升级会使旧登录令牌失效，用户重新登录一次即可。不要为修复 502 执行 `rm -rf data/mysql`；这会删除现有账号和打卡记录。
 
+Nginx 已配置 Docker DNS 动态解析。后端重建时，前端不需要跟着手工重启；若刚重建的几秒内出现提示，等待健康检查通过即可。使用一键脚本时，它会在结束前等待 `agp-backend` 健康。
+
 可在 `.env` 中把 `AGP_WEB_PORT` 改为其他端口，然后重建前端：
 
 ```bash
