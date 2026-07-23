@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useDashboardStore } from '../stores/dashboard';
 import { openMemberCalendar, setSelectedDate, shiftSelectedDate, toast, toggleCheckin } from '../legacy-app';
+import { confirmDialog } from '../ui/dialog';
 
 const store = useDashboardStore();
 const {
@@ -74,7 +75,7 @@ async function runMemberToggle(member, item) {
   if (!member.isSelf) return;
   const key = taskKey(member, item);
   if (pendingTaskKeys.value.has(key)) return;
-  if (item.done && !window.confirm(`确认撤销“${item.title}”的完成记录吗？`)) return;
+  if (item.done && !await confirmDialog({ title: '撤销完成记录', message: `确认撤销“${item.title}”的完成记录吗？`, confirmLabel: '确认撤销', tone: 'danger' })) return;
   pendingTaskKeys.value = new Set([...pendingTaskKeys.value, key]);
   try {
     await toggleCheckin(item.taskForMember, member);

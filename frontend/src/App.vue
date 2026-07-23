@@ -47,7 +47,7 @@ onBeforeUnmount(() => {
     <section v-else-if="shell.status !== 'ready'" class="vue-shell-state vue-shell-loading" role="status" aria-live="polite">
       <span class="vue-shell-spinner" aria-hidden="true"></span>
       <strong>正在载入门训打卡</strong>
-      <span>正在同步账号和小组数据…</span>
+      <span>正在加载账号和小组数据…</span>
     </section>
     <template v-else>
       <AppRoot />

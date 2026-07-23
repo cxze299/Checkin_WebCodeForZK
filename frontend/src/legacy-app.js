@@ -2,6 +2,7 @@ import { useContentViewerStore } from './stores/contentViewer';
 import { useCheckinWorkbenchStore } from './stores/checkinWorkbench';
 import { useDashboardStore } from './stores/dashboard';
 import { useAppStateStore } from './stores/appState';
+import { confirmDialog } from './ui/dialog';
 
 const state = {
   booted: false,
@@ -270,7 +271,7 @@ const apiErrorMessages = {
   invalid_resource_url: '资源链接必须是站内路径或 HTTP/HTTPS 地址',
   upload_too_large: '文件过大，单个文件最大 512MB',
   unsupported_file_type: '不支持该文件类型',
-  resource_library_failed: 'NAS 资源目录读取失败',
+  resource_library_failed: '资料库读取失败',
   internal_error: '服务暂时异常，请稍后重试',
 };
 
@@ -300,12 +301,12 @@ export async function api(path, options = {}) {
     return data;
   } catch (error) {
     if (error?.name === 'AbortError') {
-      const timeoutError = new Error('请求超时，请检查 NAS 网络后重试');
+      const timeoutError = new Error('请求超时，请检查网络后重试');
       timeoutError.code = 'request_timeout';
       throw timeoutError;
     }
     if (error instanceof TypeError) {
-      const networkError = new Error('无法连接服务，请检查网络或 NAS 运行状态');
+      const networkError = new Error('无法连接服务，请稍后重试');
       networkError.code = 'network_error';
       throw networkError;
     }
@@ -758,7 +759,7 @@ function layout(content) {
 }
 
 function pageTitle() {
-  const titles = { home: '今日打卡', dashboard: '统计中心', resources: '资源中心', admin: '管理后台' };
+  const titles = { home: '今日打卡', dashboard: '统计中心', resources: '资料库', admin: '管理后台' };
   if (state.tab === 'admin' && !canAdminAccess()) return titles.home;
   return titles[state.tab] || 'AGP';
 }
@@ -2165,7 +2166,7 @@ export async function deleteWeekDraft() {
     render();
     return;
   }
-  if (!window.confirm('确认删除当前周任务？')) return;
+  if (!await confirmDialog({ title: '删除周任务', message: '确认删除当前周任务？相关历史打卡不会被删除。', confirmLabel: '删除任务', tone: 'danger' })) return;
   try {
     await api(`/admin/study-weeks/${draft.id}`, { method: 'DELETE' });
     toast('当前周任务已删除');
@@ -2200,6 +2201,17 @@ export async function uploadLibraryFile(fileInput, category) {
   } catch (error) {
     toast(error.message);
   }
+}
+
+export async function setResourceLibraryVisibility(item, visible) {
+  if (!item?.resource_key) throw new Error('资源标识无效，请先刷新资料列表');
+  await api('/admin/resource-library/visibility', {
+    method: 'PUT',
+    body: JSON.stringify({ resource_key: item.resource_key, visible: Boolean(visible) }),
+  });
+  state.publicLibrary = [];
+  state.publicLibraryGroupID = 0;
+  await loadAdminData(true, true);
 }
 
 export function previewLibraryItem(item) {
@@ -2587,7 +2599,7 @@ export async function setMemberAdmin(member, grant) {
 
 export async function removeMember(member) {
   const name = member.member_name || member.display_name || member.username;
-  if (!window.confirm(`确认从本组删除 ${name}？该操作不会删除账号，也不会删除历史打卡记录。`)) return;
+  if (!await confirmDialog({ title: '移出本组', message: `确认将 ${name} 从本组移出？该操作不会删除账号，也不会删除历史打卡记录。`, confirmLabel: '确认移出', tone: 'danger' })) return;
   try {
     await api(`/admin/members/${member.member_id}`, { method: 'DELETE' });
     toast('人员已从本组删除');

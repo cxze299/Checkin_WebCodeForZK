@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCheckinWorkbenchStore } from '../stores/checkinWorkbench';
 import { openTaskContent, setSelectedDate, shiftSelectedDate, toggleCheckin } from '../legacy-app';
+import { confirmDialog } from '../ui/dialog';
 
 const store = useCheckinWorkbenchStore();
 const {
@@ -68,7 +69,7 @@ function taskTypeLabel(type) {
 async function runToggle(task) {
   const key = taskKey(task);
   if (pendingTaskKeys.value.has(key)) return;
-  if (task.ownRecord && !window.confirm(`确认撤销“${task.title}”的完成记录吗？`)) return;
+  if (task.ownRecord && !await confirmDialog({ title: '撤销完成记录', message: `确认撤销“${task.title}”的完成记录吗？`, confirmLabel: '确认撤销', tone: 'danger' })) return;
   pendingTaskKeys.value = new Set([...pendingTaskKeys.value, key]);
   try {
     await toggleCheckin(task);

@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import AppIcon from './AppIcon.vue';
+import SiteDialog from './SiteDialog.vue';
 import AdminConsole from './AdminConsole.vue';
 import { useAppStateStore } from '../stores/appState';
 import {
@@ -91,7 +92,7 @@ function friendlyError(error) {
     unauthorized: '登录已过期，请重新登录',
     forbidden: '你没有执行此操作的权限',
     password_change_required: '请先完成首次登录密码修改',
-    request_timeout: '请求超时，请检查 NAS 网络后重试',
+    request_timeout: '请求超时，请检查网络后重试',
     network_error: '无法连接服务器，请检查网络',
     avatar_too_large: '头像文件过大',
     invalid_avatar: '请选择有效的 JPG 或 PNG 图片',
@@ -192,7 +193,7 @@ async function openResource(asset) {
   finally { openingResource.value = ''; }
 }
 async function refreshResources() {
-  try { await loadPublicLibrary(true); toast('NAS 资源已刷新'); }
+  try { await loadPublicLibrary(true); toast('资料已刷新'); }
   catch (_) { /* feedback is handled by the loader */ }
 }
 
@@ -210,7 +211,7 @@ async function chooseCalendarDate(day) { if (!day || !calendar.value?.month) ret
 
 <template>
   <div v-if="!booted" class="ios-boot-screen" role="status" aria-live="polite">
-    <div class="ios-boot-logo">AGP</div><div class="ios-spinner"></div><b>正在连接门训打卡</b><span>请稍候，正在同步账号与今日任务…</span>
+    <div class="ios-boot-logo">AGP</div><div class="ios-spinner"></div><b>正在连接门训打卡</b><span>请稍候，正在加载账号与今日任务…</span>
   </div>
 
   <div v-else-if="!authenticated" class="ios-auth-screen">
@@ -284,14 +285,14 @@ async function chooseCalendarDate(day) { if (!day || !calendar.value?.month) ret
 
         <section v-else-if="tab === 'resources'" class="ios-public-library">
           <div class="ios-library-toolbar">
-            <div><small>GROUP LIBRARY</small><b>{{ publicLibrary.reduce((total, section) => total + Number(section.count || section.items?.length || 0), 0) }} 项学习资料</b><span>NAS 新增文件后点击刷新即可同步</span></div>
+            <div><small>本组资料</small><b>{{ publicLibrary.reduce((total, section) => total + Number(section.count || section.items?.length || 0), 0) }} 项学习资料</b><span>由小组管理员整理与发布</span></div>
             <label class="ios-library-search"><span class="sr-only">搜索当前分类</span><input v-model="resourceSearch" type="search" placeholder="搜索标题、文件名或文件夹" /></label>
-            <button class="ios-secondary-button" type="button" :disabled="resourceLoading" @click="refreshResources"><AppIcon name="refresh" :size="17" />{{ resourceLoading ? '同步中…' : '刷新 NAS' }}</button>
+            <button class="ios-secondary-button" type="button" :disabled="resourceLoading" @click="refreshResources"><AppIcon name="refresh" :size="17" />{{ resourceLoading ? '刷新中…' : '刷新资料' }}</button>
           </div>
           <div v-if="publicLibrary.length" class="ios-library-tabs" role="tablist" aria-label="资料分类"><button v-for="section in publicLibrary" :key="section.key" :class="{ active: activeResourceSection?.key === section.key }" :aria-selected="activeResourceSection?.key === section.key" role="tab" type="button" @click="activeResourceKey = section.key"><span>{{ section.label }}</span><small>{{ section.count ?? section.items?.length ?? 0 }}</small></button></div>
-          <div v-if="resourceLoading && !publicLibrary.length" class="ios-resource-skeleton" role="status"><span v-for="index in 6" :key="index"></span><b>正在同步学习资料…</b></div>
+            <div v-if="resourceLoading && !publicLibrary.length" class="ios-resource-skeleton" role="status"><span v-for="index in 6" :key="index"></span><b>正在加载学习资料…</b></div>
           <div v-else-if="filteredResourceItems.length" class="ios-public-resource-grid"><button v-for="asset in filteredResourceItems" :key="asset.id || asset.url" :disabled="Boolean(openingResource)" type="button" @click="openResource(asset)"><span class="resource-cover"><AppIcon :name="asset.type === 'video' ? 'play' : 'file'" :size="28" /></span><div><small>{{ resourceLabel(asset.category) }}</small><b>{{ asset.title || asset.original_name }}</b><p><template v-if="asset.folder">{{ asset.folder }} / </template>{{ asset.original_name }}</p></div><span class="open-label">{{ openingResource === (asset.id || asset.url) ? '打开中…' : '打开' }} <AppIcon name="chevron" :size="14" /></span></button></div>
-          <div v-else class="ios-empty large"><AppIcon name="library" :size="34" /><b>{{ resourceSearch ? '没有找到匹配资料' : '该分类暂无资料' }}</b><span>{{ resourceSearch ? '请尝试更短的关键词。' : '组长上传或 NAS 添加文件后会显示在这里。' }}</span></div>
+            <div v-else class="ios-empty large"><AppIcon name="library" :size="34" /><b>{{ resourceSearch ? '没有找到匹配资料' : '该分类暂无资料' }}</b><span>{{ resourceSearch ? '请尝试更短的关键词。' : '管理员发布资料后会显示在这里。' }}</span></div>
         </section>
 
         <section v-else-if="tab === 'profile'" class="ios-profile-page">
@@ -307,9 +308,10 @@ async function chooseCalendarDate(day) { if (!day || !calendar.value?.month) ret
     </main>
   </div>
 
-  <div v-if="calendar" class="modal-backdrop" @click.self="closeCalendar"><div class="calendar-modal" role="dialog" aria-modal="true" aria-labelledby="member-calendar-title"><div class="calendar-head"><div><small class="ios-kicker">MEMBER CALENDAR</small><h2 id="member-calendar-title">{{ calendar.member?.member_name || calendar.member?.display_name }}</h2><p>{{ calendar.month }} 打卡月历</p></div><button class="ios-secondary-button" type="button" @click="closeCalendar">关闭</button></div><div class="calendar-switcher"><button type="button" aria-label="上一个月" @click="openCalendarMonth(calendar.member,shiftMonth(calendar.month,-1))">‹</button><strong>{{ calendar.month }}</strong><button type="button" aria-label="下一个月" @click="openCalendarMonth(calendar.member,shiftMonth(calendar.month,1))">›</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div class="calendar-grid"><button v-for="(day,index) in calendarDays(calendar.month)" :key="index" class="calendar-day" :class="{ 'empty-day': !day, 'has-record': day && calendarItemMap.get(`${calendar.month}-${String(day).padStart(2,'0')}`)?.length }" :disabled="!day" :aria-label="day ? `${calendar.month}-${String(day).padStart(2,'0')}，${calendarItemMap.get(`${calendar.month}-${String(day).padStart(2,'0')}`)?.length || 0} 项打卡` : undefined" type="button" @click="chooseCalendarDate(day)"><template v-if="day"><b>{{ day }}</b><small>{{ calendarItemMap.get(`${calendar.month}-${String(day).padStart(2,'0')}`)?.length || 0 }} 项</small></template></button></div></div></div>
+  <div v-if="calendar" class="site-dialog-backdrop member-calendar-backdrop" @click.self="closeCalendar"><div class="calendar-modal" role="dialog" aria-modal="true" aria-labelledby="member-calendar-title"><div class="calendar-head"><div><small class="ios-kicker">MEMBER CALENDAR</small><h2 id="member-calendar-title">{{ calendar.member?.member_name || calendar.member?.display_name }}</h2><p>{{ calendar.month }} 打卡月历</p></div><button class="ios-secondary-button" type="button" @click="closeCalendar">关闭</button></div><div class="calendar-switcher"><button type="button" aria-label="上一个月" @click="openCalendarMonth(calendar.member,shiftMonth(calendar.month,-1))">‹</button><strong>{{ calendar.month }}</strong><button type="button" aria-label="下一个月" @click="openCalendarMonth(calendar.member,shiftMonth(calendar.month,1))">›</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div class="calendar-grid"><button v-for="(day,index) in calendarDays(calendar.month)" :key="index" class="calendar-day" :class="{ 'empty-day': !day, 'has-record': day && calendarItemMap.get(`${calendar.month}-${String(day).padStart(2,'0')}`)?.length }" :disabled="!day" :aria-label="day ? `${calendar.month}-${String(day).padStart(2,'0')}，${calendarItemMap.get(`${calendar.month}-${String(day).padStart(2,'0')}`)?.length || 0} 项打卡` : undefined" type="button" @click="chooseCalendarDate(day)"><template v-if="day"><b>{{ day }}</b><small>{{ calendarItemMap.get(`${calendar.month}-${String(day).padStart(2,'0')}`)?.length || 0 }} 项</small></template></button></div></div></div>
+  <SiteDialog />
 
-  <div v-if="networkBusy" class="ios-network-progress" role="progressbar" aria-label="正在同步数据"><span></span></div>
+  <div v-if="networkBusy" class="ios-network-progress" role="progressbar" aria-label="正在加载数据"><span></span></div>
   <div v-if="!online" class="ios-offline-banner" role="alert"><AppIcon name="warning" :size="17" />当前已离线，操作将在网络恢复后重试。</div>
   <Transition name="toast"><div v-if="toastMessage" class="ios-global-toast" role="status" aria-live="polite"><AppIcon name="check" :size="18" /><span>{{ toastMessage }}</span></div></Transition>
 </template>

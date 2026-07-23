@@ -2,13 +2,15 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import AppIcon from './AppIcon.vue';
+import AppDatePicker from './AppDatePicker.vue';
 import { useAppStateStore } from '../stores/appState';
+import { confirmDialog, promptDialog } from '../ui/dialog';
 import {
   addWeekBinding, api, applyBindingSelection, applyOutlineSelection, createWeekDraft,
   deleteWeekDraft, downloadAdminExport, importLocalBackupJSON, importStudyWeeksExcel,
   librarySelectionValue, loadAdminData, previewLibraryItem, removeMember, removeWeekBinding,
   reloadApp, restoreWeekDraftDefaults, saveLearningConfig, saveWeekDraft, selectWeekForEditing,
-  setAdminSection, setMemberAdmin, toast, updateLearningValue, updateWeekBinding,
+  setAdminSection, setMemberAdmin, setResourceLibraryVisibility, toast, updateLearningValue, updateWeekBinding,
   updateWeekDraftField, uploadLibraryFile,
 } from '../legacy-app';
 
@@ -57,6 +59,7 @@ const currentWeek = computed(() => weeks.value.find((week) => weekStatus(week) =
 const completedProfiles = computed(() => members.value.filter((item) => item.username).length);
 const activeGroupName = computed(() => groups.value.find((group) => Number(group.id) === Number(currentGroupID.value))?.name || '当前小组');
 const isReadOnlyAdmin = computed(() => !canEditLearning.value);
+const canManageResources = computed(() => Boolean(user.value?.is_super_admin || user.value?.roles?.some((role) => ['group_admin', 'group_leader'].includes(role))));
 const resourceTargetWeek = computed(() => {
   if (!weekDraft.value) return null;
   if (!weekDraft.value.id) return weekDraft.value;
@@ -193,6 +196,19 @@ async function uploadResource() {
   await withPending('upload-resource', () => uploadLibraryFile(uploadInput.value, uploadCategory.value));
 }
 
+async function toggleResourceVisibility(item) {
+  if (!canManageResources.value || !item?.resource_key) return;
+  const visible = !item.visible_in_library;
+  await withPending(`resource-visibility-${item.resource_key}`, async () => {
+    try {
+      await setResourceLibraryVisibility(item, visible);
+      toast(visible ? '已显示在成员资料库' : '已从成员资料库隐藏');
+    } catch (error) {
+      toast(`保存失败：${error.message}`);
+    }
+  });
+}
+
 function chooseLibrarySection(key) { activeLibraryKey.value = key; activeLibraryFolder.value = ''; resourceSearch.value = ''; }
 async function syncNASResources() {
   await withPending('sync-nas', async () => {
@@ -218,10 +234,10 @@ async function renameResourceFolder() {
   const section = activeLibrarySection.value;
   if (!section?.managed_root || !activeLibraryFolder.value) return;
   const currentName = activeLibraryFolder.value.split('/').pop();
-  const name = window.prompt('新的文件夹名称', currentName);
+  const name = await promptDialog({ title: '重命名文件夹', message: '请输入新的文件夹名称。已发布任务中的旧路径可能需要重新挂载。', defaultValue: currentName, confirmLabel: '确认重命名' });
   if (!name || name === currentName) return;
   const warning = `即将把“${activeLibraryFolder.value}”重命名为“${name}”。\n\n已发布任务如果保存了旧文件路径，重命名后可能无法打开，需要重新选择资源。确认继续吗？`;
-  if (!window.confirm(warning)) return;
+  if (!await confirmDialog({ title: '确认重命名文件夹', message: warning, confirmLabel: '继续重命名', tone: 'danger' })) return;
   await withPending('rename-folder', async () => {
     try {
       const data = await api('/admin/resource-folders', { method: 'PUT', body: JSON.stringify({ root: section.managed_root, path: activeLibraryFolder.value, name }) });
@@ -244,7 +260,7 @@ async function previewRoster() {
 
 async function importRoster() {
   const file = rosterInput.value?.files?.[0]; if (!file || !rosterPreview.value?.row_count) return;
-  if (!window.confirm(`确认将预览中的 ${rosterPreview.value.row_count} 个名单席位同步到系统吗？`)) return;
+  if (!await confirmDialog({ title: '同步报名名单', message: `确认将预览中的 ${rosterPreview.value.row_count} 个名单席位同步到系统吗？`, confirmLabel: '确认同步' })) return;
   await withPending('import-roster', async () => {
     try {
       const body = new FormData(); body.append('file', file);
@@ -275,7 +291,7 @@ async function runExport(path, name, message) {
 }
 async function runWeeksImport() {
   if (!studyWeeksInput.value?.files?.[0]) return toast('请先选择任务计划 Excel');
-  if (!window.confirm(`任务计划将导入“${activeGroupName.value}”，确认继续吗？`)) return;
+  if (!await confirmDialog({ title: '导入任务计划', message: `任务计划将导入“${activeGroupName.value}”，确认继续吗？`, confirmLabel: '开始导入' })) return;
   await withPending('import-weeks', async () => {
     try { await importStudyWeeksExcel(studyWeeksInput.value); await reloadApp(); await loadAdminData(true); }
     catch (error) { toast(error.message); }
@@ -283,8 +299,8 @@ async function runWeeksImport() {
 }
 async function runBackupImport() {
   if (!backupInput.value?.files?.[0]) return toast('请先选择完整备份 JSON');
-  if (!window.confirm(`完整备份将写入“${activeGroupName.value}”，并可能替换当前任务和打卡数据。确认进入最后确认吗？`)) return;
-  if (!window.confirm(`最后确认：立即恢复“${activeGroupName.value}”的完整备份？此操作无法在网页中撤销。`)) return;
+  if (!await confirmDialog({ title: '恢复完整备份', message: `完整备份将写入“${activeGroupName.value}”，并可能替换当前任务和打卡数据。`, confirmLabel: '进入最后确认', tone: 'danger' })) return;
+  if (!await confirmDialog({ title: '最后确认', message: `立即恢复“${activeGroupName.value}”的完整备份？此操作无法在网页中撤销。`, confirmLabel: '立即恢复', tone: 'danger' })) return;
   await withPending('import-backup', async () => {
     try {
       await importLocalBackupJSON(backupInput.value);
@@ -385,8 +401,8 @@ async function previewLegacyRestore() {
 async function confirmLegacyRestore() {
   if (!legacyPreview.value?.payload) return;
   const message = `将用旧网站数据替换“${activeGroupName.value}”的任务设置和打卡记录。\n\n任务：${legacyPreview.value.weeks} 周\n打卡明细：${legacyPreview.value.checkins} 条\n\n确认进入最后确认吗？`;
-  if (!window.confirm(message)) return;
-  if (!window.confirm(`最后确认：立即覆盖“${activeGroupName.value}”的任务设置和打卡记录？此操作无法在网页中撤销。`)) return;
+  if (!await confirmDialog({ title: '恢复旧网站数据', message, confirmLabel: '进入最后确认', tone: 'danger' })) return;
+  if (!await confirmDialog({ title: '最后确认', message: `立即覆盖“${activeGroupName.value}”的任务设置和打卡记录？此操作无法在网页中撤销。`, confirmLabel: '立即覆盖', tone: 'danger' })) return;
   await withPending('restore-legacy', async () => {
     try {
       await api('/admin/imports/local-backup', { method: 'POST', body: JSON.stringify(legacyPreview.value.payload), timeout: 15 * 60 * 1000 });
@@ -488,8 +504,8 @@ onBeforeUnmount(() => {
               <div class="panel-heading"><div><small>{{ weekDraft.id ? 'EDIT WEEK' : 'NEW WEEK' }}</small><h2>{{ weekDraft.id ? '编辑周任务' : '新建周任务' }}</h2></div></div>
               <div class="ios-form-grid">
                 <label class="span-2"><span>任务名称</span><input :disabled="!canEditLearning" :value="weekDraft.title || ''" placeholder="例如：马可福音（上）" @change="updateWeekDraftField('title', $event.target.value)" /></label>
-                <label><span>开始日期</span><input :disabled="!canEditLearning" type="date" :value="weekDraft.start || ''" @change="updateWeekDraftField('start', $event.target.value)" /></label>
-                <label><span>结束日期</span><input :disabled="!canEditLearning" type="date" :value="weekDraft.end || ''" @change="updateWeekDraftField('end', $event.target.value)" /></label>
+                <label><span>开始日期</span><AppDatePicker :disabled="!canEditLearning" :model-value="weekDraft.start || ''" label="选择开始日期" @update:model-value="updateWeekDraftField('start', $event)" /></label>
+                <label><span>结束日期</span><AppDatePicker :disabled="!canEditLearning" :model-value="weekDraft.end || ''" label="选择结束日期" @update:model-value="updateWeekDraftField('end', $event)" /></label>
               </div>
               <div v-if="validateWeekDates()" class="ios-form-error" role="alert">{{ validateWeekDates() }}</div>
 
@@ -503,7 +519,7 @@ onBeforeUnmount(() => {
               <footer class="ios-editor-actions"><button v-if="weekDraft.id" class="ios-danger-button" :disabled="!canEditLearning || !!pendingAction" type="button" @click="deleteWeekWithPending">{{ isPending('delete-week') ? '删除中…' : '删除任务' }}</button><button :disabled="!canEditLearning || !!pendingAction || !!validateWeekDates()" type="button" @click="saveWeekWithValidation">{{ isPending('save-week') ? '保存中…' : '保存周任务' }}</button></footer>
             </article>
 
-            <details class="ios-panel ios-daily-settings"><summary><div><small>DAILY SETTINGS</small><b>每日固定内容</b><span>灵修与读经规则通常只需设置一次</span></div><AppIcon name="chevron" /></summary><div class="ios-form-grid"><label><span>每日任务名称</span><input :disabled="!canEditLearning" :value="daily.label || ''" @change="updateLearning(['task_sections','daily','label'],$event.target.value)" /></label><label><span>灵修标题</span><input :disabled="!canEditLearning" :value="devotion.title || ''" @change="updateLearning(['task_sections','daily','devotion','title'],$event.target.value)" /></label><label><span>灵修起始日期</span><input :disabled="!canEditLearning" type="date" :value="devotion.numbered_start_date || ''" @change="updateLearning(['task_sections','daily','devotion','numbered_start_date'],$event.target.value)" /></label><label><span>灵修起始篇号</span><input :disabled="!canEditLearning" type="number" min="1" :value="devotion.numbered_start || 1" @change="updateLearning(['task_sections','daily','devotion','numbered_start'],Number($event.target.value || 1))" /></label><label><span>读经名称</span><input :disabled="!canEditLearning" :value="scripture.label || ''" @change="updateLearning(['task_sections','daily','scripture','label'],$event.target.value)" /></label><label><span>当前书卷</span><input :disabled="!canEditLearning" :value="scripture.book || ''" @change="updateLearning(['task_sections','daily','scripture','book'],$event.target.value)" /></label><label><span>读经起始日期</span><input :disabled="!canEditLearning" type="date" :value="scripture.start_date || ''" @change="updateLearning(['task_sections','daily','scripture','start_date'],$event.target.value)" /></label><label><span>起始章</span><input :disabled="!canEditLearning" type="number" min="1" :value="scripture.start_chapter || 1" @change="updateLearning(['task_sections','daily','scripture','start_chapter'],Number($event.target.value || 1))" /></label></div><footer class="ios-editor-actions"><button :disabled="!canEditLearning || !!pendingAction" type="button" @click="withPending('save-daily', saveLearningConfig)">{{ isPending('save-daily') ? '保存中…' : '保存每日设置' }}</button></footer></details>
+            <details class="ios-panel ios-daily-settings"><summary><div><small>DAILY SETTINGS</small><b>每日固定内容</b><span>灵修与读经规则通常只需设置一次</span></div><AppIcon name="chevron" /></summary><div class="ios-form-grid"><label><span>每日任务名称</span><input :disabled="!canEditLearning" :value="daily.label || ''" @change="updateLearning(['task_sections','daily','label'],$event.target.value)" /></label><label><span>灵修标题</span><input :disabled="!canEditLearning" :value="devotion.title || ''" @change="updateLearning(['task_sections','daily','devotion','title'],$event.target.value)" /></label><label><span>灵修起始日期</span><AppDatePicker :disabled="!canEditLearning" :model-value="devotion.numbered_start_date || ''" label="选择灵修起始日期" @update:model-value="updateLearning(['task_sections','daily','devotion','numbered_start_date'],$event)" /></label><label><span>灵修起始篇号</span><input :disabled="!canEditLearning" type="number" min="1" :value="devotion.numbered_start || 1" @change="updateLearning(['task_sections','daily','devotion','numbered_start'],Number($event.target.value || 1))" /></label><label><span>读经名称</span><input :disabled="!canEditLearning" :value="scripture.label || ''" @change="updateLearning(['task_sections','daily','scripture','label'],$event.target.value)" /></label><label><span>当前书卷</span><input :disabled="!canEditLearning" :value="scripture.book || ''" @change="updateLearning(['task_sections','daily','scripture','book'],$event.target.value)" /></label><label><span>读经起始日期</span><AppDatePicker :disabled="!canEditLearning" :model-value="scripture.start_date || ''" label="选择读经起始日期" @update:model-value="updateLearning(['task_sections','daily','scripture','start_date'],$event)" /></label><label><span>起始章</span><input :disabled="!canEditLearning" type="number" min="1" :value="scripture.start_chapter || 1" @change="updateLearning(['task_sections','daily','scripture','start_chapter'],Number($event.target.value || 1))" /></label></div><footer class="ios-editor-actions"><button :disabled="!canEditLearning || !!pendingAction" type="button" @click="withPending('save-daily', saveLearningConfig)">{{ isPending('save-daily') ? '保存中…' : '保存每日设置' }}</button></footer></details>
           </div>
         </div>
       </section>
@@ -515,15 +531,15 @@ onBeforeUnmount(() => {
       </section>
 
       <section v-else-if="adminSection === 'library'" class="ios-admin-page">
-        <header class="ios-page-heading heading-with-action"><div><small>LIBRARY</small><h1>学习资源</h1><p>从 NAS 同步目录，在网页中预览并选入周任务。</p></div><button class="ios-secondary-button" :disabled="!!pendingAction" type="button" @click="syncNASResources">{{ isPending('sync-nas') ? '同步中…' : '同步 NAS' }}</button></header>
+        <header class="ios-page-heading heading-with-action"><div><small>LIBRARY</small><h1>学习资源</h1><p>决定哪些资料展示给成员；周任务挂载是独立操作，不影响资料库可见性。</p></div><button class="ios-secondary-button" :disabled="!!pendingAction" type="button" @click="syncNASResources">{{ isPending('sync-nas') ? '同步中…' : '同步 NAS' }}</button></header>
         <article class="ios-upload-panel"><span class="upload-illustration"><AppIcon name="upload" :size="28" /></span><div><b>上传新资源</b><small>上传到网站资源库；不会写入下方选中的 NAS 文件夹</small></div><select v-model="uploadCategory" :disabled="!canEditLearning || !!pendingAction" aria-label="上传资源类型"><option value="book">PDF 读物</option><option value="markdown">Markdown</option><option value="handout">讲义</option><option value="outline">提纲图片</option></select><input ref="uploadInput" :disabled="!canEditLearning || !!pendingAction" aria-label="选择要上传的资源文件" type="file" /><button :disabled="!canEditLearning || !!pendingAction" type="button" @click="uploadResource">{{ isPending('upload-resource') ? '上传中…' : '上传' }}</button></article>
         <div class="ios-library-tabs"><button v-for="section in resourceLibrary" :key="section.key || section.label" :class="{ active: activeLibrarySection?.key === section.key }" :aria-pressed="activeLibrarySection?.key === section.key" type="button" @click="chooseLibrarySection(section.key)"><span>{{ section.label }}</span><small>{{ section.count || 0 }}</small></button></div>
         <section v-if="activeLibrarySection" class="ios-panel ios-file-browser">
-          <div class="file-browser-toolbar"><div><small>当前分类</small><h2>{{ activeLibrarySection.label }}</h2><small>选入目标：{{ resourceTargetLabel }}</small></div><div v-if="activeLibrarySection.managed_root && user?.is_super_admin" class="folder-create"><input v-model="newFolderName" :disabled="!!pendingAction" aria-label="新建 NAS 文件夹名称" placeholder="新文件夹名称" @keydown.enter.prevent="createResourceFolder" /><button class="ios-secondary-button" :disabled="!!pendingAction" type="button" @click="createResourceFolder">{{ isPending('create-folder') ? '创建中…' : '新建文件夹' }}</button></div></div>
+          <div class="file-browser-toolbar"><div><small>当前分类</small><h2>{{ activeLibrarySection.label }}</h2><small>先设置成员资料库可见性；需要时再挂载到 {{ resourceTargetLabel }}</small></div><div v-if="activeLibrarySection.managed_root && user?.is_super_admin" class="folder-create"><input v-model="newFolderName" :disabled="!!pendingAction" aria-label="新建 NAS 文件夹名称" placeholder="新文件夹名称" @keydown.enter.prevent="createResourceFolder" /><button class="ios-secondary-button" :disabled="!!pendingAction" type="button" @click="createResourceFolder">{{ isPending('create-folder') ? '创建中…' : '新建文件夹' }}</button></div></div>
           <div class="ios-form-grid"><label class="span-2"><span>搜索当前分类</span><input v-model.trim="resourceSearch" type="search" placeholder="输入标题、文件名或文件夹" /></label></div>
           <div v-if="activeLibrarySection.managed_root" class="ios-folder-strip"><button :class="{ active: !activeLibraryFolder }" type="button" @click="activeLibraryFolder = ''">全部文件</button><button v-for="folder in activeLibrarySection.folders || []" :key="folder.path" :class="{ active: activeLibraryFolder === folder.path }" type="button" @click="activeLibraryFolder = folder.path"><AppIcon name="library" :size="15" />{{ folder.path }}</button></div>
           <div v-if="activeLibraryFolder" class="folder-current"><span>当前文件夹：<b>{{ activeLibraryFolder }}</b></span><button v-if="user?.is_super_admin" class="ios-text-button" :disabled="!!pendingAction" type="button" @click="renameResourceFolder">{{ isPending('rename-folder') ? '重命名中…' : '重命名' }}</button></div>
-          <div v-if="visibleLibraryItems.length" class="ios-resource-list ios-scroll-resource-list"><div v-for="item in visibleLibraryItems" :key="item.id || item.url" class="ios-resource-row"><button class="resource-preview" type="button" @click="previewLibraryItem(item)"><span><AppIcon name="file" /></span><div><b>{{ item.title || item.original_name }}</b><small><template v-if="item.folder">{{ item.folder }} / </template>{{ item.original_name || '点击预览' }}</small></div></button><button class="ios-resource-use" :disabled="!canEditLearning || !!pendingAction" type="button" :aria-label="`将 ${item.title || item.original_name} 选入 ${resourceTargetLabel}`" @click="selectResourceForTask(item)">选入任务</button></div></div><div v-else class="ios-empty compact">{{ resourceSearch ? '没有匹配的资源，请更换关键词' : '当前文件夹暂无可用资源' }}</div>
+          <div v-if="visibleLibraryItems.length" class="ios-resource-list ios-scroll-resource-list"><div v-for="item in visibleLibraryItems" :key="item.resource_key || item.id || item.url" class="ios-resource-row"><button class="resource-preview" type="button" @click="previewLibraryItem(item)"><span><AppIcon name="file" /></span><div><b>{{ item.title || item.original_name }}</b><small><template v-if="item.folder">{{ item.folder }} / </template>{{ item.original_name || '点击预览' }}</small><em :class="{ visible: item.visible_in_library }">{{ item.visible_in_library ? '成员资料库已显示' : '成员资料库未显示' }}</em></div></button><div class="ios-resource-actions"><button :class="item.visible_in_library ? 'ios-secondary-button' : 'ios-resource-use'" :disabled="!canManageResources || !!pendingAction" type="button" @click="toggleResourceVisibility(item)">{{ isPending(`resource-visibility-${item.resource_key}`) ? '保存中…' : (item.visible_in_library ? '移出资料库' : '显示到资料库') }}</button><button class="ios-text-button" :disabled="!canEditLearning || !!pendingAction" type="button" :aria-label="`将 ${item.title || item.original_name} 挂载到 ${resourceTargetLabel}`" @click="selectResourceForTask(item)">挂载到周任务</button></div></div></div><div v-else class="ios-empty compact">{{ resourceSearch ? '没有匹配的资源，请更换关键词' : '当前文件夹暂无可用资源' }}</div>
         </section>
       </section>
 

@@ -271,6 +271,7 @@ func (a *app) routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/assets/{id}/range", a.auth(a.handleDownloadAssetRange))
 	mux.HandleFunc("POST /api/admin/assets/upload", a.auth(a.requireRole(roleGroupLeader, a.handleAdminUploadAsset)))
 	mux.HandleFunc("GET /api/admin/resource-library", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminResourceLibrary)))
+	mux.HandleFunc("PUT /api/admin/resource-library/visibility", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminResourceLibraryVisibility)))
 	mux.HandleFunc("POST /api/admin/resource-folders", a.auth(a.requireSuper(a.handleAdminCreateResourceFolder)))
 	mux.HandleFunc("PUT /api/admin/resource-folders", a.auth(a.requireSuper(a.handleAdminRenameResourceFolder)))
 	mux.HandleFunc("GET /api/admin/learning-config", a.auth(a.requireRole(roleGroupAdmin, a.handleAdminLearningConfig)))
@@ -1480,7 +1481,7 @@ func (a *app) handleAdminResourceLibrary(w http.ResponseWriter, r *http.Request)
 	if groupID == 0 {
 		return
 	}
-	sections, err := a.resourceLibrarySections(groupID)
+	sections, err := a.resourceLibrarySections(groupID, true)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "resource_library_failed")
 		return
@@ -1495,7 +1496,7 @@ func (a *app) handleResourceLibrary(w http.ResponseWriter, r *http.Request) {
 	if groupID == 0 {
 		return
 	}
-	sections, err := a.resourceLibrarySections(groupID)
+	sections, err := a.resourceLibrarySections(groupID, false)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "resource_library_failed")
 		return
@@ -1506,7 +1507,7 @@ func (a *app) handleResourceLibrary(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
 }
 
-func (a *app) resourceLibrarySections(groupID uint64) ([]map[string]any, error) {
+func (a *app) resourceLibrarySections(groupID uint64, includeHidden bool) ([]map[string]any, error) {
 	sections := []map[string]any{
 		a.scanStaticLibrarySection("markdown", "Markdown 读物", "", "/", []string{".md"}),
 		a.scanStaticLibrarySection("book", "PDF 读物", "Book", "/Book", []string{".pdf"}),
@@ -1519,7 +1520,113 @@ func (a *app) resourceLibrarySections(groupID uint64) ([]map[string]any, error) 
 		return nil, err
 	}
 	sections = append(sections, uploaded...)
+	visibility, err := a.resourceLibraryVisibility(groupID)
+	if err != nil {
+		return nil, err
+	}
+	for _, section := range sections {
+		items, _ := section["items"].([]map[string]any)
+		filtered := make([]map[string]any, 0, len(items))
+		for _, item := range items {
+			key := resourceLibraryKey(item)
+			item["resource_key"] = key
+			defaultVisible := asString(item["source"]) == "uploaded"
+			visible, configured := visibility[key]
+			if !configured {
+				visible = defaultVisible
+			}
+			item["visible_in_library"] = visible
+			if includeHidden || visible {
+				filtered = append(filtered, item)
+			}
+		}
+		section["items"] = filtered
+		section["count"] = len(filtered)
+	}
 	return sections, nil
+}
+
+func resourceLibraryKey(item map[string]any) string {
+	id, _ := item["id"].(uint64)
+	if id > 0 {
+		return fmt.Sprintf("asset:%d", id)
+	}
+	category := strings.ToLower(strings.TrimSpace(asString(item["category"])))
+	relative := strings.TrimSpace(asString(item["relative_path"]))
+	if relative != "" {
+		return "static:" + category + ":" + filepath.ToSlash(relative)
+	}
+	return "url:" + strings.TrimSpace(asString(item["url"]))
+}
+
+func (a *app) resourceLibraryVisibility(groupID uint64) (map[string]bool, error) {
+	rows, err := a.db.Query(`SELECT resource_key,visible FROM resource_library_visibility WHERE group_id=?`, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	result := map[string]bool{}
+	for rows.Next() {
+		var key string
+		var visible bool
+		if err := rows.Scan(&key, &visible); err != nil {
+			return nil, err
+		}
+		result[key] = visible
+	}
+	return result, rows.Err()
+}
+
+func (a *app) handleAdminResourceLibraryVisibility(w http.ResponseWriter, r *http.Request) {
+	u := mustUser(r)
+	groupID := requireGroupID(w, u)
+	if groupID == 0 {
+		return
+	}
+	var req struct {
+		ResourceKey string `json:"resource_key"`
+		Visible     bool   `json:"visible"`
+	}
+	if !readJSON(w, r, &req) {
+		return
+	}
+	req.ResourceKey = strings.TrimSpace(req.ResourceKey)
+	if req.ResourceKey == "" || len(req.ResourceKey) > 512 {
+		writeError(w, http.StatusBadRequest, "invalid_resource_key")
+		return
+	}
+	sections, err := a.resourceLibrarySections(groupID, true)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "resource_library_failed")
+		return
+	}
+	found := false
+	for _, section := range sections {
+		items, _ := section["items"].([]map[string]any)
+		for _, item := range items {
+			if asString(item["resource_key"]) == req.ResourceKey {
+				found = true
+				break
+			}
+		}
+		if found {
+			break
+		}
+	}
+	if !found {
+		writeError(w, http.StatusNotFound, "resource_not_found")
+		return
+	}
+	now := nowSQL()
+	_, err = a.db.Exec(`INSERT INTO resource_library_visibility (group_id,resource_key,visible,updated_by,created_at,updated_at)
+		VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE visible=VALUES(visible),updated_by=VALUES(updated_by),updated_at=VALUES(updated_at)`,
+		groupID, req.ResourceKey, req.Visible, u.ID, now, now)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "resource_visibility_save_failed")
+		return
+	}
+	a.audit(groupID, u.ID, "set_resource_library_visibility", "resource", 0, nil, map[string]any{"resource_key": req.ResourceKey, "visible": req.Visible}, r)
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "resource_key": req.ResourceKey, "visible": req.Visible})
 }
 
 func managedResourceRoot(contentRoot, key string) (string, string, error) {
