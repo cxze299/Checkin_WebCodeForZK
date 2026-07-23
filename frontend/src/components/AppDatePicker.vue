@@ -4,6 +4,7 @@ import AppIcon from './AppIcon.vue';
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
+  max: { type: String, default: '' },
   disabled: { type: Boolean, default: false },
   label: { type: String, default: '选择日期' },
 });
@@ -33,11 +34,14 @@ function shift(delta) {
 }
 function choose(day) {
   if (!day) return;
-  emit('update:modelValue', `${viewMonth.value}-${String(day).padStart(2, '0')}`);
+  const value = `${viewMonth.value}-${String(day).padStart(2, '0')}`;
+  if (props.max && value > props.max) return;
+  emit('update:modelValue', value);
   open.value = false;
 }
 function chooseToday() {
   const today = localDateString();
+  if (props.max && today > props.max) return;
   emit('update:modelValue', today);
   viewMonth.value = today.slice(0, 7);
   open.value = false;
@@ -55,7 +59,7 @@ function chooseToday() {
           <header><div><small>SELECT DATE</small><h2>{{ label }}</h2></div><button class="ios-text-button" type="button" @click="open = false">关闭</button></header>
           <div class="app-date-switcher"><button type="button" aria-label="上个月" @click="shift(-1)">‹</button><strong>{{ monthLabel }}</strong><button type="button" aria-label="下个月" @click="shift(1)">›</button></div>
           <div class="app-date-weekdays" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
-          <div class="app-date-grid"><button v-for="(day,index) in days" :key="index" :disabled="!day" :class="{ selected: day && `${viewMonth}-${String(day).padStart(2,'0')}` === modelValue, today: day && `${viewMonth}-${String(day).padStart(2,'0')}` === localDateString() }" type="button" @click="choose(day)">{{ day || '' }}</button></div>
+          <div class="app-date-grid"><button v-for="(day,index) in days" :key="index" :disabled="!day || (max && `${viewMonth}-${String(day).padStart(2,'0')}` > max)" :class="{ selected: day && `${viewMonth}-${String(day).padStart(2,'0')}` === modelValue, today: day && `${viewMonth}-${String(day).padStart(2,'0')}` === localDateString() }" type="button" @click="choose(day)">{{ day || '' }}</button></div>
           <footer><button class="ios-secondary-button" type="button" @click="chooseToday">今天</button><button v-if="modelValue" class="ios-text-button" type="button" @click="emit('update:modelValue',''); open = false">清除</button></footer>
         </section>
       </div>

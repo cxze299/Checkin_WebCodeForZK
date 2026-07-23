@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCheckinWorkbenchStore } from '../stores/checkinWorkbench';
+import AppDatePicker from './AppDatePicker.vue';
 import { openTaskContent, setSelectedDate, shiftSelectedDate, toggleCheckin } from '../legacy-app';
 import { confirmDialog } from '../ui/dialog';
 
@@ -96,12 +97,11 @@ function taskSubtitle(task) {
         </div>
         <div class="date-controls workbench-date-controls" aria-label="选择打卡日期">
           <button class="secondary" type="button" aria-label="查看前一天" @click="shiftSelectedDate(-1)">‹</button>
-          <input
-            type="date"
-            :value="selectedDate"
+          <AppDatePicker
+            :model-value="selectedDate"
             :max="maxDate"
-            aria-label="打卡日期"
-            @change="setSelectedDate($event.target.value)"
+            label="选择打卡日期"
+            @update:model-value="setSelectedDate"
           />
           <button class="secondary" type="button" :disabled="isToday" aria-label="查看后一天" @click="shiftSelectedDate(1)">›</button>
           <button v-if="!isToday" class="ghost" type="button" @click="setSelectedDate(maxDate)">回到今天</button>
@@ -212,7 +212,7 @@ function taskSubtitle(task) {
     width: 100%;
   }
 
-  .workbench-date-controls input {
+  .workbench-date-controls :deep(.app-date-field) {
     min-width: 0;
   }
 

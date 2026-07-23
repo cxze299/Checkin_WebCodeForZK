@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useDashboardStore } from '../stores/dashboard';
+import AppDatePicker from './AppDatePicker.vue';
 import { openMemberCalendar, setSelectedDate, shiftSelectedDate, toast, toggleCheckin } from '../legacy-app';
 import { confirmDialog } from '../ui/dialog';
 
@@ -215,51 +216,44 @@ async function exportRankingChart() {
         </div>
         <div class="date-controls dashboard-date-controls" aria-label="选择统计日期">
           <button class="secondary" type="button" aria-label="查看前一天" @click="shiftSelectedDate(-1)">‹</button>
-          <input
-            type="date"
-            :value="selectedDate"
+          <AppDatePicker
+            :model-value="selectedDate"
             :max="maxDate"
-            aria-label="统计日期"
-            @change="setSelectedDate($event.target.value)"
+            label="选择统计日期"
+            @update:model-value="setSelectedDate"
           />
           <button class="secondary" type="button" :disabled="isToday" aria-label="查看后一天" @click="shiftSelectedDate(1)">›</button>
           <button v-if="!isToday" class="ghost" type="button" @click="setSelectedDate(maxDate)">回到今天</button>
         </div>
-        <div class="today-score" role="status" :aria-label="hasTasks ? `小组完成率 ${overallPercent}%` : '所选日期暂无任务'">
-          <strong>{{ hasTasks ? `${overallPercent}%` : '—' }}</strong>
-          <span>{{ hasTasks ? '小组完成率' : '暂无任务' }}</span>
+      </section>
+
+      <section class="dashboard-overview" aria-labelledby="dashboard-overview-title">
+        <div class="overview-primary">
+          <span class="overview-kicker">{{ selectedDayLabel }}概览</span>
+          <div class="overview-rate">
+            <strong>{{ hasTasks ? `${overallPercent}%` : '—' }}</strong>
+            <div><h2 id="dashboard-overview-title">小组完成率</h2><p>{{ hasTasks ? `已完成 ${doneSlots} / ${totalSlots} 项任务` : '所选日期没有安排任务' }}</p></div>
+          </div>
+          <div class="overview-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="hasTasks ? overallPercent : 0">
+            <span :style="{ width: `${hasTasks ? overallPercent : 0}%` }"></span>
+          </div>
+        </div>
+        <div class="overview-metrics">
+          <article><span>小组成员</span><strong>{{ memberCount }}</strong><small>当前小组</small></article>
+          <article><span>完成项目</span><strong>{{ doneSlots }}</strong><small>{{ selectedDayLabel }}累计</small></article>
+          <article><span>我的进度</span><strong>{{ completed }}/{{ taskCount }}</strong><small>{{ !taskCount ? '暂无任务' : (completed === taskCount ? '已经完成' : '继续坚持') }}</small></article>
         </div>
       </section>
 
-      <div class="grid cols-4 dashboard-strip">
-        <div class="card stat compact-stat">
-          <span class="stat-title">小组完成率</span>
-          <strong>{{ hasTasks ? `${overallPercent}%` : '—' }}</strong>
-          <span class="stat-note">{{ hasTasks ? `${doneSlots}/${totalSlots}` : '无需统计' }}</span>
+      <section class="daily-progress-section">
+        <div class="section-title dashboard-section-title">
+          <div><span>DAILY PROGRESS</span><h2>{{ selectedDayLabel }}打卡进度</h2></div>
+          <p>点击成员头像可查看个人月历</p>
         </div>
-        <div class="card stat compact-stat">
-          <span class="stat-title">小组成员</span>
-          <strong>{{ memberCount }}</strong>
-          <span class="stat-note">当前小组</span>
-        </div>
-        <div class="card stat compact-stat">
-          <span class="stat-title">已完成项</span>
-          <strong>{{ doneSlots }}</strong>
-          <span class="stat-note">{{ hasTasks ? `${selectedDayLabel}全组任务` : `${selectedDayLabel}暂无任务` }}</span>
-        </div>
-        <div class="card stat compact-stat">
-          <span class="stat-title">我的任务</span>
-          <strong>{{ completed }}/{{ taskCount }}</strong>
-          <span class="stat-note">{{ !taskCount ? '暂无任务' : (completed === taskCount ? '全部完成' : '继续完成') }}</span>
-        </div>
-      </div>
-
-      <section>
-        <div class="section-title">
-          <h2>{{ selectedDayLabel }}小组打卡情况</h2>
-        </div>
-        <div v-if="hasTasks" class="group-dashboard">
-          <div class="task-progress-row">
+        <div v-if="hasTasks" class="dashboard-daily-layout">
+          <aside class="task-progress-panel">
+            <div class="subsection-heading"><b>任务完成情况</b><small>按任务查看全组进度</small></div>
+            <div class="task-progress-row">
             <div v-for="card in progressCards" :key="`${card.task.type}:${card.task.part || ''}:${card.title}`" class="task-progress-card">
               <div class="task-progress-head">
                 <span>{{ card.icon }}</span>
@@ -271,7 +265,9 @@ async function exportRankingChart() {
               <small>{{ card.count }}/{{ card.total }}</small>
             </div>
           </div>
-
+          </aside>
+          <div class="member-progress-panel">
+            <div class="subsection-heading"><b>成员状态</b><small>{{ memberCount }} 位成员</small></div>
           <div class="member-checkin-grid">
             <div v-for="member in members" :key="member.user_id" class="member-check-card">
               <div class="member-main">
@@ -303,47 +299,30 @@ async function exportRankingChart() {
               </div>
             </div>
           </div>
+          </div>
         </div>
         <div v-else class="empty dashboard-empty"><b>{{ selectedDayLabel }}没有安排任务</b><span>该日期无需统计或补卡；如有疑问，请联系组长确认。</span></div>
       </section>
 
       <section class="stats-center">
-        <div class="stats-center-head">
+        <div class="growth-heading">
           <div>
-            <div class="eyebrow">Statistics Center</div>
-            <h2>📊 {{ groupName || '当前小组' }}数据统计中心</h2>
-            <p class="muted">{{ monthLabel }}分项总榜按灵修、书籍、视频和背经累计打卡次数排序。</p>
+            <span>MONTHLY GROWTH</span>
+            <h2>本月成长</h2>
+            <p>{{ monthLabel }} · 按灵修、书籍、视频和背经累计完成次数</p>
           </div>
-          <div class="stats-center-tags">
-            <button class="secondary" type="button" :disabled="exporting || !ranking.length" @click="exportRankingChart">{{ exporting ? '正在生成…' : '导出柱状图 PNG' }}</button>
-            <span class="stats-tag active">🏆 分项总榜</span>
-            <span class="stats-tag">🗓 统计范围 {{ monthLabel }}</span>
-            <span class="stats-tag">🔥 活跃成员 {{ activeCount }}人</span>
-            <span class="stats-tag">🎨 灵修 / 书籍 / 视频 / 背经</span>
-          </div>
+          <button class="ios-secondary-button" type="button" :disabled="exporting || !ranking.length" @click="exportRankingChart">{{ exporting ? '正在生成…' : '导出图表' }}</button>
         </div>
 
-        <div class="grid cols-3 stats-mini-cards">
-          <div class="card stat compact-stat">
-            <span class="stat-title">分项总榜</span>
-            <strong>{{ leaderName }}</strong>
-            <span class="stat-note">{{ leaderNote }}</span>
-          </div>
-          <div class="card stat compact-stat">
-            <span class="stat-title">统计范围</span>
-            <strong>{{ monthLabel }}</strong>
-            <span class="stat-note">{{ rankingFrom }} 至 {{ rankingTo }}</span>
-          </div>
-          <div class="card stat compact-stat">
-            <span class="stat-title">活跃成员</span>
-            <strong>{{ activeCount }}人</strong>
-            <span class="stat-note">本月至少完成 1 次打卡</span>
-          </div>
+        <div class="growth-summary">
+          <article><span>本月领先</span><strong>{{ leaderName }}</strong><small>{{ leaderNote }}</small></article>
+          <article><span>活跃成员</span><strong>{{ activeCount }} 人</strong><small>本月至少完成 1 次</small></article>
+          <article><span>统计周期</span><strong>{{ monthLabel }}</strong><small>{{ rankingFrom }} 至 {{ rankingTo }}</small></article>
         </div>
 
         <div v-if="ranking.length" class="bar-chart-card">
           <div class="bar-chart-meta">
-            <strong>分项总榜</strong>
+            <div><strong>成员完成构成</strong><small>柱形高度代表本月累计完成次数</small></div>
             <div class="bar-legend">
               <span v-for="item in legend" :key="item.key" class="legend-item" :class="`legend-${item.key}`">
                 <i></i>
@@ -394,6 +373,221 @@ async function exportRankingChart() {
 </template>
 
 <style scoped>
+.dashboard-overview {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.05fr) minmax(0, 1.95fr);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.85);
+  border-radius: 30px;
+  background: rgba(255,255,255,.76);
+  box-shadow: var(--shadow-card);
+}
+
+.overview-primary {
+  display: grid;
+  align-content: center;
+  gap: 15px;
+  padding: 26px;
+  background: linear-gradient(145deg, rgba(10,132,255,.13), rgba(139,92,246,.08));
+}
+
+.overview-kicker,
+.dashboard-section-title span,
+.growth-heading span {
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .12em;
+}
+
+.overview-rate {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.overview-rate > strong {
+  min-width: 108px;
+  font-size: clamp(44px, 5vw, 68px);
+  line-height: .9;
+  letter-spacing: -.075em;
+}
+
+.overview-rate h2,
+.overview-rate p {
+  margin: 0;
+}
+
+.overview-rate h2 {
+  font-size: 18px;
+}
+
+.overview-rate p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.overview-progress {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+}
+
+.overview-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0a84ff, #8b5cf6);
+}
+
+.overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  padding: 18px;
+}
+
+.overview-metrics article,
+.growth-summary article {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  padding: 18px 22px;
+  border-right: 1px solid var(--line);
+}
+
+.overview-metrics article:last-child,
+.growth-summary article:last-child {
+  border-right: 0;
+}
+
+.overview-metrics span,
+.growth-summary span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.overview-metrics strong,
+.growth-summary strong {
+  overflow: hidden;
+  font-size: 27px;
+  letter-spacing: -.05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-metrics small,
+.growth-summary small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-section-title {
+  align-items: end;
+}
+
+.dashboard-section-title > div {
+  display: grid;
+  gap: 5px;
+}
+
+.dashboard-section-title p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.dashboard-daily-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, .72fr) minmax(0, 1.8fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.task-progress-panel,
+.member-progress-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 28px;
+  background: rgba(255,255,255,.68);
+  box-shadow: var(--shadow-card);
+}
+
+.subsection-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.subsection-heading b {
+  font-size: 16px;
+}
+
+.subsection-heading small {
+  color: var(--muted);
+}
+
+.task-progress-row {
+  grid-template-columns: 1fr;
+}
+
+.member-checkin-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.growth-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.growth-heading > div {
+  display: grid;
+  gap: 5px;
+}
+
+.growth-heading h2,
+.growth-heading p {
+  margin: 0;
+}
+
+.growth-heading h2 {
+  font-size: 26px;
+  letter-spacing: -.05em;
+}
+
+.growth-heading p {
+  color: var(--muted);
+}
+
+.growth-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 24px;
+  background: rgba(255,255,255,.62);
+}
+
+.bar-chart-meta > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.bar-chart-meta small {
+  color: var(--muted);
+}
+
 .member-task-chip.pending {
   cursor: wait;
 }
@@ -407,13 +601,62 @@ async function exportRankingChart() {
 }
 
 @media (max-width: 620px) {
+  .dashboard-overview,
+  .dashboard-daily-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-primary {
+    padding: 22px;
+  }
+
+  .overview-metrics,
+  .growth-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-metrics article,
+  .growth-summary article {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 14px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .overview-metrics article:last-child,
+  .growth-summary article:last-child {
+    border-bottom: 0;
+  }
+
+  .overview-metrics strong,
+  .growth-summary strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    font-size: 22px;
+  }
+
+  .member-checkin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-section-title,
+  .growth-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .growth-heading button {
+    width: 100%;
+  }
+
   .dashboard-date-controls {
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr) 44px;
     width: 100%;
   }
 
-  .dashboard-date-controls input {
+  .dashboard-date-controls :deep(.app-date-field) {
     min-width: 0;
   }
 
